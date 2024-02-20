@@ -6,7 +6,7 @@ $texto = $_POST['texto'];
 $nombre_archivo = $_POST['archivo'];
 
 // Definir la ruta de la carpeta upd
-$ruta = DIR . "/upd/";
+$ruta = __DIR__ . "/upd/";
 
 // Comprobar si la carpeta existe, y si no, crearla
 if (!is_dir($ruta)) {
