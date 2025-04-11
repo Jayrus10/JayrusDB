@@ -1,19 +1,19 @@
-// Funci髇 para obtener los datos del archivo JSON
+// Funci贸n para obtener los datos del archivo JSON
 async function obtenerDatosJSON() {
     try {
-        const respuesta = await fetch('com.jayrus10.revolutionradio/server_state.json'); // Reemplaza 'datos.json' con la ruta real a tu archivo JSON
+        const respuesta = await fetch('server_state.json'); // Reemplaza 'datos.json' con la ruta real a tu archivo JSON
         const datos = await respuesta.json();
         
-        // Actualiza el enlace de descarga en la p醙ina
+        // Actualiza el enlace de descarga en la p谩gina
         document.getElementById('enlace-descarga').href = datos.url_descarga;
         
-        // Muestra la versi髇 disponible
-        document.getElementById('version-numero').innerText = `Versi髇 ${datos.version_disponible}`;
+        // Muestra la versi贸n disponible
+        document.getElementById('version-numero').innerText = `Versi贸n ${datos.version_disponible}`;
         
     } catch (error) {
         console.error('Error al cargar el archivo JSON:', error);
     }
 }
 
-// Llama a la funci髇 al cargar la p醙ina
+// Llama a la funci贸n al cargar la p谩gina
 document.addEventListener('DOMContentLoaded', obtenerDatosJSON);
