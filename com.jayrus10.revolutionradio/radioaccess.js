@@ -1,7 +1,7 @@
 // Función para obtener los datos del archivo JSON
 async function obtenerDatosJSON() {
     try {
-        const respuesta = await fetch('server_state.json'); // Reemplaza 'datos.json' con la ruta real a tu archivo JSON
+        const respuesta = await fetch('https://jayrus10.github.io/JayrusDB/com.jayrus10.revolutionradio/server_state.json'); // Reemplaza 'datos.json' con la ruta real a tu archivo JSON
         const datos = await respuesta.json();
         
         // Actualiza el enlace de descarga en la página
