@@ -2,7 +2,7 @@
   "closed":true,
   "closed_info":"Sin información sobre el motivo del cierre por parte del desarrollador.",
   "m_mode":false,
-  "m_info":"Se estan haciendo ajustes en el servidor y no es posible continuar usando la aplicación por el momento. Por favor sea paciente, generalmente solo dura una hora como máximo.",
+  "m_info":"Se estan haciendo ajustes en el servidor y no es posible continuar usando la aplicación por el momento. Por favor sea paciente, generalmente esto solo dura una hora como máximo. Un saludo.",
   "api_url":"https://fi1.api.radio-browser.info",
   "notas_de_la_version":"-Nombre de la app cambiado a RadioAccess\n-Nuevas estaciones\n-Muchos errores solucionados\n-Mejoras en la interfaz de usuario.\n-Filtros de busqueda agregados.",
   "url_descarga":"https://jayrus10.github.io/JayrusDB/com.jayrus10.revolutionradio/pkg/radioaccess_115.apk",
