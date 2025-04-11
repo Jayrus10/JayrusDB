@@ -34,20 +34,20 @@ main {
 
 /* Logo */
 #logo {
-    width: 200px; /* Tama駉 del logo m醩 grande */
+    width: 200px; /* Tama帽o del logo m谩s grande */
     height: auto;
-    margin-bottom: 20px; /* Espacio entre el logo y el texto */
+    margin-bottom: 10px; /* Espacio entre el logo y el texto */
 }
 
 /* Enlace de descarga */
 .contenido a {
     text-decoration: none; /* Quitar subrayado del enlace */
     color: white; /* Texto blanco */
-    background-color: #E61345; /* Color primario para el bot髇 */
-    padding: 10px 20px; /* Espacio interno para que parezca un bot髇 */
-    border-radius: 5px; /* Bordes redondeados para el bot髇 */
+    background-color: #E61345; /* Color primario para el bot贸n */
+    padding: 10px 20px; /* Espacio interno para que parezca un bot贸n */
+    border-radius: 5px; /* Bordes redondeados para el bot贸n */
     font-weight: bold; /* Texto en negrita */
-    transition: background-color 0.3s, color 0.3s; /* Transici髇 suave */
+    transition: background-color 0.3s, color 0.3s; /* Transici贸n suave */
 }
 
 .contenido a:hover {
