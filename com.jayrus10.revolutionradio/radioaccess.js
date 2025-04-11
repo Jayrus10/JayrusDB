@@ -8,7 +8,7 @@ async function obtenerDatosJSON() {
         document.getElementById('enlace-descarga').href = datos.url_descarga;
         
         // Muestra la versión disponible
-        document.getElementById('version-numero').innerText = `Versión ${datos.version_disponible}`;
+        document.getElementById('version-numero').innerText = `Versi&oacute;n: ${datos.version_disponible}`;
         
     } catch (error) {
         console.error('Error al cargar el archivo JSON:', error);
