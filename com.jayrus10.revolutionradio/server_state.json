@@ -1,1 +1,9 @@
-{"version_disponible":115,"api_url":"https://fi1.api.radio-browser.info","notas_de_la_version":"-Nombre de la app cambiado a RadioAccess\n-Nuevas estaciones\n-Muchos errores solucionados\n-Mejoras en la interfaz de usuario.","url_descarga":"https://jayrus10.github.io/JayrusDB/com.jayrus10.revolutionradio/pkg/radioaccess_115.apk","tamaño":"2.79 Mb"}
+{"version_disponible":115,
+  "closed":false,
+  "closed_info":"Sin información, sobre el motivo del cierre.",
+  "m_mode":false,
+  "m_info":"Se estan haciendo ajustes en el servidor y no es posible continuar usando la aplicación por el momento. Por favor sea paciente, generalmente solo dura una hora como máximo.",
+  "api_url":"https://fi1.api.radio-browser.info",
+  "notas_de_la_version":"-Nombre de la app cambiado a RadioAccess\n-Nuevas estaciones\n-Muchos errores solucionados\n-Mejoras en la interfaz de usuario.\n-Filtros de busqueda agregados.",
+  "url_descarga":"https://jayrus10.github.io/JayrusDB/com.jayrus10.revolutionradio/pkg/radioaccess_115.apk",
+  "tamaño":"2.79 Mb"}
