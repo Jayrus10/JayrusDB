@@ -1,0 +1,252 @@
+<!DOCTYPE html><html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Duración de Batería</title>
+  <style>
+    :root {
+      --color-fondo-claro: #f4f6fa;
+      --color-fondo-oscuro: #0f0f10;
+      --color-texto-claro: #1b1b1b;
+      --color-texto-oscuro: #f9f9f9;
+      --color-tarjeta-claro: #ffffff;
+      --color-tarjeta-oscuro: #1e1e1f;
+      --color-entrada-claro: #f0f2f5;
+      --color-entrada-oscuro: #2b2b2c;
+      --color-borde: #d6d6d6;
+      --color-alerta: #ff3b3b;
+      --color-primario: #0d6efd;
+      --color-hover: #084298;
+    }@media (prefers-color-scheme: dark) {
+  body {
+    background-color: var(--color-fondo-oscuro);
+    color: var(--color-texto-oscuro);
+  }
+  .container {
+    background-color: var(--color-tarjeta-oscuro);
+  }
+  input {
+    background-color: var(--color-entrada-oscuro);
+    color: var(--color-texto-oscuro);
+    border: 1px solid #555;
+  }
+  button {
+    color: white;
+  }
+  table {
+    color: white;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  body {
+    background-color: var(--color-fondo-claro);
+    color: var(--color-texto-claro);
+  }
+  .container {
+    background-color: var(--color-tarjeta-claro);
+  }
+  input {
+    background-color: var(--color-entrada-claro);
+    color: var(--color-texto-claro);
+    border: 1px solid var(--color-borde);
+  }
+}
+
+body {
+  font-family: 'SamsungOne', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+}
+
+.container {
+  border-radius: 25px;
+  padding: 2rem;
+  width: 95%;
+  max-width: 500px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+  border: 1px solid var(--color-borde);
+  animation: fadeIn 0.6s ease;
+  margin-top: 2rem;
+}
+
+@keyframes fadeIn {
+  from {opacity: 0; transform: translateY(20px);}
+  to {opacity: 1; transform: translateY(0);}
+}
+
+.logo {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1rem auto;
+  display: block;
+}
+
+h2 {
+  text-align: center;
+  color: var(--color-primario);
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+}
+
+label {
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  display: block;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+input {
+  display: block;
+  margin: 0 auto 1.2rem auto;
+  padding: 0.9rem;
+  font-size: 1rem;
+  border-radius: 15px;
+  outline: none;
+  width: 80%;
+  transition: 0.3s;
+}
+
+input:focus {
+  border-color: var(--color-primario);
+}
+
+button {
+  display: block;
+  margin: 0 auto;
+  width: 80%;
+  padding: 1rem;
+  font-size: 1rem;
+  background-color: var(--color-primario);
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-weight: bold;
+}
+
+button:hover {
+  background-color: var(--color-hover);
+}
+
+.resultado {
+  margin-top: 1.5rem;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.alerta {
+  background-color: #fff1f0;
+  border: 1px solid var(--color-alerta);
+  color: var(--color-alerta);
+  padding: 0.8rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.tabla-dispositivos {
+  margin-top: 2rem;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  overflow: hidden;
+  border-radius: 15px;
+}
+
+.tabla-dispositivos th, .tabla-dispositivos td {
+  padding: 0.6rem;
+  border: 1px solid var(--color-borde);
+  text-align: left;
+}
+
+.tabla-dispositivos th {
+  background-color: var(--color-primario);
+  color: white;
+}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <svg class="logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M13 2L3 14H12L11 22L21 10H13L13 2Z" fill="#0d6efd"/>
+    </svg><h2>🔋 Duración de Batería</h2>
+
+<label for="voltaje">Voltaje de la batería (V)</label>
+<input type="number" id="voltaje" value="12">
+
+<label for="amperios">Capacidad (Ah)</label>
+<input type="number" id="amperios" value="200">
+
+<label for="consumo">Consumo total en watts (W)</label>
+<input type="number" id="consumo" value="226">
+
+<label for="uso">% de uso de batería (recomendado 50%)</label>
+<input type="number" id="uso" value="50">
+
+<label for="eficiencia">Eficiencia del inversor (%)</label>
+<input type="number" id="eficiencia" value="85">
+
+<button onclick="calcularDuracion()">Calcular duración</button>
+
+<div class="alerta" id="alerta" style="display: none;"></div>
+<div class="resultado" id="resultado"></div>
+
+<h3 style="text-align:center; margin-top:2rem;">📋 Dispositivos comunes y su consumo</h3>
+<table class="tabla-dispositivos">
+  <thead>
+    <tr>
+      <th>Dispositivo</th>
+      <th>Consumo (W)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>TV LED 32"</td><td>60</td></tr>
+    <tr><td>Ventilador pequeño</td><td>50</td></tr>
+    <tr><td>Ventilador grande</td><td>100</td></tr>
+    <tr><td>Bombilla LED</td><td>9</td></tr>
+    <tr><td>Cargador de móvil</td><td>10</td></tr>
+    <tr><td>Laptop</td><td>100</td></tr>
+    <tr><td>Refrigerador</td><td>800</td></tr>
+    <tr><td>Microondas</td><td>1500</td></tr>
+    <tr><td>Secador de pelo</td><td>1200</td></tr>
+    <tr><td>Plancha</td><td>2000</td></tr>
+    <tr><td>Consola de videojuegos</td><td>150</td></tr>
+    <tr><td>Router WiFi</td><td>10</td></tr>
+  </tbody>
+</table>
+
+  </div>  <script>
+    function calcularDuracion() {
+      const V = parseFloat(document.getElementById('voltaje').value);
+      const Ah = parseFloat(document.getElementById('amperios').value);
+      const W = parseFloat(document.getElementById('consumo').value);
+      const uso = parseFloat(document.getElementById('uso').value);
+      const eficiencia = parseFloat(document.getElementById('eficiencia').value);
+
+      const usoReal = uso / 100;
+      const eficienciaReal = eficiencia / 100;
+
+      const energiaUtil = V * Ah * usoReal * eficienciaReal;
+      const horas = energiaUtil / W;
+
+      const resultado = document.getElementById('resultado');
+      resultado.textContent = `🔌 Duración estimada: ${horas.toFixed(2)} horas`;
+
+      const alerta = document.getElementById('alerta');
+      if (uso > 50) {
+        alerta.style.display = 'block';
+        alerta.textContent = "⚠️ Estás usando más del 50% de la batería. Esto puede acortar su vida útil si es de plomo-ácido.";
+      } else {
+        alerta.style.display = 'none';
+      }
+    }
+  </script></body>
+          </html>
