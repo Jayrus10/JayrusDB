@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RadioAccess</title>
+    <link rel="stylesheet" href="css/colors.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <img src="assets/logo.png" alt="RadioAccess Logo" class="logo">
+        <h1>RadioAccess</h1>
+        <div class="theme-toggle" id="themeToggle">馃寵</div>
+    </header>
+
+    <section class="controls">
+        <input type="text" id="searchInput" placeholder="Buscar estaci贸n...">
+        <select id="countrySelect"></select>
+        <select id="languageSelect"></select>
+        <select id="tagSelect"></select>
+        <button id="searchBtn">Buscar</button>
+    </section>
+
+    <section class="stations" id="stationsList">
+        <p class="loading">Cargando emisoras...</p>
+    </section>
+
+    <footer>
+        <p>馃摶 RadioAccess - Conectando el mundo a trav茅s de la m煤sica</p>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
