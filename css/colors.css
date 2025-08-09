@@ -1,0 +1,20 @@
+:root {
+    --primary-color: #E61345;
+    --secondary-color: #1C232B;
+
+    --bg-color-light: #ffffff;
+    --text-color-light: #1C232B;
+
+    --bg-color-dark: #1C232B;
+    --text-color-dark: #ffffff;
+}
+
+[data-theme="light"] {
+    --bg-color: var(--bg-color-light);
+    --text-color: var(--text-color-light);
+}
+
+[data-theme="dark"] {
+    --bg-color: var(--bg-color-dark);
+    --text-color: var(--text-color-dark);
+}
