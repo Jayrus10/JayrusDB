@@ -10,9 +10,9 @@
         html, body { width: 100%; height: 100%; overflow: hidden; }
         body { font-family: system-ui, sans-serif; }
 
-        /* Section transitions */
-        .section { opacity: 0; transform: translateY(8px); transition: opacity .28s ease, transform .28s ease; visibility: hidden; }
-        .active { opacity: 1; transform: translateY(0); visibility: visible; }
+        /* Section transitions - smooth fade in/out without shift */
+        .section { opacity: 0; transition: opacity .32s ease; visibility: hidden; pointer-events: none; }
+        .active { opacity: 1; visibility: visible; pointer-events: auto; }
 
         /* Smooth buttons and cards */
         button { transition: transform .12s ease, background-color .12s ease, color .12s ease; }
@@ -64,9 +64,9 @@
             .grid-cols-2 { grid-template-columns: 1fr !important; }
         }
 
-        /* Modal content animation (fade/slide) */
-        div[id^="modal"] > div { transition: transform .28s ease, opacity .28s ease; transform: translateY(8px); opacity: 0; }
-        div[id^="modal"]:not(.hidden) > div { transform: translateY(0); opacity: 1; }
+        /* Modal content animation - smooth fade, slight scale up */
+        div[id^="modal"] > div { transition: transform .32s cubic-bezier(0.34, 1.56, 0.64, 1), opacity .32s ease; transform: scale(0.95); opacity: 0; }
+        div[id^="modal"]:not(.hidden) > div { transform: scale(1); opacity: 1; }
 
         /* Scrollbar styling */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -78,10 +78,17 @@
 <body class="bg-zinc-950 text-zinc-100">
 
     <!-- LOGIN -->
-    <div id="loginPage" class="min-h-screen flex items-center justify-center bg-zinc-950 p-4">
+    <div id="loginPage" class="min-h-screen flex flex-col items-center justify-center bg-zinc-950 p-4">
+        <div class="mb-12 text-center">
+            <div class="flex items-center justify-center gap-3 mb-2">
+                <div class="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center font-bold text-lg text-white">MT</div>
+            </div>
+            <h1 class="text-4xl font-bold text-emerald-500">MiTienda</h1>
+            <p class="text-zinc-400 text-sm mt-2">Gestor de inventario local</p>
+        </div>
         <div class="w-full max-w-md">
             <div class="bg-zinc-900 p-8 rounded-2xl">
-                <h1 class="text-3xl font-bold mb-8 text-center">Bienvenido</h1>
+                <h2 class="text-3xl font-bold mb-8 text-center">Bienvenido</h2>
                 <input id="loginUser" placeholder="Tu nombre" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 mb-6" onkeypress="if(event.key==='Enter') handleLogin()">
                 <button onclick="handleLogin()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-lg font-medium mb-6">Ingresar</button>
             </div>
