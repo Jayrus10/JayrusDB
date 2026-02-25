@@ -24,9 +24,10 @@
         @media (max-width: 1023px) {
             #app { display: flex; flex-direction: column; height: 100vh; }
             .app-container { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
-            .app-nav { display: none; width: 100%; border-right: none; border-bottom: 1px solid #27272a; padding: 8px; max-height: 40vh; overflow-y: auto; }
+            .app-nav { display: none; width: 100%; border-right: none; border-bottom: 1px solid #27272a; padding: 8px; max-height: 40vh; overflow-y: auto; position: absolute; top: 73px; left: 0; right: 0; background: #09090b; z-index: 50; }
             .app-nav.mobile-open { display: block; }
             .app-content { flex: 1; overflow-y: auto; padding: 16px; }
+            .mobile-menu-btn { display: flex !important; }
             
             .px-6 { padding-left: 16px !important; padding-right: 16px !important; }
             .py-4 { padding-top: 12px !important; padding-bottom: 12px !important; }
@@ -51,6 +52,11 @@
             
             .grid-cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
             .grid-cols-2 { grid-template-columns: 1fr !important; }
+        }
+        
+        /* Desktop */
+        @media (min-width: 1024px) {
+            .mobile-menu-btn { display: none !important; }
         }
         
         /* Scrollbar styling */
@@ -85,6 +91,7 @@
     <!-- APP -->
     <div id="app" class="hidden min-h-screen bg-zinc-950">
         <div class="bg-zinc-900 border-b border-zinc-800 px-4 md:px-6 py-3 md:py-4 flex justify-between items-center gap-3">
+            <button class="mobile-menu-btn hidden text-2xl" onclick="toggleMobileMenu()">☰</button>
             <div class="flex items-center gap-2 md:gap-3">
                 <div class="w-8 h-8 bg-emerald-600 rounded-xl flex items-center justify-center font-bold text-sm">MT</div>
                 <div><div class="font-semibold text-sm" id="currentUser"></div><div class="text-xs text-zinc-500">v1.0desk beta</div></div>
@@ -339,10 +346,21 @@ function handleLogin() {
 }
 function logout(){ saveData(); currentUser = ''; document.getElementById('app').classList.add('hidden'); document.getElementById('loginPage').classList.remove('hidden'); document.getElementById('loginUser').value = '' }
 
+// MOBILE MENU
+function toggleMobileMenu(){
+    const nav = document.querySelector('.app-nav')
+    nav.classList.toggle('mobile-open')
+}
+
 // SECTIONS
 function showSection(sec){
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'))
     document.getElementById(sec).classList.add('active')
+    // Cerrar menú en móvil
+    const nav = document.querySelector('.app-nav')
+    if(nav && window.innerWidth <= 1023) {
+        nav.classList.remove('mobile-open')
+    }
     if(sec==='dashboard') renderDashboard()
     if(sec==='products') renderProducts()
     if(sec==='discounts') renderDiscounts()
