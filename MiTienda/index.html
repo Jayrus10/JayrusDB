@@ -9,36 +9,26 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { width: 100%; height: 100%; overflow: hidden; }
         body { font-family: system-ui, sans-serif; }
-
-        /* Section transitions - smooth fade in/out without shift */
-        .section { opacity: 0; transition: opacity .32s ease; visibility: hidden; pointer-events: none; }
-        .active { opacity: 1; visibility: visible; pointer-events: auto; }
-
-        /* Smooth buttons and cards */
-        button { transition: transform .12s ease, background-color .12s ease, color .12s ease; }
-        button:active { transform: scale(.98); }
-        .card { transition: transform .18s ease, box-shadow .18s ease; }
-        .card:hover { transform: translateY(-4px); box-shadow: 0 6px 20px rgba(0,0,0,0.35); }
-
+        .section { display: none; }
+        .active { display: block; }
+        
         /* Desktop layout */
         @media (min-width: 1024px) {
             #app { display: flex; flex-direction: column; height: 100vh; }
             .app-container { display: flex; flex: 1; overflow: hidden; }
-            .app-nav { width: 240px; overflow-y: auto; flex-shrink: 0; position: static; max-height: none; opacity: 1; transform: none; }
+            .app-nav { width: 240px; overflow-y: auto; flex-shrink: 0; }
             .app-content { flex: 1; overflow-y: auto; padding: 32px; }
-            .mobile-menu-btn { display: none !important; }
         }
-
-        /* Mobile/Tablet layout (animated menu) */
+        
+        /* Mobile/Tablet layout */
         @media (max-width: 1023px) {
             #app { display: flex; flex-direction: column; height: 100vh; }
             .app-container { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
-            .app-nav { width: 100%; border-right: none; border-bottom: 1px solid #27272a; padding: 0 8px; max-height: 0; overflow: hidden; position: absolute; top: 73px; left: 0; right: 0; background: #09090b; z-index: 50; opacity: 0; transform: translateY(-6px); transition: max-height .32s ease, opacity .28s ease, transform .28s ease, padding .2s ease; }
-            .app-nav.mobile-open { max-height: 40vh; opacity: 1; transform: translateY(0); padding: 8px; }
+            .app-nav { display: none; width: 100%; border-right: none; border-bottom: 1px solid #27272a; padding: 8px; max-height: 40vh; overflow-y: auto; position: absolute; top: 73px; left: 0; right: 0; background: #09090b; z-index: 50; }
+            .app-nav.mobile-open { display: block; }
             .app-content { flex: 1; overflow-y: auto; padding: 16px; }
-            .mobile-menu-btn { display: flex !important; background: transparent; border: 0; color: inherit; cursor: pointer; transition: transform .25s ease; }
-            .mobile-menu-btn.open { transform: rotate(90deg); }
-
+            .mobile-menu-btn { display: flex !important; }
+            
             .px-6 { padding-left: 16px !important; padding-right: 16px !important; }
             .py-4 { padding-top: 12px !important; padding-bottom: 12px !important; }
             .px-4 { padding-left: 12px !important; padding-right: 12px !important; }
@@ -54,20 +44,21 @@
             .mb-6 { margin-bottom: 12px !important; }
             .mt-8 { margin-top: 16px !important; }
             .mt-12 { margin-top: 20px !important; }
-
+            
             .text-2xl { font-size: 18px !important; }
             .text-3xl { font-size: 24px !important; }
             .text-4xl { font-size: 28px !important; }
             .text-5xl { font-size: 32px !important; }
-
+            
             .grid-cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
             .grid-cols-2 { grid-template-columns: 1fr !important; }
         }
-
-        /* Modal content animation - smooth fade, slight scale up */
-        div[id^="modal"] > div { transition: transform .32s cubic-bezier(0.34, 1.56, 0.64, 1), opacity .32s ease; transform: scale(0.95); opacity: 0; }
-        div[id^="modal"]:not(.hidden) > div { transform: scale(1); opacity: 1; }
-
+        
+        /* Desktop */
+        @media (min-width: 1024px) {
+            .mobile-menu-btn { display: none !important; }
+        }
+        
         /* Scrollbar styling */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -78,47 +69,22 @@
 <body class="bg-zinc-950 text-zinc-100">
 
     <!-- LOGIN -->
-    <div id="loginPage" class="min-h-screen flex flex-col items-center justify-center bg-zinc-950 p-4">
-        <div class="mb-12 text-center">
-            <div class="flex items-center justify-center gap-3 mb-2">
-                <div class="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center font-bold text-lg text-white">MT</div>
-            </div>
-            <h1 class="text-4xl font-bold text-emerald-500">MiTienda</h1>
-            <p class="text-zinc-400 text-sm mt-2">Gestor de inventario local</p>
-        </div>
+    <div id="loginPage" class="min-h-screen flex items-center justify-center bg-zinc-950 p-4">
         <div class="w-full max-w-md">
             <div class="bg-zinc-900 p-8 rounded-2xl">
-                <h2 class="text-3xl font-bold mb-8 text-center">Bienvenido</h2>
+                <h1 class="text-3xl font-bold mb-8 text-center">Bienvenido</h1>
                 <input id="loginUser" placeholder="Tu nombre" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 mb-6" onkeypress="if(event.key==='Enter') handleLogin()">
                 <button onclick="handleLogin()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-lg font-medium mb-6">Ingresar</button>
-                <button onclick="showWarningModal()" class="w-full bg-zinc-800 hover:bg-zinc-700 py-2 rounded-lg text-sm text-zinc-400">Ver información importante</button>
             </div>
-        </div>
-    </div>
-
-    <!-- Warning Modal -->
-    <div id="warningModal" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4 z-50">
-        <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0">
-            <h3 class="text-lg md:text-xl font-bold mb-4 text-red-400 flex items-center gap-2">⚠️ Advertencia Importante</h3>
-            <div class="space-y-3 mb-6">
-                <div class="text-zinc-200 text-sm">
-                    <p class="font-semibold text-red-300 mb-2">📱 Datos temporales</p>
-                    <p class="text-zinc-400">Tu base de datos se guarda solo en este navegador.</p>
-                </div>
-                <div class="text-zinc-200 text-sm">
-                    <p class="font-semibold text-red-300 mb-2">💾 Exporta regularmente</p>
-                    <p class="text-zinc-400">Usa el botón "📤 Exportar" en la app cada semana.</p>
-                </div>
-                <div class="text-zinc-200 text-sm">
-                    <p class="font-semibold text-red-300 mb-2">🔄 Si limpias el navegador</p>
-                    <p class="text-zinc-400">O usas otro dispositivo, perderás los datos no exportados.</p>
-                </div>
-                <div class="text-zinc-200 text-sm">
-                    <p class="font-semibold text-red-300 mb-2">👤 Privado</p>
-                    <p class="text-zinc-400">Nadie fuera de tu navegador puede acceder a tus datos.</p>
-                </div>
+            <div class="bg-red-900 border border-red-600 p-6 rounded-2xl mt-6">
+                <div class="text-red-100 font-bold mb-2 flex items-center gap-2">⚠️ Advertencia Importante</div>
+                <ul class="text-red-200 text-sm space-y-2">
+                    <li>📱 <strong>Datos temporales:</strong> Tu base de datos se guarda solo en este navegador.</li>
+                    <li>💾 <strong>Exporta regularmente:</strong> Usa el botón "📤 Exportar" en la app cada semana.</li>
+                    <li>🔄 <strong>Si limpias el navegador</strong> o usas otro dispositivo, perderás los datos.</li>
+                    <li>👤 <strong>Privado:</strong> Cada navegador tiene su propia base de datos independiente.</li>
+                </ul>
             </div>
-            <button onclick="hideWarningModal()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-medium">De acuerdo</button>
         </div>
     </div>
 
@@ -151,9 +117,9 @@
             </div>
 
             <!-- CONTENT -->
-            <div class="app-content" style="height:calc(100vh - 73px); display: flex; flex-direction: column;">
+            <div class="app-content" style="height:calc(100vh - 73px)">
                 <!-- DASHBOARD -->
-                <div id="dashboard" class="section active overflow-y-auto">
+                <div id="dashboard" class="section active">
                     <h2 class="text-2xl font-bold mb-6">Dashboard</h2>
                     <div class="mb-8 bg-zinc-900 p-5 rounded-3xl flex items-center gap-6">
                         <div class="text-sm text-zinc-400">1 USD =</div>
@@ -184,32 +150,32 @@
                 </div>
 
                 <!-- PRODUCTOS -->
-                <div id="products" class="section overflow-y-auto">
+                <div id="products" class="section">
                     <div class="flex justify-between mb-6"><h2 class="text-2xl font-bold">Productos</h2><button onclick="showAddProduct()" class="bg-emerald-600 px-6 py-2 rounded-xl">+ Nuevo</button></div>
                     <table class="w-full"><thead><tr class="text-left text-zinc-400 text-sm"><th class="pb-3">Nombre</th><th>Categoría</th><th>Stock</th><th>Costo prom.</th><th>Mínimo</th></tr></thead>
                     <tbody id="productsTable" class="text-sm"></tbody></table>
                 </div>
                 <!-- DESCUENTOS -->
-                <div id="discounts" class="section overflow-y-auto">
+                <div id="discounts" class="section">
                     <div class="flex justify-between mb-6"><h2 class="text-2xl font-bold">Descuentos</h2><button onclick="showAddDiscount()" class="bg-emerald-600 px-6 py-2 rounded-xl">+ Nuevo descuento</button></div>
                     <div id="discountsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
                 </div>
                 <!-- COMPRAS -->
-                <div id="purchases" class="section overflow-y-auto">
+                <div id="purchases" class="section">
                     <div class="flex justify-between mb-6"><h2 class="text-2xl font-bold">Compras / Lotes</h2><button onclick="showAddPurchase()" class="bg-emerald-600 px-6 py-2 rounded-xl">+ Nueva compra</button></div>
                     <div class="overflow-x-auto"><table class="w-full"><thead><tr class="text-left text-zinc-400 text-sm"><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Costo real</th><th>Proveedor</th><th>Acción</th></tr></thead>
                     <tbody id="purchasesTable" class="text-sm"></tbody></table></div>
                 </div>
 
                 <!-- VENTAS -->
-                <div id="sales" class="section overflow-y-auto">
+                <div id="sales" class="section">
                     <div class="flex justify-between mb-6"><h2 class="text-2xl font-bold">Ventas</h2><button onclick="showQuickSale()" class="bg-emerald-600 px-6 py-2 rounded-xl">+ Venta rápida</button></div>
                     <div class="overflow-x-auto"><table class="w-full"><thead><tr class="text-left text-zinc-400 text-sm"><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Precio venta</th><th>Cliente</th><th>Acción</th></tr></thead>
                     <tbody id="salesTable" class="text-sm"></tbody></table></div>
                 </div>
 
                 <!-- REPORTES -->
-                <div id="reports" class="section overflow-y-auto">
+                <div id="reports" class="section">
                     <h2 class="text-2xl font-bold mb-6">Reportes</h2>
                     <div class="bg-zinc-900 p-6 rounded-3xl">
                         <div class="grid grid-cols-2 gap-8">
@@ -380,22 +346,10 @@ function handleLogin() {
 }
 function logout(){ saveData(); currentUser = ''; document.getElementById('app').classList.add('hidden'); document.getElementById('loginPage').classList.remove('hidden'); document.getElementById('loginUser').value = '' }
 
-// WARNING MODAL
-function showWarningModal(){
-    document.getElementById('warningModal').classList.remove('hidden')
-}
-function hideWarningModal(){
-    document.getElementById('warningModal').classList.add('hidden')
-}
-
 // MOBILE MENU
 function toggleMobileMenu(){
     const nav = document.querySelector('.app-nav')
-    const btn = document.querySelector('.mobile-menu-btn')
-    if(!nav) return
-    const opening = !nav.classList.contains('mobile-open')
     nav.classList.toggle('mobile-open')
-    if(btn) btn.classList.toggle('open', opening)
 }
 
 // SECTIONS
@@ -406,8 +360,6 @@ function showSection(sec){
     const nav = document.querySelector('.app-nav')
     if(nav && window.innerWidth <= 1023) {
         nav.classList.remove('mobile-open')
-        const btn = document.querySelector('.mobile-menu-btn')
-        if(btn) btn.classList.remove('open')
     }
     if(sec==='dashboard') renderDashboard()
     if(sec==='products') renderProducts()
