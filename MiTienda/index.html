@@ -91,16 +91,34 @@
                 <h2 class="text-3xl font-bold mb-8 text-center">Bienvenido</h2>
                 <input id="loginUser" placeholder="Tu nombre" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 mb-6" onkeypress="if(event.key==='Enter') handleLogin()">
                 <button onclick="handleLogin()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-lg font-medium mb-6">Ingresar</button>
+                <button onclick="showWarningModal()" class="w-full bg-zinc-800 hover:bg-zinc-700 py-2 rounded-lg text-sm text-zinc-400">Ver información importante</button>
             </div>
-            <div class="bg-red-900 border border-red-600 p-6 rounded-2xl mt-6">
-                <div class="text-red-100 font-bold mb-2 flex items-center gap-2">⚠️ Advertencia Importante</div>
-                <ul class="text-red-200 text-sm space-y-2">
-                    <li>📱 <strong>Datos temporales:</strong> Tu base de datos se guarda solo en este navegador.</li>
-                    <li>💾 <strong>Exporta regularmente:</strong> Usa el botón "📤 Exportar" en la app cada semana.</li>
-                    <li>🔄 <strong>Si limpias el navegador</strong> o usas otro dispositivo, perderás los datos no exportados.</li>
-                    <li>👤 <strong>Privado:</strong> Nadie fuera de su navegador puede acceder a sus datos.</li>
-                </ul>
+        </div>
+    </div>
+
+    <!-- Warning Modal -->
+    <div id="warningModal" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4 z-50">
+        <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0">
+            <h3 class="text-lg md:text-xl font-bold mb-4 text-red-400 flex items-center gap-2">⚠️ Advertencia Importante</h3>
+            <div class="space-y-3 mb-6">
+                <div class="text-zinc-200 text-sm">
+                    <p class="font-semibold text-red-300 mb-2">📱 Datos temporales</p>
+                    <p class="text-zinc-400">Tu base de datos se guarda solo en este navegador.</p>
+                </div>
+                <div class="text-zinc-200 text-sm">
+                    <p class="font-semibold text-red-300 mb-2">💾 Exporta regularmente</p>
+                    <p class="text-zinc-400">Usa el botón "📤 Exportar" en la app cada semana.</p>
+                </div>
+                <div class="text-zinc-200 text-sm">
+                    <p class="font-semibold text-red-300 mb-2">🔄 Si limpias el navegador</p>
+                    <p class="text-zinc-400">O usas otro dispositivo, perderás los datos no exportados.</p>
+                </div>
+                <div class="text-zinc-200 text-sm">
+                    <p class="font-semibold text-red-300 mb-2">👤 Privado</p>
+                    <p class="text-zinc-400">Nadie fuera de tu navegador puede acceder a tus datos.</p>
+                </div>
             </div>
+            <button onclick="hideWarningModal()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-medium">De acuerdo</button>
         </div>
     </div>
 
@@ -133,9 +151,9 @@
             </div>
 
             <!-- CONTENT -->
-            <div class="app-content" style="height:calc(100vh - 73px)">
+            <div class="app-content" style="height:calc(100vh - 73px); display: flex; flex-direction: column;">
                 <!-- DASHBOARD -->
-                <div id="dashboard" class="section active">
+                <div id="dashboard" class="section active overflow-y-auto">
                     <h2 class="text-2xl font-bold mb-6">Dashboard</h2>
                     <div class="mb-8 bg-zinc-900 p-5 rounded-3xl flex items-center gap-6">
                         <div class="text-sm text-zinc-400">1 USD =</div>
@@ -166,32 +184,32 @@
                 </div>
 
                 <!-- PRODUCTOS -->
-                <div id="products" class="section">
+                <div id="products" class="section overflow-y-auto">
                     <div class="flex justify-between mb-6"><h2 class="text-2xl font-bold">Productos</h2><button onclick="showAddProduct()" class="bg-emerald-600 px-6 py-2 rounded-xl">+ Nuevo</button></div>
                     <table class="w-full"><thead><tr class="text-left text-zinc-400 text-sm"><th class="pb-3">Nombre</th><th>Categoría</th><th>Stock</th><th>Costo prom.</th><th>Mínimo</th></tr></thead>
                     <tbody id="productsTable" class="text-sm"></tbody></table>
                 </div>
                 <!-- DESCUENTOS -->
-                <div id="discounts" class="section">
+                <div id="discounts" class="section overflow-y-auto">
                     <div class="flex justify-between mb-6"><h2 class="text-2xl font-bold">Descuentos</h2><button onclick="showAddDiscount()" class="bg-emerald-600 px-6 py-2 rounded-xl">+ Nuevo descuento</button></div>
                     <div id="discountsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
                 </div>
                 <!-- COMPRAS -->
-                <div id="purchases" class="section">
+                <div id="purchases" class="section overflow-y-auto">
                     <div class="flex justify-between mb-6"><h2 class="text-2xl font-bold">Compras / Lotes</h2><button onclick="showAddPurchase()" class="bg-emerald-600 px-6 py-2 rounded-xl">+ Nueva compra</button></div>
                     <div class="overflow-x-auto"><table class="w-full"><thead><tr class="text-left text-zinc-400 text-sm"><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Costo real</th><th>Proveedor</th><th>Acción</th></tr></thead>
                     <tbody id="purchasesTable" class="text-sm"></tbody></table></div>
                 </div>
 
                 <!-- VENTAS -->
-                <div id="sales" class="section">
+                <div id="sales" class="section overflow-y-auto">
                     <div class="flex justify-between mb-6"><h2 class="text-2xl font-bold">Ventas</h2><button onclick="showQuickSale()" class="bg-emerald-600 px-6 py-2 rounded-xl">+ Venta rápida</button></div>
                     <div class="overflow-x-auto"><table class="w-full"><thead><tr class="text-left text-zinc-400 text-sm"><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Precio venta</th><th>Cliente</th><th>Acción</th></tr></thead>
                     <tbody id="salesTable" class="text-sm"></tbody></table></div>
                 </div>
 
                 <!-- REPORTES -->
-                <div id="reports" class="section">
+                <div id="reports" class="section overflow-y-auto">
                     <h2 class="text-2xl font-bold mb-6">Reportes</h2>
                     <div class="bg-zinc-900 p-6 rounded-3xl">
                         <div class="grid grid-cols-2 gap-8">
@@ -361,6 +379,14 @@ function handleLogin() {
     renderAll()
 }
 function logout(){ saveData(); currentUser = ''; document.getElementById('app').classList.add('hidden'); document.getElementById('loginPage').classList.remove('hidden'); document.getElementById('loginUser').value = '' }
+
+// WARNING MODAL
+function showWarningModal(){
+    document.getElementById('warningModal').classList.remove('hidden')
+}
+function hideWarningModal(){
+    document.getElementById('warningModal').classList.add('hidden')
+}
 
 // MOBILE MENU
 function toggleMobileMenu(){
