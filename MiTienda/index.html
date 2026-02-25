@@ -14,25 +14,22 @@
 <body class="bg-zinc-950 text-zinc-100">
 
     <!-- LOGIN -->
-    <div id="loginPage" class="min-h-screen flex items-center justify-center">
-        <div class="bg-zinc-900 p-8 rounded-2xl w-full max-w-md">
-            <h1 class="text-3xl font-bold mb-8 text-center">TiendaLocal</h1>
-            <input id="loginUser" placeholder="Usuario" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 mb-4">
-            <input id="loginPass" type="password" placeholder="Contraseña" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 mb-4">
-            <button onclick="handleLogin()" class="w-full bg-emerald-600 py-3 rounded-lg font-medium">Ingresar</button>
-            <div class="text-center text-sm text-zinc-400 mt-4">¿Nuevo? <span onclick="showRegister()" class="text-emerald-400 cursor-pointer">Regístrate</span></div>
-        </div>
-    </div>
-
-    <!-- REGISTER -->
-    <div id="registerPage" class="min-h-screen flex items-center justify-center hidden">
-        <div class="bg-zinc-900 p-8 rounded-2xl w-full max-w-md">
-            <h1 class="text-3xl font-bold mb-8 text-center">Registro</h1>
-            <input id="regUser" placeholder="Usuario" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 mb-4">
-            <input id="regPass" type="password" placeholder="Contraseña" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 mb-4">
-            <input id="regPass2" type="password" placeholder="Repite contraseña" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 mb-6">
-            <button onclick="handleRegister()" class="w-full bg-emerald-600 py-3 rounded-lg font-medium">Crear cuenta</button>
-            <div class="text-center text-sm text-zinc-400 mt-6"><span onclick="showLogin()" class="text-emerald-400 cursor-pointer">Volver a login</span></div>
+    <div id="loginPage" class="min-h-screen flex items-center justify-center bg-zinc-950 p-4">
+        <div class="w-full max-w-md">
+            <div class="bg-zinc-900 p-8 rounded-2xl">
+                <h1 class="text-3xl font-bold mb-8 text-center">TiendaLocal</h1>
+                <input id="loginUser" placeholder="Tu nombre" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 mb-6" onkeypress="if(event.key==='Enter') handleLogin()">
+                <button onclick="handleLogin()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-lg font-medium mb-6">Ingresar</button>
+            </div>
+            <div class="bg-red-900 border border-red-600 p-6 rounded-2xl mt-6">
+                <div class="text-red-100 font-bold mb-2 flex items-center gap-2">⚠️ Advertencia Importante</div>
+                <ul class="text-red-200 text-sm space-y-2">
+                    <li>📱 <strong>Datos temporales:</strong> Tu base de datos se guarda solo en este navegador.</li>
+                    <li>💾 <strong>Exporta regularmente:</strong> Usa el botón "📤 Exportar" en la app cada semana.</li>
+                    <li>🔄 <strong>Si limpias el navegador</strong> o usas otro dispositivo, perderás los datos.</li>
+                    <li>👤 <strong>Privado:</strong> Cada navegador tiene su propia base de datos independiente.</li>
+                </ul>
+            </div>
         </div>
     </div>
 
@@ -252,28 +249,7 @@
 <script>
 let currentUser = ''
 let data = { products:[], purchases:[], sales:[], customers:[], discounts:[], exchangeRate:500 }
-let usersDB = {}
 let nextId = 1
-
-// HASHING
-async function loadUsersDB() {
-    const saved = localStorage.getItem('tienda_users')
-    usersDB = saved ? JSON.parse(saved) : {}
-}
-async function saveUsersDB() {
-    localStorage.setItem('tienda_users', JSON.stringify(usersDB))
-}
-async function generateSalt() {
-    const array = new Uint8Array(16)
-    crypto.getRandomValues(array)
-    return btoa(String.fromCharCode(...array))
-}
-async function hashPassword(password, salt) {
-    const encoder = new TextEncoder()
-    const keyMaterial = await crypto.subtle.importKey("raw", encoder.encode(password), "PBKDF2", false, ["deriveBits"])
-    const hashBuffer = await crypto.subtle.deriveBits({name: "PBKDF2", salt: encoder.encode(salt), iterations: 100000, hash: "SHA-256"}, keyMaterial, 256)
-    return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2,'0')).join('')
-}
 
 // DATA
 function saveData(){ if(currentUser) localStorage.setItem(`tienda_${currentUser}`, JSON.stringify(data)) }
@@ -297,44 +273,22 @@ function saveExchangeRate(){
     renderAll()
 }
 
-// LOGIN / REGISTER
-async function handleLogin() {
+// LOGIN SIMPLE
+function handleLogin() {
     const user = document.getElementById('loginUser').value.trim()
-    const pass = document.getElementById('loginPass').value
-    await loadUsersDB()
-    if (!user || !pass || !usersDB[user]) return alert('Usuario o contraseña incorrectos')
-    const stored = usersDB[user]
-    const inputHash = await hashPassword(pass, stored.salt)
-    if (inputHash === stored.hash) {
-        currentUser = user
-        loadData()
-        document.getElementById('loginPage').classList.add('hidden')
-        document.getElementById('app').classList.remove('hidden')
-        document.getElementById('currentUser').textContent = user
-        renderAll()
-    } else {
-        alert('Usuario o contraseña incorrectos')
+    if (!user) return alert('Ingresa tu nombre')
+    if (!localStorage.getItem(`tienda_${user}`)) {
+        localStorage.setItem(`tienda_${user}`, JSON.stringify({ products:[], purchases:[], sales:[], customers:[], discounts:[], exchangeRate:500, audit:[] }))
     }
+    currentUser = user
+    localStorage.setItem('tienda_lastUser', user)
+    loadData()
+    document.getElementById('loginPage').classList.add('hidden')
+    document.getElementById('app').classList.remove('hidden')
+    document.getElementById('currentUser').textContent = user
+    renderAll()
 }
-async function handleRegister() {
-    const user = document.getElementById('regUser').value.trim()
-    const pass = document.getElementById('regPass').value
-    const pass2 = document.getElementById('regPass2').value
-    if (!user || !pass) return alert('Campos obligatorios')
-    if (pass !== pass2) return alert('Contraseñas no coinciden')
-    await loadUsersDB()
-    if (usersDB[user]) return alert('Usuario ya existe')
-    const salt = await generateSalt()
-    const hash = await hashPassword(pass, salt)
-    usersDB[user] = {salt, hash}
-    await saveUsersDB()
-    localStorage.setItem(`tienda_${user}`, JSON.stringify({products:[], purchases:[], sales:[], customers:[], exchangeRate:500}))
-    alert('Cuenta creada. Inicia sesión.')
-    showLogin()
-}
-function showRegister(){ document.getElementById('loginPage').classList.add('hidden'); document.getElementById('registerPage').classList.remove('hidden') }
-function showLogin(){ document.getElementById('registerPage').classList.add('hidden'); document.getElementById('loginPage').classList.remove('hidden') }
-function logout(){ saveData(); currentUser = ''; document.getElementById('app').classList.add('hidden'); document.getElementById('loginPage').classList.remove('hidden') }
+function logout(){ saveData(); currentUser = ''; document.getElementById('app').classList.add('hidden'); document.getElementById('loginPage').classList.remove('hidden'); document.getElementById('loginUser').value = '' }
 
 // SECTIONS
 function showSection(sec){
@@ -821,7 +775,14 @@ function importData(){
     }
     input.click()
 }
-window.addEventListener('DOMContentLoaded', () => { loadUsersDB(); loadData() })
+window.addEventListener('DOMContentLoaded', () => { 
+    // Auto-login si ya existe usuario
+    const savedUser = localStorage.getItem('tienda_lastUser')
+    if (savedUser && localStorage.getItem(`tienda_${savedUser}`)) {
+        document.getElementById('loginUser').value = savedUser
+        handleLogin()
+    }
+})
 </script>
 </body>
 </html>
