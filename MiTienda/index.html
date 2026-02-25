@@ -63,6 +63,12 @@
             .mobile-menu-btn { display: none !important; }
         }
         
+        /* Modal animations */
+        #warningModal { animation: fadeIn .3s ease; }
+        #warningModal > div { animation: scaleUp .32s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
         /* Scrollbar styling */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -73,22 +79,47 @@
 <body class="bg-zinc-950 text-zinc-100">
 
     <!-- LOGIN -->
-    <div id="loginPage" class="min-h-screen flex items-center justify-center bg-zinc-950 p-4">
+    <div id="loginPage" class="min-h-screen flex flex-col items-center justify-center bg-zinc-950 p-4">
+        <div class="mb-12 text-center">
+            <div class="flex items-center justify-center gap-3 mb-3">
+                <div class="w-14 h-14 bg-emerald-600 rounded-2xl flex items-center justify-center font-bold text-xl text-white">MT</div>
+            </div>
+            <h1 class="text-4xl font-bold text-emerald-500">MiTienda</h1>
+            <p class="text-zinc-400 text-sm mt-1">Gestor de inventario local</p>
+        </div>
         <div class="w-full max-w-md">
             <div class="bg-zinc-900 p-8 rounded-2xl">
-                <h1 class="text-3xl font-bold mb-8 text-center">Bienvenido</h1>
+                <h2 class="text-3xl font-bold mb-8 text-center">Bienvenido</h2>
                 <input id="loginUser" placeholder="Tu nombre" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 mb-6" onkeypress="if(event.key==='Enter') handleLogin()">
-                <button onclick="handleLogin()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-lg font-medium mb-6">Ingresar</button>
+                <button onclick="handleLogin()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-lg font-medium mb-3">Ingresar</button>
+                <button onclick="showWarningModal()" class="w-full bg-zinc-800 hover:bg-zinc-700 py-2 rounded-lg text-sm text-zinc-400">ℹ️ Ver información importante</button>
             </div>
-            <div class="bg-red-900 border border-red-600 p-6 rounded-2xl mt-6">
-                <div class="text-red-100 font-bold mb-2 flex items-center gap-2">⚠️ Advertencia Importante</div>
-                <ul class="text-red-200 text-sm space-y-2">
-                    <li>📱 <strong>Datos temporales:</strong> Tu base de datos se guarda solo en este navegador.</li>
-                    <li>💾 <strong>Exporta regularmente:</strong> Usa el botón "📤 Exportar" en la app cada semana.</li>
-                    <li>🔄 <strong>Si limpias el navegador</strong> o usas otro dispositivo, perderás los datos.</li>
-                    <li>👤 <strong>Privado:</strong> Cada navegador tiene su propia base de datos independiente.</li>
-                </ul>
+        </div>
+    </div>
+
+    <!-- Warning Modal -->
+    <div id="warningModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+        <div class="bg-zinc-900 w-full max-w-md rounded-2xl p-6">
+            <h3 class="text-xl font-bold mb-4 text-red-400 flex items-center gap-2">⚠️ Advertencia Importante</h3>
+            <div class="space-y-3 mb-6">
+                <div class="text-sm">
+                    <p class="font-semibold text-emerald-400 mb-1">📱 Datos temporales</p>
+                    <p class="text-zinc-300">Tu base de datos se guarda solo en este navegador.</p>
+                </div>
+                <div class="text-sm">
+                    <p class="font-semibold text-emerald-400 mb-1">💾 Exporta regularmente</p>
+                    <p class="text-zinc-300">Usa el botón "📤 Exportar" en la app cada semana.</p>
+                </div>
+                <div class="text-sm">
+                    <p class="font-semibold text-emerald-400 mb-1">🔄 Si limpias el navegador</p>
+                    <p class="text-zinc-300">O usas otro dispositivo, perderás los datos.</p>
+                </div>
+                <div class="text-sm">
+                    <p class="font-semibold text-emerald-400 mb-1">👤 Privado</p>
+                    <p class="text-zinc-300">Cada navegador tiene su propia base de datos independiente.</p>
+                </div>
             </div>
+            <button onclick="hideWarningModal()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-medium">De acuerdo</button>
         </div>
     </div>
 
@@ -349,6 +380,14 @@ function handleLogin() {
     renderAll()
 }
 function logout(){ saveData(); currentUser = ''; document.getElementById('app').classList.add('hidden'); document.getElementById('loginPage').classList.remove('hidden'); document.getElementById('loginUser').value = '' }
+
+// WARNING MODAL
+function showWarningModal(){
+    document.getElementById('warningModal').classList.remove('hidden')
+}
+function hideWarningModal(){
+    document.getElementById('warningModal').classList.add('hidden')
+}
 
 // MOBILE MENU
 function toggleMobileMenu(){
