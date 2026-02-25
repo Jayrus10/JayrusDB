@@ -3,23 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MiTienda</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>TiendaLocal</title>
+    <link rel="stylesheet" href="tailwind.css">
     <style>
         body { font-family: system-ui, sans-serif; }
         .section { display: none; }
         .active { display: block; }
-        @media (max-width: 640px) {
-            .aside-nav { position: fixed; left: -100%; top: 73px; width: 100%; height: calc(100vh - 73px); z-index: 50; transition: left 0.3s; }
-            .aside-nav.open { left: 0; }
-            .nav-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 40; }
-            .nav-overlay.open { display: block; }
-        }
-        @media (min-width: 641px) {
-            .mobile-menu-btn { display: none !important; }
-            .aside-nav { position: static !important; display: block !important; }
-            .nav-overlay { display: none !important; }
-        }
     </style>
 </head>
 <body class="bg-zinc-950 text-zinc-100">
@@ -28,7 +17,7 @@
     <div id="loginPage" class="min-h-screen flex items-center justify-center bg-zinc-950 p-4">
         <div class="w-full max-w-md">
             <div class="bg-zinc-900 p-8 rounded-2xl">
-                <h1 class="text-3xl font-bold mb-8 text-center">MiTienda</h1>
+                <h1 class="text-3xl font-bold mb-8 text-center">TiendaLocal</h1>
                 <input id="loginUser" placeholder="Tu nombre" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 mb-6" onkeypress="if(event.key==='Enter') handleLogin()">
                 <button onclick="handleLogin()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-lg font-medium mb-6">Ingresar</button>
             </div>
@@ -37,7 +26,7 @@
                 <ul class="text-red-200 text-sm space-y-2">
                     <li>📱 <strong>Datos temporales:</strong> Tu base de datos se guarda solo en este navegador.</li>
                     <li>💾 <strong>Exporta regularmente:</strong> Usa el botón "📤 Exportar" en la app cada semana.</li>
-                    <li>🔄 <strong>Si limpias el navegador</strong> o usas otro dispositivo, perderás los datos no exportados.</li>
+                    <li>🔄 <strong>Si limpias el navegador</strong> o usas otro dispositivo, perderás los datos.</li>
                     <li>👤 <strong>Privado:</strong> Cada navegador tiene su propia base de datos independiente.</li>
                 </ul>
             </div>
@@ -48,7 +37,7 @@
     <div id="app" class="hidden min-h-screen bg-zinc-950">
         <div class="bg-zinc-900 border-b border-zinc-800 px-6 py-4 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-emerald-600 rounded-xl flex items-center justify-center font-bold">MT</div>
+                <div class="w-8 h-8 bg-emerald-600 rounded-xl flex items-center justify-center font-bold">TL</div>
                 <div><div class="font-semibold" id="currentUser"></div><div class="text-xs text-zinc-500">v1.0</div></div>
             </div>
             <div class="flex gap-2">
@@ -60,36 +49,19 @@
             </div>
         </div>
 
-        <div class="bg-zinc-900 border-b border-zinc-800 px-4 md:px-6 py-4 flex justify-between items-center sticky top-0 z-30">
-            <div class="flex items-center gap-3">
-                <button class="mobile-menu-btn md:hidden px-2 py-2 hover:bg-zinc-800 rounded-lg" onclick="toggleMobileMenu()">☰</button>
-                <div class="w-8 h-8 bg-emerald-600 rounded-xl flex items-center justify-center font-bold text-sm">TL</div>
-                <div><div class="font-semibold text-sm md:text-base" id="currentUserMini"></div><div class="text-xs text-zinc-500">v1.0</div></div>
-            </div>
-            <div class="hidden sm:flex gap-1 md:gap-2">
-                <button onclick="importData()" class="px-2 md:px-3 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">📥 Importar</button>
-                <button onclick="exportData()" class="px-2 md:px-3 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">📤 Exportar</button>
-                <button onclick="location.reload()" class="px-2 md:px-3 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">🔄 Recargar</button>
-                <button onclick="showAudit()" class="px-2 md:px-3 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">📋 Auditoría</button>
-            </div>
-            <button onclick="logout()" class="px-2 md:px-3 py-2 bg-red-600 hover:bg-red-500 rounded-lg text-xs md:text-sm">Salir</button>
-        </div>
-        <div class="nav-overlay" onclick="closeNav()"></div>
-
-        <div class="flex flex-col md:flex-row">
+        <div class="flex">
             <!-- NAV -->
-            <div class="aside-nav w-full md:w-60 bg-zinc-900 border-b md:border-b-0 md:border-r border-zinc-800 md:min-h-[calc(100vh-73px)] p-4 overflow-y-auto">
-                <div onclick="showSection('dashboard'); closeNav()" class="px-4 py-3 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm md:text-base">📊 Dashboard</div>
-                <div onclick="showSection('products'); closeNav()" class="px-4 py-3 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm md:text-base">📦 Productos</div>
-                <div onclick="showSection('discounts'); closeNav()" class="px-4 py-3 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm md:text-base">🏷️ Descuentos</div>
-                <div onclick="showSection('purchases'); closeNav()" class="px-4 py-3 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm md:text-base">🛒 Compras</div>
-                <div onclick="showSection('sales'); closeNav()" class="px-4 py-3 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm md:text-base">💰 Ventas</div>
-                <div onclick="showSection('reports'); closeNav()" class="px-4 py-3 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm md:text-base">📈 Reportes</div>
-                <div onclick="showSection('changelog'); closeNav()" class="px-4 py-3 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm md:text-base">📝 Cambios</div>
+            <div class="w-60 bg-zinc-900 border-r border-zinc-800 min-h-[calc(100vh-73px)] p-4 overflow-y-auto">
+                <div onclick="showSection('dashboard')" class="px-4 py-3 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3">📊 Dashboard</div>
+                <div onclick="showSection('products')" class="px-4 py-3 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3">📦 Productos</div>
+                <div onclick="showSection('discounts')" class="px-4 py-3 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3">🏷️ Descuentos</div>
+                <div onclick="showSection('purchases')" class="px-4 py-3 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3">🛒 Compras</div>
+                <div onclick="showSection('sales')" class="px-4 py-3 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3">💰 Ventas</div>
+                <div onclick="showSection('reports')" class="px-4 py-3 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3">📈 Reportes</div>
             </div>
 
             <!-- CONTENT -->
-            <div class="flex-1 p-4 md:p-8 overflow-auto" style="height:calc(100vh - 73px)">
+            <div class="flex-1 p-8 overflow-auto" style="height:calc(100vh - 73px)">
                 <!-- DASHBOARD -->
                 <div id="dashboard" class="section active">
                     <h2 class="text-2xl font-bold mb-6">Dashboard</h2>
@@ -148,29 +120,22 @@
 
                 <!-- REPORTES -->
                 <div id="reports" class="section">
-                    <h2 class="text-xl md:text-2xl font-bold mb-6">Reportes</h2>
-                    <div class="mb-8 bg-zinc-900 p-4 md:p-5 rounded-3xl flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-6">
-                        <div class="text-sm text-zinc-400">1 USD = <span id="exchangeRateDisplay" class="font-bold text-2xl md:text-3xl ml-2"></span> CUP</div>
-                    </div>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-8">
-                        <div class="bg-zinc-900 p-4 md:p-6 rounded-3xl">
-                            <div class="text-zinc-400 text-xs md:text-sm">Valor stock</div>
-                            <div id="dashStockValue" class="text-2xl md:text-4xl font-bold text-emerald-400 mt-2"></div>
+                    <h2 class="text-2xl font-bold mb-6">Reportes</h2>
+                    <div class="bg-zinc-900 p-6 rounded-3xl">
+                        <div class="grid grid-cols-2 gap-8">
+                            <div><div class="text-sm text-zinc-400">Ganancia neta total</div><div id="totalProfit" class="text-5xl font-bold text-emerald-400"></div></div>
+                            <div><div class="text-sm text-zinc-400">Costo mercancía vendida</div><div id="totalCOGS" class="text-5xl font-bold text-zinc-400"></div></div>
                         </div>
-                        <div class="bg-zinc-900 p-4 md:p-6 rounded-3xl">
-                            <div class="text-zinc-400 text-xs md:text-sm">Deudores</div>
-                            <div id="dashDebt" class="text-2xl md:text-4xl font-bold text-amber-400 mt-2"></div>
-                        </div>
-                        <div class="bg-zinc-900 p-4 md:p-6 rounded-3xl">
-                            <div class="text-zinc-400 text-xs md:text-sm">Ganancia hoy</div>
-                            <div id="dashTodayProfit" class="text-2xl md:text-4xl font-bold text-emerald-400 mt-2"></div>
-                        </div>
-                        <div class="bg-zinc-900 p-4 md:p-6 rounded-3xl">
-                            <div class="text-zinc-400 text-xs md:text-sm">Ventas mes</div>
-                            <div id="dashMonthSales" class="text-2xl md:text-4xl font-bold text-sky-400 mt-2"></div>
+                        <div class="mt-6 border-t border-zinc-800 pt-4">
+                            <div class="text-sm text-zinc-400">Total en caja (estimado)</div>
+                            <div id="totalCash" class="text-3xl font-bold text-emerald-300">-</div>
                         </div>
                     </div>
-                    <button onclick="showQuickSale()" class="mt-8 md:mt-12 mx-auto block bg-emerald-600 hover:bg-emerald-500 text-lg md:text-2xl font-bold px-8 md:px-16 py-4 md:py-8 rounded-3xl">+ VENTA RÁPIDA</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- MODALES -->
     <!-- Add Product -->
     <div id="modalProduct" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4">
@@ -320,13 +285,10 @@ function handleLogin() {
     loadData()
     document.getElementById('loginPage').classList.add('hidden')
     document.getElementById('app').classList.remove('hidden')
-    const elMain = document.getElementById('currentUser')
-    if(elMain) elMain.textContent = user
-    const elMini = document.getElementById('currentUserMini')
-    if(elMini) elMini.textContent = user
+    document.getElementById('currentUser').textContent = user
     renderAll()
 }
-function logout(){ saveData(); currentUser = ''; document.getElementById('app').classList.add('hidden'); document.getElementById('loginPage').classList.remove('hidden'); document.getElementById('loginUser').value = ''; const elMain = document.getElementById('currentUser'); if(elMain) elMain.textContent = ''; const elMini = document.getElementById('currentUserMini'); if(elMini) elMini.textContent = '' }
+function logout(){ saveData(); currentUser = ''; document.getElementById('app').classList.add('hidden'); document.getElementById('loginPage').classList.remove('hidden'); document.getElementById('loginUser').value = '' }
 
 // SECTIONS
 function showSection(sec){
@@ -338,9 +300,8 @@ function showSection(sec){
     if(sec==='purchases') renderPurchases()
     if(sec==='sales') renderSales()
     if(sec==='reports') renderReports()
-    if(sec==='changelog') renderChangelog()
 }
-function renderAll(){ renderDashboard(); renderProducts(); renderDiscounts(); renderPurchases(); renderSales(); renderReports(); renderChangelog() }
+function renderAll(){ renderDashboard(); renderProducts(); renderDiscounts(); renderPurchases(); renderSales(); renderReports() }
 
 // DASHBOARD
 function renderDashboard(){
@@ -717,14 +678,10 @@ function renderReports(){
             cashTotal += s.qty * salePrice
         }
     })
-    const profitEl = document.getElementById('totalProfit')
-    if(profitEl) profitEl.innerHTML = formatDual(totalRevenue - totalCost)
-    const cogsEl = document.getElementById('totalCOGS')
-    if(cogsEl) cogsEl.innerHTML = formatDual(totalCost)
+    document.getElementById('totalProfit').innerHTML = formatDual(totalRevenue - totalCost)
+    document.getElementById('totalCOGS').innerHTML = formatDual(totalCost)
     const cashEl = document.getElementById('totalCash')
     if(cashEl) cashEl.innerHTML = formatDual(cashTotal)
-    const exDisp = document.getElementById('exchangeRateDisplay')
-    if(exDisp) exDisp.textContent = data.exchangeRate
 }
 
 // MODALES
@@ -783,59 +740,6 @@ function showAudit(){
     })
     document.getElementById('modalAudit').classList.remove('hidden')
 }
-function renderChangelog(){
-    const container = document.getElementById('changelogContainer')
-    container.innerHTML = ''
-    if(!data.audit || data.audit.length === 0){
-        container.innerHTML = '<div class="text-zinc-500 text-center py-8">No hay cambios registrados</div>'
-        return
-    }
-    const grouped = {}
-    const reversedAudit = data.audit.slice().reverse()
-    reversedAudit.forEach(log => {
-        const date = log.timestamp.split(',')[0]
-        if(!grouped[date]) grouped[date] = []
-        grouped[date].push(log)
-    })
-    Object.keys(grouped).forEach(date => {
-        const dayDiv = document.createElement('div')
-        dayDiv.className = 'mb-6'
-        dayDiv.innerHTML = `<div class="text-sm font-semibold text-emerald-400 mb-3 flex items-center gap-2"><span>📅</span>${date}</div>`
-        grouped[date].forEach(log => {
-            const changeDiv = document.createElement('div')
-            changeDiv.className = 'bg-zinc-800 p-4 rounded-lg border-l-4 border-emerald-600 mb-3'
-            const icons = {
-                'PRODUCTO': '📦',
-                'COMPRA': '🛒',
-                'VENTA': '💰',
-                'DESCUENTO': '🏷️',
-                'ELIMINADA': '🗑️',
-                'ELIMINADO': '🗑️'
-            }
-            let icon = '✏️'
-            Object.keys(icons).forEach(key => {
-                if(log.action.includes(key)) icon = icons[key]
-            })
-            changeDiv.innerHTML = `
-                <div class="flex items-start gap-3">
-                    <div class="text-2xl">${icon}</div>
-                    <div class="flex-1">
-                        <div class="text-xs text-zinc-400">${log.timestamp}</div>
-                        <div class="text-zinc-200 mt-1">${log.action}</div>
-                    </div>
-                </div>
-            `
-            dayDiv.appendChild(changeDiv)
-        })
-        container.appendChild(dayDiv)
-    })
-}
-function clearChangelog(){
-    if(!confirm('¿Estás seguro de que deseas limpiar todo el registro de cambios? Esta acción no se puede deshacer.')) return
-    data.audit = []
-    saveData()
-    renderChangelog()
-}
 function exportData(){
     const json = JSON.stringify(data, null, 2)
     const blob = new Blob([json], {type: 'application/json'})
@@ -871,20 +775,6 @@ function importData(){
     }
     input.click()
 }
-// Mobile nav helpers
-function toggleMobileMenu(){
-    const aside = document.querySelector('.aside-nav')
-    const overlay = document.querySelector('.nav-overlay')
-    if(aside) aside.classList.toggle('open')
-    if(overlay) overlay.classList.toggle('open')
-}
-function closeNav(){
-    const aside = document.querySelector('.aside-nav')
-    const overlay = document.querySelector('.nav-overlay')
-    if(aside) aside.classList.remove('open')
-    if(overlay) overlay.classList.remove('open')
-}
-
 window.addEventListener('DOMContentLoaded', () => { 
     // Auto-login si ya existe usuario
     const savedUser = localStorage.getItem('tienda_lastUser')
