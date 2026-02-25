@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TiendaLocal</title>
-    <link rel="stylesheet" href="tailwind.css">
+    <title>MiTienda</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { font-family: system-ui, sans-serif; }
         .section { display: none; }
@@ -17,7 +17,7 @@
     <div id="loginPage" class="min-h-screen flex items-center justify-center bg-zinc-950 p-4">
         <div class="w-full max-w-md">
             <div class="bg-zinc-900 p-8 rounded-2xl">
-                <h1 class="text-3xl font-bold mb-8 text-center">TiendaLocal</h1>
+                <h1 class="text-3xl font-bold mb-8 text-center">Bienvenido</h1>
                 <input id="loginUser" placeholder="Tu nombre" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 mb-6" onkeypress="if(event.key==='Enter') handleLogin()">
                 <button onclick="handleLogin()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-lg font-medium mb-6">Ingresar</button>
             </div>
@@ -37,8 +37,8 @@
     <div id="app" class="hidden min-h-screen bg-zinc-950">
         <div class="bg-zinc-900 border-b border-zinc-800 px-6 py-4 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-emerald-600 rounded-xl flex items-center justify-center font-bold">TL</div>
-                <div><div class="font-semibold" id="currentUser"></div><div class="text-xs text-zinc-500">v1.0</div></div>
+                <div class="w-8 h-8 bg-emerald-600 rounded-xl flex items-center justify-center font-bold">MT</div>
+                <div><div class="font-semibold" id="currentUser"></div><div class="text-xs text-zinc-500">v1.0desk beta</div></div>
             </div>
             <div class="flex gap-2">
                 <button onclick="importData()" class="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-sm">📥 Importar</button>
