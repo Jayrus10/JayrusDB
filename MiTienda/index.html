@@ -9,10 +9,6 @@
         body { font-family: system-ui, sans-serif; }
         .section { display: none; }
         .active { display: block; }
-    <style>
-        body { font-family: system-ui, sans-serif; }
-        .section { display: none; }
-        .active { display: block; }
         @media (max-width: 640px) {
             .aside-nav { position: fixed; left: -100%; top: 73px; width: 100%; height: calc(100vh - 73px); z-index: 50; transition: left 0.3s; }
             .aside-nav.open { left: 0; }
@@ -52,8 +48,8 @@
     <div id="app" class="hidden min-h-screen bg-zinc-950">
         <div class="bg-zinc-900 border-b border-zinc-800 px-6 py-4 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-emerald-600 rounded-xl flex items-center justify-center font-bold">TL</div>
-                <div><div class="font-semibold" id="currentUser"></div><div class="text-xs text-zinc-500">v1.0</div></div>
+                <div class="w-8 h-8 bg-emerald-600 rounded-xl flex items-center justify-center font-bold">MT</div>
+                <div><div class="font-semibold" id="currentUser"></div><div class="text-xs text-zinc-500">v1.0 beta</div></div>
             </div>
             <div class="flex gap-2">
                 <button onclick="importData()" class="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-sm">📥 Importar</button>
@@ -68,17 +64,17 @@
             <div class="flex items-center gap-3">
                 <button class="mobile-menu-btn md:hidden px-2 py-2 hover:bg-zinc-800 rounded-lg" onclick="toggleMobileMenu()">☰</button>
                 <div class="w-8 h-8 bg-emerald-600 rounded-xl flex items-center justify-center font-bold text-sm">TL</div>
-                <div><div class="font-semibold text-sm md:text-base" id="currentUser"></div><div class="text-xs text-zinc-500">v1.0</div></div>
+                <div><div class="font-semibold text-sm md:text-base" id="currentUserMini"></div><div class="text-xs text-zinc-500">v1.0</div></div>
             </div>
             <div class="hidden sm:flex gap-1 md:gap-2">
-                <button onclick="importData()" class="px-2 md:px-3 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">📥</button>
-                <button onclick="exportData()" class="px-2 md:px-3 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">📤</button>
-                <button onclick="location.reload()" class="px-2 md:px-3 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">🔄</button>
-                <button onclick="showAudit()" class="px-2 md:px-3 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">📋</button>
+                <button onclick="importData()" class="px-2 md:px-3 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">📥 Importar</button>
+                <button onclick="exportData()" class="px-2 md:px-3 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">📤 Exportar</button>
+                <button onclick="location.reload()" class="px-2 md:px-3 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">🔄 Recargar</button>
+                <button onclick="showAudit()" class="px-2 md:px-3 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">📋 Auditoría</button>
             </div>
             <button onclick="logout()" class="px-2 md:px-3 py-2 bg-red-600 hover:bg-red-500 rounded-lg text-xs md:text-sm">Salir</button>
         </div>
-        <div class="nav-overlay" onclick="toggleMobileMenu()"></div>
+        <div class="nav-overlay" onclick="closeNav()"></div>
 
         <div class="flex flex-col md:flex-row">
             <!-- NAV -->
@@ -130,11 +126,6 @@
                     <div class="flex justify-between mb-6"><h2 class="text-2xl font-bold">Productos</h2><button onclick="showAddProduct()" class="bg-emerald-600 px-6 py-2 rounded-xl">+ Nuevo</button></div>
                     <table class="w-full"><thead><tr class="text-left text-zinc-400 text-sm"><th class="pb-3">Nombre</th><th>Categoría</th><th>Stock</th><th>Costo prom.</th><th>Mínimo</th></tr></thead>
                     <tbody id="productsTable" class="text-sm"></tbody></table>
-                                    <div class="flex flex-col sm:flex-row justify-between gap-4 mb-6"><h2 class="text-xl md:text-2xl font-bold">Productos</h2><button onclick="showAddProduct()" class="bg-emerald-600 px-4 md:px-6 py-2 rounded-xl text-sm md:text-base w-full sm:w-auto">+ Nuevo</button></div>
-                                    <div class="overflow-x-auto">
-                                        <table class="w-full text-xs md:text-sm"><thead><tr class="text-left text-zinc-400"><th class="pb-3 px-2">Nombre</th><th class="px-2">Cat</th><th class="px-2">Stock</th><th class="px-2">Costo</th><th class="px-2">Min</th></tr></thead>
-                                        <tbody id="productsTable"></tbody></table>
-                                    </div>
                 </div>
                 <!-- DESCUENTOS -->
                 <div id="discounts" class="section">
@@ -146,9 +137,6 @@
                     <div class="flex justify-between mb-6"><h2 class="text-2xl font-bold">Compras / Lotes</h2><button onclick="showAddPurchase()" class="bg-emerald-600 px-6 py-2 rounded-xl">+ Nueva compra</button></div>
                     <div class="overflow-x-auto"><table class="w-full"><thead><tr class="text-left text-zinc-400 text-sm"><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Costo real</th><th>Proveedor</th><th>Acción</th></tr></thead>
                     <tbody id="purchasesTable" class="text-sm"></tbody></table></div>
-                                    <div class="flex flex-col sm:flex-row justify-between gap-4 mb-6"><h2 class="text-xl md:text-2xl font-bold">Compras / Lotes</h2><button onclick="showAddPurchase()" class="bg-emerald-600 px-4 md:px-6 py-2 rounded-xl text-sm md:text-base w-full sm:w-auto">+ Nueva compra</button></div>
-                                    <div class="overflow-x-auto"><table class="w-full text-xs md:text-sm"><thead><tr class="text-left text-zinc-400"><th class="px-2 pb-2">Fecha</th><th class="px-2">Producto</th><th class="px-2">Cant</th><th class="px-2">Costo</th><th class="px-2">Prov</th><th class="px-2">Acción</th></tr></thead>
-                                    <tbody id="purchasesTable"></tbody></table></div>
                 </div>
 
                 <!-- VENTAS -->
@@ -156,20 +144,13 @@
                     <div class="flex justify-between mb-6"><h2 class="text-2xl font-bold">Ventas</h2><button onclick="showQuickSale()" class="bg-emerald-600 px-6 py-2 rounded-xl">+ Venta rápida</button></div>
                     <div class="overflow-x-auto"><table class="w-full"><thead><tr class="text-left text-zinc-400 text-sm"><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Precio venta</th><th>Cliente</th><th>Acción</th></tr></thead>
                     <tbody id="salesTable" class="text-sm"></tbody></table></div>
-                                    <div class="flex flex-col sm:flex-row justify-between gap-4 mb-6"><h2 class="text-xl md:text-2xl font-bold">Ventas</h2><button onclick="showQuickSale()" class="bg-emerald-600 px-4 md:px-6 py-2 rounded-xl text-sm md:text-base w-full sm:w-auto">+ Venta rápida</button></div>
-                                    <div class="overflow-x-auto"><table class="w-full text-xs md:text-sm"><thead><tr class="text-left text-zinc-400"><th class="px-2 pb-2">Fecha</th><th class="px-2">Producto</th><th class="px-2">Cant</th><th class="px-2">Precio</th><th class="px-2">Cliente</th><th class="px-2">Acción</th></tr></thead>
-                                    <tbody id="salesTable"></tbody></table></div>
                 </div>
 
                 <!-- REPORTES -->
                 <div id="reports" class="section">
                     <h2 class="text-xl md:text-2xl font-bold mb-6">Dashboard</h2>
                     <div class="mb-8 bg-zinc-900 p-4 md:p-5 rounded-3xl flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-6">
-                        <div class="text-sm text-zinc-400">1 USD =</div>
-                        <input id="exchangeRateInput" type="number" step="any" value="500" 
-                               class="bg-transparent border-b-2 border-emerald-500 text-2xl md:text-3xl font-bold w-24 md:w-40 text-center focus:outline-none"
-                               onchange="saveExchangeRate()">
-                        <div class="text-sm text-zinc-400">CUP</div>
+                        <div class="text-sm text-zinc-400">1 USD = <span id="exchangeRateDisplay" class="font-bold text-2xl md:text-3xl ml-2"></span> CUP</div>
                     </div>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-8">
                         <div class="bg-zinc-900 p-4 md:p-6 rounded-3xl">
@@ -339,10 +320,13 @@ function handleLogin() {
     loadData()
     document.getElementById('loginPage').classList.add('hidden')
     document.getElementById('app').classList.remove('hidden')
-    document.getElementById('currentUser').textContent = user
+    const elMain = document.getElementById('currentUser')
+    if(elMain) elMain.textContent = user
+    const elMini = document.getElementById('currentUserMini')
+    if(elMini) elMini.textContent = user
     renderAll()
 }
-function logout(){ saveData(); currentUser = ''; document.getElementById('app').classList.add('hidden'); document.getElementById('loginPage').classList.remove('hidden'); document.getElementById('loginUser').value = '' }
+function logout(){ saveData(); currentUser = ''; document.getElementById('app').classList.add('hidden'); document.getElementById('loginPage').classList.remove('hidden'); document.getElementById('loginUser').value = ''; const elMain = document.getElementById('currentUser'); if(elMain) elMain.textContent = ''; const elMini = document.getElementById('currentUserMini'); if(elMini) elMini.textContent = '' }
 
 // SECTIONS
 function showSection(sec){
@@ -733,10 +717,14 @@ function renderReports(){
             cashTotal += s.qty * salePrice
         }
     })
-    document.getElementById('totalProfit').innerHTML = formatDual(totalRevenue - totalCost)
-    document.getElementById('totalCOGS').innerHTML = formatDual(totalCost)
+    const profitEl = document.getElementById('totalProfit')
+    if(profitEl) profitEl.innerHTML = formatDual(totalRevenue - totalCost)
+    const cogsEl = document.getElementById('totalCOGS')
+    if(cogsEl) cogsEl.innerHTML = formatDual(totalCost)
     const cashEl = document.getElementById('totalCash')
     if(cashEl) cashEl.innerHTML = formatDual(cashTotal)
+    const exDisp = document.getElementById('exchangeRateDisplay')
+    if(exDisp) exDisp.textContent = data.exchangeRate
 }
 
 // MODALES
@@ -883,6 +871,20 @@ function importData(){
     }
     input.click()
 }
+// Mobile nav helpers
+function toggleMobileMenu(){
+    const aside = document.querySelector('.aside-nav')
+    const overlay = document.querySelector('.nav-overlay')
+    if(aside) aside.classList.toggle('open')
+    if(overlay) overlay.classList.toggle('open')
+}
+function closeNav(){
+    const aside = document.querySelector('.aside-nav')
+    const overlay = document.querySelector('.nav-overlay')
+    if(aside) aside.classList.remove('open')
+    if(overlay) overlay.classList.remove('open')
+}
+
 window.addEventListener('DOMContentLoaded', () => { 
     // Auto-login si ya existe usuario
     const savedUser = localStorage.getItem('tienda_lastUser')
