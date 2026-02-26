@@ -70,7 +70,7 @@
                 <div class="w-14 h-14 bg-emerald-600 rounded-2xl flex items-center justify-center font-bold text-xl text-white">MT</div>
             </div>
             <h1 class="text-4xl font-bold text-emerald-500">MiTienda</h1>
-            <p class="text-zinc-400 text-sm mt-1">Gestor de inventario local (c&oacutedigo abierto)</p>
+            <p class="text-zinc-400 text-sm mt-1">Gestor de inventario local (<a href="https://github.com/Jayrus10/JayrusDB" class="text-blue-500 hover:underline">c&oacutedigo abierto</a>)</p>
         </div>
         <div class="w-full max-w-md">
             <div class="bg-zinc-900 p-8 rounded-2xl">
@@ -91,7 +91,7 @@
                 <div class="text-sm"><p class="font-semibold text-emerald-400 mb-1">💾 Exporta regularmente</p><p class="text-zinc-300">Exporta tus datos al menos una vez al día para evitar pérdidas.</p></div>
                 <div class="text-sm"><p class="font-semibold text-emerald-400 mb-1">🔄 Limpieza</p><p class="text-zinc-300">Los datos no se sincronizan entre dispositivos.</p></div>
                 <div class="text-sm"><p class="font-semibold text-emerald-400 mb-1">👤 Privado</p><p class="text-zinc-300">Cada navegador tiene su propia base de datos independiente.</p></div>
-                <div class="text-sm"><p class="font-semibold text-emerald-400 mb-1">🛠 Soporte técnico</p><p class="text-zinc-300">Si necesitas ayuda escríbeme por Telegram: @mrjayrus.</p></div>
+                <div class="text-sm"><p class="font-semibold text-emerald-400 mb-1">🛠 Soporte técnico</p><p class="text-zinc-300">Si necesitas ayuda escríbeme por Telegram: <a href="https://t.me/mrjayrus" class="text-blue-500 hover:underline">MrJayrus</a>.</p></div>
             </div>
             <button onclick="hideWarningModal()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-medium">De acuerdo</button>
         </div>
@@ -127,7 +127,7 @@
             <button class="mobile-menu-btn hidden text-2xl" onclick="toggleMobileMenu()">☰</button>
             <div class="flex items-center gap-2 md:gap-3">
                 <div class="w-8 h-8 bg-emerald-600 rounded-xl flex items-center justify-center font-bold text-sm">MT</div>
-                <div><div class="font-semibold text-sm" id="currentUser"></div><div class="text-xs text-zinc-500">v1.0.3beta MultiMoneda</div></div>
+                <div><div class="font-semibold text-sm" id="currentUser"></div><div class="text-xs text-zinc-500">v1.0.5 beta</div></div>
             </div>
             <div class="flex gap-1 md:gap-2 flex-wrap justify-end">
                 <button onclick="importData()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">📥 <span class="hidden md:inline">Importar</span></button>
@@ -236,7 +236,7 @@
                     </div>
                     <div class="overflow-x-auto">
                     <table class="w-full">
-                        <thead><tr class="text-left text-zinc-400 text-sm"><th class="pb-3">Nombre</th><th>Nivel VIP</th><th>Deuda</th><th>Acción</th></tr></thead>
+                        <thead><tr class="text-left text-zinc-400 text-sm"><th class="pb-3">Nombre</th><th>Nivel VIP</th><th>Compras</th><th>Total gastado</th><th>Deuda</th><th>Acción</th></tr></thead>
                         <tbody id="customersTable" class="text-sm"></tbody>
                     </table>
                     </div>
@@ -411,7 +411,15 @@
                     <option value="EUR">EUR</option>
                 </select>
             </div>
-            <input id="saleClient" placeholder="Cliente (opcional)" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 mb-3 md:mb-4 text-sm">
+            <div class="relative mb-3 md:mb-4">
+                <input id="saleClient" placeholder="Cliente (opcional)" autocomplete="off"
+                    class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 text-sm"
+                    oninput="filterClientSuggestions(this.value)"
+                    onkeydown="handleClientKey(event)"
+                    onfocus="filterClientSuggestions(this.value)"
+                    onblur="setTimeout(hideSuggestions,150)">
+                <ul id="clientSuggestions" class="hidden absolute z-10 w-full bg-zinc-800 border border-zinc-700 rounded-2xl mt-1 overflow-hidden shadow-xl max-h-48 overflow-y-auto"></ul>
+            </div>
             <label class="flex items-center gap-2 mb-6 md:mb-8 text-sm"><input id="saleCredit" type="checkbox"> Fiado</label>
             <div class="flex gap-2 md:gap-3">
                 <button onclick="hideModal('modalSale')" class="flex-1 py-2 md:py-4 bg-zinc-800 rounded-2xl text-sm">Cancelar</button>
@@ -602,8 +610,8 @@ function loadData(){
         ;(d.customers || []).forEach(c => { c.debt = (c.debt||0)*oldRate })
     }
     // Garantías mínimas
-    if(!d.exchangeRates.USD || d.exchangeRates.USD <= 0) d.exchangeRates.USD = 500
-    if(!d.exchangeRates.EUR || d.exchangeRates.EUR <= 0) d.exchangeRates.EUR = 650
+    if(!d.exchangeRates.USD || d.exchangeRates.USD <= 0) d.exchangeRates.USD = 505
+    if(!d.exchangeRates.EUR || d.exchangeRates.EUR <= 0) d.exchangeRates.EUR = 570
     if(!d.baseCurrency) d.baseCurrency = 'CUP'
     if(!d.audit)     d.audit     = []
     if(!d.discounts) d.discounts = []
@@ -770,7 +778,7 @@ function renderCustomers(){
     tbody.innerHTML = ''
     const list = data.customers || []
     if(!list.length){
-        tbody.innerHTML = '<tr><td colspan="4" class="py-8 text-center text-zinc-500">No hay clientes registrados</td></tr>'
+        tbody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-zinc-500">No hay clientes registrados</td></tr>'
         return
     }
     list.forEach(c => {
@@ -778,10 +786,15 @@ function renderCustomers(){
         const vipBadge = vip
             ? '<span class="text-xs bg-amber-900 text-amber-300 px-2 py-0.5 rounded-full ml-1">⭐ '+vip.name+' ('+vip.percent+'%)</span>'
             : '<span class="text-xs text-zinc-600">—</span>'
+        const custSales = data.sales.filter(s => s.client === c.name)
+        const purchaseCount = custSales.length
+        const totalSpent    = custSales.reduce((a,s) => a + s.qty*(s.finalPriceCUP||s.unitSellPriceCUP||0), 0)
         const tr = document.createElement('tr')
         tr.className = 'border-b border-zinc-800 hover:bg-zinc-900'
-        tr.innerHTML = '<td class="py-4">'+c.name+'</td>'
+        tr.innerHTML = '<td class="py-4 font-medium">'+c.name+'</td>'
             +'<td>'+vipBadge+'</td>'
+            +'<td class="text-zinc-300">'+(purchaseCount > 0 ? purchaseCount+'x' : '<span class="text-zinc-600">0</span>')+'</td>'
+            +'<td>'+(totalSpent > 0 ? fmtInfo(totalSpent,'Total gastado') : '<span class="text-zinc-600">—</span>')+'</td>'
             +'<td>'+fmtInfo(c.debt||0,'Deuda')+'</td>'
             +'<td class="flex gap-2 py-4">'
             +'<button onclick="showEditCustomer('+c.id+')" class="text-emerald-400 hover:text-emerald-300 text-sm">✏️</button>'
@@ -1312,6 +1325,45 @@ function updateSuggestedPrice(){
         document.getElementById('salePrice').value = ''
     }
 }
+// ─── Client autocomplete ─────────────────────────────────────────────────────
+let _suggHighlight = -1
+function filterClientSuggestions(val){
+    const ul = document.getElementById('clientSuggestions')
+    const q  = val.trim().toLowerCase()
+    if(!q){ ul.classList.add('hidden'); return }
+    const matches = (data.customers||[]).filter(c => c.name.toLowerCase().includes(q)).slice(0,8)
+    if(!matches.length){ ul.classList.add('hidden'); return }
+    ul.innerHTML = ''
+    _suggHighlight = -1
+    matches.forEach((c,i) => {
+        const li = document.createElement('li')
+        li.className = 'px-4 py-2 cursor-pointer hover:bg-zinc-700 text-sm flex justify-between items-center'
+        const vip = c.vipLevel ? (data.vipLevels||[]).find(v=>v.id===c.vipLevel) : null
+        const badge = vip ? '<span class="text-xs text-amber-400">⭐ '+vip.name+'</span>' : ''
+        li.innerHTML = '<span>'+c.name+'</span>'+badge
+        li.onmousedown = () => {
+            document.getElementById('saleClient').value = c.name
+            ul.classList.add('hidden')
+            updateSuggestedPrice()
+        }
+        ul.appendChild(li)
+    })
+    ul.classList.remove('hidden')
+}
+function handleClientKey(e){
+    const ul = document.getElementById('clientSuggestions')
+    const items = ul.querySelectorAll('li')
+    if(ul.classList.contains('hidden') || !items.length) return
+    if(e.key==='ArrowDown'){ e.preventDefault(); _suggHighlight=Math.min(_suggHighlight+1,items.length-1); items.forEach((li,i)=>li.classList.toggle('bg-zinc-700',i===_suggHighlight)) }
+    else if(e.key==='ArrowUp'){ e.preventDefault(); _suggHighlight=Math.max(_suggHighlight-1,0); items.forEach((li,i)=>li.classList.toggle('bg-zinc-700',i===_suggHighlight)) }
+    else if(e.key==='Enter' && _suggHighlight>=0){ e.preventDefault(); items[_suggHighlight].onmousedown() }
+    else if(e.key==='Escape'){ ul.classList.add('hidden') }
+}
+function hideSuggestions(){
+    const ul = document.getElementById('clientSuggestions')
+    if(ul) ul.classList.add('hidden')
+}
+
 function showQuickSale(){
     const sel = document.getElementById('saleProd')
     sel.innerHTML = '<option value="">Selecciona producto</option>'
@@ -1361,15 +1413,16 @@ function saveSale(){
     prod.currentStock -= qty
     const today = new Date().toISOString().slice(0,10)
     data.sales.push({id:nextId++, productId:prodId, date:today, qty, unitSellPriceCUP, finalPriceCUP, discountPercent, currencyOriginal:cur, client:client||'-', onCredit:credit})
-    if(credit && client){
+    // Auto-register any named client (not only on fiado)
+    if(client){
         let cust = data.customers.find(c=>c.name===client)
-        if(!cust){ cust={id:nextId++,name:client,debt:0}; data.customers.push(cust) }
-        cust.debt = (cust.debt||0) + qty*finalPriceCUP
+        if(!cust){ cust={id:nextId++,name:client,debt:0,vipLevel:''}; data.customers.push(cust) }
+        if(credit) cust.debt = (cust.debt||0) + qty*finalPriceCUP
     }
     saveData()
     const dtxt = discountPercent > 0 ? ' (dto '+((discountPercent*100).toFixed(0))+'%)' : ''
     addAudit('VENTA: '+prod.name+' x'+qty+' a '+fmtCUP(finalPriceCUP)+dtxt)
-    hideModal('modalSale'); renderSales(); renderDashboard()
+    hideModal('modalSale'); renderSales(); renderCustomers(); renderDashboard()
 }
 function renderSales(){
     const tbody = document.getElementById('salesTable')
