@@ -247,7 +247,23 @@
                                 <span class="text-zinc-500 text-sm">CUP</span>
                             </div>
                         </div>
+                        <div class="border-t border-zinc-800 pt-6">
+                            <div class="mt-4">
+                                <label class="block text-sm mb-2">Múltiplo mínimo de billete (No Funcional aun)</label>
+                                <select id="cashRoundingStepInput" 
+                                    class="w-full bg-zinc-800 rounded-xl p-3 text-sm" onchange="saveCashRoundingStep()">
+                                <option value="1">Sin redondeo</option>
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                                </select>
+                                <p class="text-xs text-zinc-500 mt-2">Los precios estimados se redondearan para evitar billetes de menor denominación.</p>
+                            </div>
+                        </div>
                     </div>
+                    
                 </div>
 
             </div>
@@ -401,6 +417,7 @@
 
 <script>
 // ─── Estado global ────────────────────────────────────────────────────────────
+let cashRoundingStep = 10   // múltiplo mínimo permitido
 let currentUser = ''
 let data = { products:[], purchases:[], sales:[], customers:[], discounts:[], audit:[], exchangeRates:{USD:500,EUR:650}, baseCurrency:'CUP' }
 let nextId = 1
@@ -449,6 +466,13 @@ function fromCUP(cup, currency){
     return r > 0 ? cup / r : cup
 }
 
+// ─── Redondeo ─────────────────────────────────────────────────────────────────
+function roundCash(value){
+    value = Number(value) || 0
+    const step = Number(cashRoundingStep) || 1
+    return Math.ceil(value / step) * step
+}
+
 // ─── Formato CUP ───────────────────────────────
 function fmtCUP(amount){
     amount = Number(amount) || 0
@@ -485,7 +509,7 @@ function showCurrencyInfo(cup, label){
             <span class="font-bold text-emerald-400">${e}</span>
         </div>
     `
-    
+
     const modal = document.getElementById('modalCurrencyInfo')
     const box   = document.getElementById('modalCurrencyInfoBox')
 
@@ -919,6 +943,8 @@ function renderSettings(){
     document.getElementById('baseCurrencySelect').value = data.baseCurrency
     document.getElementById('rateUSD').value = data.exchangeRates.USD
     document.getElementById('rateEUR').value = data.exchangeRates.EUR
+    cashRoundingStep = Number(localStorage.getItem('cashRoundingStep')) || 10
+    document.getElementById('cashRoundingStepInput').value = cashRoundingStep
 }
 function updateBaseCurrency(){
     data.baseCurrency = document.getElementById('baseCurrencySelect').value
@@ -931,6 +957,12 @@ function saveRates(){
     if(eur > 0) data.exchangeRates.EUR = eur
     saveData(); renderAll()
     addAudit('AJUSTES: tasas USD='+data.exchangeRates.USD+' EUR='+data.exchangeRates.EUR)
+}
+function saveCashRoundingStep(){
+    cashRoundingStep = Number(document.getElementById('cashRoundingStepInput').value) || 1
+    localStorage.setItem('cashRoundingStep', cashRoundingStep)
+    saveData(); renderAll()
+    addAudit('AJUSTES: redondeo de caja = '+cashRoundingStep)
 }
 
 // ─── Auditoría ────────────────────────────────────────────────────────────────
