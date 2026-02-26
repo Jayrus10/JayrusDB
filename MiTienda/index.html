@@ -104,19 +104,23 @@
             <div class="space-y-3 mb-6">
                 <div class="text-sm">
                     <p class="font-semibold text-emerald-400 mb-1">📱 Datos temporales</p>
-                    <p class="text-zinc-300">Tu base de datos se guarda solo en este navegador.</p>
+                    <p class="text-zinc-300">Tu base de datos se guarda solo en este navegador y temporalmente mientras no se elimine el cache.</p>
                 </div>
                 <div class="text-sm">
                     <p class="font-semibold text-emerald-400 mb-1">💾 Exporta regularmente</p>
-                    <p class="text-zinc-300">Usa el botón "📤 Exportar" en la app cada semana.</p>
+                    <p class="text-zinc-300">Usa el botón "📤 Exportar" al menos 1 vez al dia para guardaar los datos.</p>
                 </div>
                 <div class="text-sm">
                     <p class="font-semibold text-emerald-400 mb-1">🔄 Si limpias el navegador</p>
-                    <p class="text-zinc-300">O usas otro dispositivo, perderás los datos.</p>
+                    <p class="text-zinc-300">O usas otro dispositivo, perderás los datos que no hayas guardado.</p>
                 </div>
                 <div class="text-sm">
                     <p class="font-semibold text-emerald-400 mb-1">👤 Privado</p>
-                    <p class="text-zinc-300">Cada navegador tiene su propia base de datos independiente.</p>
+                    <p class="text-zinc-300">Cada navegador tiene su propia base de datos independiente, m servidor no guarda ninguna informacion.</p>
+                </div>
+                <div class="text-sm">
+                    <p class="font-semibold text-emerald-400 mb-1">🛠 Soporte tecnico</p>
+                    <p class="text-zinc-300">Si necesita ayuda para usar esta herramienta o ha encontrado algun problema, no dude en escribirme a mi Telegram: @mrjayrus.</p>
                 </div>
             </div>
             <button onclick="hideWarningModal()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-medium">De acuerdo</button>
@@ -129,7 +133,7 @@
             <button class="mobile-menu-btn hidden text-2xl" onclick="toggleMobileMenu()">☰</button>
             <div class="flex items-center gap-2 md:gap-3">
                 <div class="w-8 h-8 bg-emerald-600 rounded-xl flex items-center justify-center font-bold text-sm">MT</div>
-                <div><div class="font-semibold text-sm" id="currentUser"></div><div class="text-xs text-zinc-500">v1.0.1 beta</div></div>
+                <div><div class="font-semibold text-sm" id="currentUser"></div><div class="text-xs text-zinc-500">v1.0.2 beta</div></div>
             </div>
             <div class="flex gap-1 md:gap-2 flex-wrap justify-end">
                 <button onclick="importData()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm" title="Importar">📥 <span class="hidden md:inline">Importar</span></button>
