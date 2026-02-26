@@ -9,12 +9,8 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { width: 100%; height: 100%; overflow: hidden; }
         body { font-family: system-ui, sans-serif; }
-        
-        /* Sections */
         .section { display: none; opacity: 0; transition: opacity .32s ease; visibility: hidden; pointer-events: none; }
         .active { display: block; opacity: 1; visibility: visible; pointer-events: auto; }
-        
-        /* Desktop layout */
         @media (min-width: 1024px) {
             #app { display: flex; flex-direction: column; height: 100vh; }
             .app-container { display: flex; flex: 1; overflow: hidden; }
@@ -22,8 +18,6 @@
             .app-content { flex: 1; overflow: hidden; }
             .section { padding: 32px; overflow-y: auto; height: 100%; }
         }
-        
-        /* Mobile/Tablet layout */
         @media (max-width: 1023px) {
             #app { display: flex; flex-direction: column; height: 100vh; }
             .app-container { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
@@ -32,7 +26,6 @@
             .app-content { flex: 1; overflow: hidden; }
             .section { padding: 16px; overflow-y: auto; height: 100%; }
             .mobile-menu-btn { display: flex !important; }
-            
             .px-6 { padding-left: 16px !important; padding-right: 16px !important; }
             .py-4 { padding-top: 12px !important; padding-bottom: 12px !important; }
             .px-4 { padding-left: 12px !important; padding-right: 12px !important; }
@@ -48,32 +41,20 @@
             .mb-6 { margin-bottom: 12px !important; }
             .mt-8 { margin-top: 16px !important; }
             .mt-12 { margin-top: 20px !important; }
-            
             .text-2xl { font-size: 18px !important; }
             .text-3xl { font-size: 24px !important; }
             .text-4xl { font-size: 28px !important; }
             .text-5xl { font-size: 32px !important; }
-            
             .grid-cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
             .grid-cols-2 { grid-template-columns: 1fr !important; }
         }
-        
-        /* Desktop */
-        @media (min-width: 1024px) {
-            .mobile-menu-btn { display: none !important; }
-        }
-        
-        /* Modal animations */
+        @media (min-width: 1024px) { .mobile-menu-btn { display: none !important; } }
         #warningModal { animation: fadeIn .3s ease; }
         #warningModal > div { animation: scaleUp .32s cubic-bezier(0.34, 3.56, 0.64, 1); }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        
-        /* Winsows Animaions */
-        #modalProduct, #modalPurchase, #modalSale, #modalAudit, #modalDiscount, #modalPurchaseInfo { animation: fadeIn .3s ease; }
-        #modalProduct > div, #modalPurchase > div, #modalSale > div, #modalAudit > div, #modalDiscount > div, #modalPurchaseInfo > div { animation: scaleUp .32s cubic-bezier(0.34, 3.56, 0.64, 1); }
-
-        /* Scrollbar styling */
+        #modalProduct, #modalPurchase, #modalSale, #modalAudit, #modalDiscount, #modalPurchaseInfo, #modalSetupRates { animation: fadeIn .3s ease; }
+        #modalProduct > div, #modalPurchase > div, #modalSale > div, #modalAudit > div, #modalDiscount > div, #modalPurchaseInfo > div, #modalSetupRates > div { animation: scaleUp .32s cubic-bezier(0.34, 3.56, 0.64, 1); }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #52525b; border-radius: 3px; }
@@ -89,7 +70,7 @@
                 <div class="w-14 h-14 bg-emerald-600 rounded-2xl flex items-center justify-center font-bold text-xl text-white">MT</div>
             </div>
             <h1 class="text-4xl font-bold text-emerald-500">MiTienda</h1>
-            <p class="text-zinc-400 text-sm mt-1">Gestor de inventario local</p>
+            <p class="text-zinc-400 text-sm mt-1">Gestor de inventario local (c&oacutedigo abierto)</p>
         </div>
         <div class="w-full max-w-md">
             <div class="bg-zinc-900 p-8 rounded-2xl">
@@ -104,28 +85,13 @@
     <!-- Warning Modal -->
     <div id="warningModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
         <div class="bg-zinc-900 w-full max-w-md rounded-2xl p-6">
-            <h3 class="text-xl font-bold mb-4 text-red-400 flex items-center gap-2">⚠️ Adviso Importante</h3>
+            <h3 class="text-xl font-bold mb-4 text-red-400 flex items-center gap-2">⚠️ Aviso Importante</h3>
             <div class="space-y-3 mb-6">
-                <div class="text-sm">
-                    <p class="font-semibold text-emerald-400 mb-1">📱 Datos temporales</p>
-                    <p class="text-zinc-300">Los datos se almacenan localmente en este navegador. Si borras el cach&eacute, se perder&aacuten.</p>
-                </div>
-                <div class="text-sm">
-                    <p class="font-semibold text-emerald-400 mb-1">💾 Exporta regularmente</p>
-                    <p class="text-zinc-300">Exporta tus datos al menos una vez al d&iacutea para evitar p&eacuterdidas.</p>
-                </div>
-                <div class="text-sm">
-                    <p class="font-semibold text-emerald-400 mb-1">🔄 Limpieza</p>
-                    <p class="text-zinc-300">Los datos no se sincronizan entre dispositivos. Guarda antes de cambiar.</p>
-                </div>
-                <div class="text-sm">
-                    <p class="font-semibold text-emerald-400 mb-1">👤 Privado</p>
-                    <p class="text-zinc-300">Cada navegador tiene su propia base de datos independiente, mi servidor no almacena ninguna informaci&oacuten.</p>
-                </div>
-                <div class="text-sm">
-                    <p class="font-semibold text-emerald-400 mb-1">🛠 Soporte t&eacutecnico</p>
-                    <p class="text-zinc-300">Si necesitas ayuda o encuentras un error, escr&iacutebeme por Telegram: @mrjayrus.</p>
-                </div>
+                <div class="text-sm"><p class="font-semibold text-emerald-400 mb-1">📱 Datos temporales</p><p class="text-zinc-300">Los datos se almacenan localmente en este navegador. Si borras el caché, se perderán.</p></div>
+                <div class="text-sm"><p class="font-semibold text-emerald-400 mb-1">💾 Exporta regularmente</p><p class="text-zinc-300">Exporta tus datos al menos una vez al día para evitar pérdidas.</p></div>
+                <div class="text-sm"><p class="font-semibold text-emerald-400 mb-1">🔄 Limpieza</p><p class="text-zinc-300">Los datos no se sincronizan entre dispositivos.</p></div>
+                <div class="text-sm"><p class="font-semibold text-emerald-400 mb-1">👤 Privado</p><p class="text-zinc-300">Cada navegador tiene su propia base de datos independiente.</p></div>
+                <div class="text-sm"><p class="font-semibold text-emerald-400 mb-1">🛠 Soporte técnico</p><p class="text-zinc-300">Si necesitas ayuda escríbeme por Telegram: @mrjayrus.</p></div>
             </div>
             <button onclick="hideWarningModal()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-medium">De acuerdo</button>
         </div>
@@ -137,40 +103,35 @@
             <button class="mobile-menu-btn hidden text-2xl" onclick="toggleMobileMenu()">☰</button>
             <div class="flex items-center gap-2 md:gap-3">
                 <div class="w-8 h-8 bg-emerald-600 rounded-xl flex items-center justify-center font-bold text-sm">MT</div>
-                <div><div class="font-semibold text-sm" id="currentUser"></div><div class="text-xs text-zinc-500">v1.0.3 beta</div></div>
+                <div><div class="font-semibold text-sm" id="currentUser"></div><div class="text-xs text-zinc-500">v1.0.3beta MultiMoneda</div></div>
             </div>
             <div class="flex gap-1 md:gap-2 flex-wrap justify-end">
-                <button onclick="importData()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm" title="Importar">📥 <span class="hidden md:inline">Importar</span></button>
-                <button onclick="exportData()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm" title="Exportar">📤 <span class="hidden md:inline">Exportar</span></button>
-                <button onclick="location.reload()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm" title="Recargar">🔄 <span class="hidden md:inline">Recargar</span></button>
-                <button onclick="showAudit()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm" title="Auditoría">📋 <span class="hidden md:inline">Auditoría</span></button>
-                <button onclick="logout()" class="px-2 py-1 md:px-3 md:py-2 bg-red-600 hover:bg-red-500 rounded-lg text-xs md:text-sm" title="Salir">Salir</button>
+                <button onclick="importData()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">📥 <span class="hidden md:inline">Importar</span></button>
+                <button onclick="exportData()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">📤 <span class="hidden md:inline">Exportar</span></button>
+                <button onclick="location.reload()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">🔄 <span class="hidden md:inline">Recargar</span></button>
+                <button onclick="showAudit()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">📋 <span class="hidden md:inline">Auditoría</span></button>
+                <button onclick="logout()" class="px-2 py-1 md:px-3 md:py-2 bg-red-600 hover:bg-red-500 rounded-lg text-xs md:text-sm">Salir</button>
             </div>
         </div>
 
         <div class="app-container">
             <!-- NAV -->
-            <div class="app-nav bg-zinc-900 border-r border-zinc-800 min-h-[calc(100vh-73px)]">
+            <div class="app-nav bg-zinc-900 border-r border-zinc-800 min-h-[calc(100vh-73px)] p-3">
                 <div onclick="showSection('dashboard')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">📊 Dashboard</div>
                 <div onclick="showSection('products')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">📦 Productos</div>
                 <div onclick="showSection('discounts')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">🏷️ Descuentos</div>
                 <div onclick="showSection('purchases')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">🛒 Compras</div>
                 <div onclick="showSection('sales')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">💰 Ventas</div>
                 <div onclick="showSection('reports')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">📈 Reportes</div>
+                <div onclick="showSection('settings')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">⚙️ Ajustes</div>
             </div>
 
             <!-- CONTENT -->
             <div class="app-content">
+
                 <!-- DASHBOARD -->
                 <div id="dashboard" class="section active">
                     <h2 class="text-2xl font-bold mb-6">Dashboard</h2>
-                    <div class="mb-8 bg-zinc-900 p-5 rounded-3xl flex items-center gap-6">
-                        <div class="text-sm text-zinc-400">1 USD =</div>
-                        <input id="exchangeRateInput" type="number" step="any" value="500" 
-                               class="bg-transparent border-b-2 border-emerald-500 text-3xl font-bold w-40 text-center focus:outline-none"
-                               onchange="saveExchangeRate()">
-                        <div class="text-sm text-zinc-400">CUP</div>
-                    </div>
                     <div class="grid grid-cols-4 gap-6">
                         <div class="bg-zinc-900 p-6 rounded-3xl">
                             <div class="text-zinc-400 text-sm">Valor stock</div>
@@ -185,7 +146,7 @@
                             <div id="dashTodayProfit" class="text-4xl font-bold text-emerald-400 mt-2"></div>
                         </div>
                         <div class="bg-zinc-900 p-6 rounded-3xl">
-                            <div class="text-zinc-400 text-sm">Ventas mes</div>
+                            <div class="text-zinc-400 text-sm">Ventas totales</div>
                             <div id="dashMonthSales" class="text-4xl font-bold text-sky-400 mt-2"></div>
                         </div>
                     </div>
@@ -198,15 +159,17 @@
                     <table class="w-full"><thead><tr class="text-left text-zinc-400 text-sm"><th class="pb-3">Nombre</th><th>Categoría</th><th>Stock</th><th>Costo prom.</th><th>Mínimo</th></tr></thead>
                     <tbody id="productsTable" class="text-sm"></tbody></table>
                 </div>
+
                 <!-- DESCUENTOS -->
                 <div id="discounts" class="section">
                     <div class="flex justify-between mb-6"><h2 class="text-2xl font-bold">Descuentos</h2><button onclick="showAddDiscount()" class="bg-emerald-600 px-6 py-2 rounded-xl">+ Nuevo descuento</button></div>
                     <div id="discountsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
                 </div>
+
                 <!-- COMPRAS -->
                 <div id="purchases" class="section">
                     <div class="flex justify-between mb-6"><h2 class="text-2xl font-bold">Compras / Lotes</h2><button onclick="showAddPurchase()" class="bg-emerald-600 px-6 py-2 rounded-xl">+ Nueva compra</button></div>
-                    <div class="overflow-x-auto"><table class="w-full"><thead><tr class="text-left text-zinc-400 text-sm"><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Costo real</th><th>Proveedor</th><th>Acción</th></tr></thead>
+                    <div class="overflow-x-auto"><table class="w-full"><thead><tr class="text-left text-zinc-400 text-sm"><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Costo unitario</th><th>Proveedor</th><th>Acción</th></tr></thead>
                     <tbody id="purchasesTable" class="text-sm"></tbody></table></div>
                 </div>
 
@@ -231,6 +194,38 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- AJUSTES -->
+                <div id="settings" class="section">
+                    <h2 class="text-2xl font-bold mb-6">Ajustes</h2>
+                    <div class="bg-zinc-900 p-6 rounded-3xl space-y-8 max-w-xl">
+                        <div>
+                            <div class="text-sm font-semibold text-zinc-300 mb-3">Moneda principal</div>
+                            <select id="baseCurrencySelect" class="bg-zinc-800 rounded-xl px-4 py-3 w-48 text-sm" onchange="updateBaseCurrency()">
+                                <option value="CUP">CUP — Peso cubano</option>
+                                <option value="USD">USD — Dólar</option>
+                                <option value="EUR">EUR — Euro</option>
+                            </select>
+                            <p class="text-xs text-zinc-500 mt-2">Todos los valores se mostrarán en esta moneda.</p>
+                        </div>
+                        <div class="border-t border-zinc-800 pt-6">
+                            <div class="text-sm font-semibold text-zinc-300 mb-4">Tasas de cambio informales</div>
+                            <div class="flex items-center gap-3 mb-4">
+                                <span class="text-sm w-10 text-zinc-400">USD</span>
+                                <span class="text-zinc-500 text-sm">1 USD =</span>
+                                <input id="rateUSD" type="number" step="any" min="1" class="bg-zinc-800 rounded-xl px-4 py-2 w-32 text-sm" onchange="saveRates()">
+                                <span class="text-zinc-500 text-sm">CUP</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="text-sm w-10 text-zinc-400">EUR</span>
+                                <span class="text-zinc-500 text-sm">1 EUR =</span>
+                                <input id="rateEUR" type="number" step="any" min="1" class="bg-zinc-800 rounded-xl px-4 py-2 w-32 text-sm" onchange="saveRates()">
+                                <span class="text-zinc-500 text-sm">CUP</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -259,15 +254,12 @@
                 <div><label class="text-xs md:text-sm text-zinc-400 block mb-1 md:mb-2">Fecha</label><input id="purchaseDate" type="date" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-3 text-sm"></div>
                 <div><label class="text-xs md:text-sm text-zinc-400 block mb-1 md:mb-2">Proveedor</label><input id="purchaseSupp" placeholder="Proveedor" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-3 text-sm"></div>
             </div>
-            
             <div class="text-xs md:text-sm text-zinc-400 mb-2 md:mb-3">Productos del lote</div>
             <div id="purchaseLinesList" class="space-y-2 md:space-y-3 mb-4 md:mb-6 bg-zinc-800 p-3 md:p-4 rounded-2xl"></div>
             <button onclick="addPurchaseLine()" class="text-emerald-400 text-xs md:text-sm mb-4 md:mb-6">+ Agregar producto</button>
-            
-            <div class="text-xs md:text-sm text-zinc-400 mb-2 md:mb-3">Gastos generales del lote (USD)</div>
+            <div class="text-xs md:text-sm text-zinc-400 mb-2 md:mb-3">Gastos generales del lote</div>
             <div id="expensesList" class="space-y-1 md:space-y-2 mb-3 md:mb-4"></div>
             <button onclick="addExpenseLine()" class="text-emerald-400 text-xs md:text-sm mb-4 md:mb-6">+ Agregar gasto</button>
-
             <div class="flex gap-2 md:gap-3 mt-6 md:mt-10">
                 <button onclick="hideModal('modalPurchase')" class="flex-1 py-2 md:py-4 bg-zinc-800 rounded-2xl text-sm">Cancelar</button>
                 <button onclick="savePurchase()" class="flex-1 py-2 md:py-4 bg-emerald-600 rounded-2xl text-sm">Guardar lote</button>
@@ -282,7 +274,14 @@
             <select id="saleProd" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 mb-3 md:mb-4 text-sm" onchange="updateSuggestedPrice()"></select>
             <input id="saleQty" type="number" placeholder="Cantidad" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 mb-3 md:mb-4 text-sm">
             <div class="mb-2 text-xs text-zinc-500">Precio sugerido: <span id="suggestedPriceDisplay">-</span></div>
-            <input id="salePrice" type="number" placeholder="Precio venta unitario USD" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 mb-3 md:mb-4 text-sm">
+            <div class="flex gap-2 mb-3 md:mb-4">
+                <input id="salePrice" type="number" placeholder="Precio unitario" class="flex-1 bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 text-sm">
+                <select id="saleCurrency" class="bg-zinc-800 border-0 rounded-2xl px-3 py-2 text-sm">
+                    <option value="CUP">CUP</option>
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                </select>
+            </div>
             <input id="saleClient" placeholder="Cliente (opcional)" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 mb-3 md:mb-4 text-sm">
             <label class="flex items-center gap-2 mb-6 md:mb-8 text-sm"><input id="saleCredit" type="checkbox"> Fiado</label>
             <div class="flex gap-2 md:gap-3">
@@ -309,9 +308,7 @@
             <h3 class="text-lg md:text-xl font-bold mb-4 md:mb-6">Nuevo Descuento</h3>
             <div class="mb-3 md:mb-4">
                 <label class="text-xs md:text-sm text-zinc-400 block mb-1 md:mb-2">Aplica a:</label>
-                <select id="discountProduct" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-3 mb-3 md:mb-4 text-sm">
-                    <option value="">Todos los productos</option>
-                </select>
+                <select id="discountProduct" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-3 mb-3 md:mb-4 text-sm"><option value="">Todos los productos</option></select>
             </div>
             <div class="mb-3 md:mb-4">
                 <label class="text-xs md:text-sm text-zinc-400 block mb-1 md:mb-2">Tipo de descuento</label>
@@ -345,39 +342,115 @@
         </div>
     </div>
 
+    <!-- Setup Rates Modal — solo primer login -->
+    <div id="modalSetupRates" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+        <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-8">
+            <div class="bg-red-950 border border-red-700 rounded-2xl px-5 py-4 mb-6 flex gap-3 items-start">
+                <span class="text-red-400 text-lg mt-0.5">⚠️</span>
+                <div>
+                    <div class="text-red-400 font-semibold text-sm mb-1">Paso obligatorio</div>
+                    <div class="text-red-300 text-xs leading-relaxed">Debes configurar las tasas antes de usar la app. Sin ellas los cálculos serán incorrectos. Podrás actualizarlas cuando quieras en <strong>⚙️ Ajustes</strong>.</div>
+                </div>
+            </div>
+            <div class="text-center mb-6">
+                <div class="text-3xl mb-2">💱</div>
+                <h3 class="text-xl font-bold">Tasas de cambio informales</h3>
+                <p class="text-sm text-zinc-400 mt-1">¿Cuántos CUP vale 1 unidad de cada moneda hoy?</p>
+            </div>
+            <div class="space-y-4 mb-8">
+                <div class="bg-zinc-800 rounded-2xl px-5 py-4 flex items-center gap-4">
+                    <span class="text-sm font-semibold w-10 text-zinc-300">USD</span>
+                    <span class="text-zinc-500 text-sm flex-1">1 USD =</span>
+                    <input id="setupRateUSD" type="number" step="any" min="1" placeholder="ej: 380" class="bg-zinc-700 rounded-xl px-4 py-2 w-32 text-right font-bold text-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <span class="text-sm text-zinc-400">CUP</span>
+                </div>
+                <div class="bg-zinc-800 rounded-2xl px-5 py-4 flex items-center gap-4">
+                    <span class="text-sm font-semibold w-10 text-zinc-300">EUR</span>
+                    <span class="text-zinc-500 text-sm flex-1">1 EUR =</span>
+                    <input id="setupRateEUR" type="number" step="any" min="1" placeholder="ej: 410" class="bg-zinc-700 rounded-xl px-4 py-2 w-32 text-right font-bold text-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <span class="text-sm text-zinc-400">CUP</span>
+                </div>
+            </div>
+            <button onclick="saveSetupRates()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-4 rounded-2xl font-semibold text-base">Guardar y comenzar →</button>
+        </div>
+    </div>
+
 <script>
+// ─── Estado global ────────────────────────────────────────────────────────────
 let currentUser = ''
-let data = { products:[], purchases:[], sales:[], customers:[], discounts:[], exchangeRate:500 }
+let data = { products:[], purchases:[], sales:[], customers:[], discounts:[], audit:[], exchangeRates:{USD:500,EUR:650}, baseCurrency:'CUP' }
 let nextId = 1
 
-// DATA
-function saveData(){ if(currentUser) localStorage.setItem(`tienda_${currentUser}`, JSON.stringify(data)) }
+// ─── Persistencia ─────────────────────────────────────────────────────────────
+function saveData(){
+    if(currentUser) localStorage.setItem('tienda_' + currentUser, JSON.stringify(data))
+}
 function loadData(){
     if(!currentUser) return
-    const saved = localStorage.getItem(`tienda_${currentUser}`)
-    if(saved) data = JSON.parse(saved)
-    if(!data.exchangeRate) data.exchangeRate = 500
-    nextId = Math.max(1, ...data.products.map(p=>p.id||0), ...data.purchases.map(p=>p.id||0), ...data.sales.map(s=>s.id||0), ...data.customers.map(c=>c.id||0)) + 1
+    const saved = localStorage.getItem('tienda_' + currentUser)
+    if(!saved) return
+    const d = JSON.parse(saved)
+    // Migración automática v1→v2 (v1 tenía exchangeRate, no exchangeRates)
+    if(!d.exchangeRates){
+        const oldRate = parseFloat(d.exchangeRate) || 500
+        d.exchangeRates = { USD: oldRate, EUR: 650 }
+        d.baseCurrency  = 'CUP'
+        // Convertir todos los valores de USD a CUP
+        ;(d.products  || []).forEach(p => { p.avgCost = (p.avgCost||0)*oldRate; p.totalCostValue = (p.totalCostValue||0)*oldRate })
+        ;(d.purchases || []).forEach(p => { p.unitCostCUP = (p.unitCost||0)*oldRate; p.propExpCUP = (p.proportionalExpense||0)*oldRate; p.totalExpCUP = (p.totalExpenses||0)*oldRate })
+        ;(d.sales     || []).forEach(s => { s.unitSellPriceCUP = (s.unitSellPrice||0)*oldRate; s.finalPriceCUP = ((s.finalPrice||s.unitSellPrice)||0)*oldRate })
+        ;(d.customers || []).forEach(c => { c.debt = (c.debt||0)*oldRate })
+    }
+    // Garantías mínimas
+    if(!d.exchangeRates.USD || d.exchangeRates.USD <= 0) d.exchangeRates.USD = 500
+    if(!d.exchangeRates.EUR || d.exchangeRates.EUR <= 0) d.exchangeRates.EUR = 650
+    if(!d.baseCurrency) d.baseCurrency = 'CUP'
+    if(!d.audit)     d.audit     = []
+    if(!d.discounts) d.discounts = []
+    if(!d.customers) d.customers = []
+    data = d
+    saveData() // persiste cualquier migración/reparación
+    nextId = Math.max(1, ...[...data.products,...data.purchases,...data.sales,...data.customers,...data.discounts].map(x=>x.id||0)) + 1
 }
 
-// FORMAT DUAL
-function formatDual(usd){
-    if(usd === null || usd === undefined) return '0'
-    const cup = (usd * (data.exchangeRate || 500)).toFixed(0)
-    return `$${usd.toFixed(2)} <span class="text-xs text-zinc-500">USD</span> <span class="text-zinc-400">($${cup} CUP)</span>`
+// ─── Conversión ───────────────────────────────────────────────────────────────
+function toCUP(amount, currency){
+    if(currency === 'CUP' || !currency) return amount
+    const r = data.exchangeRates[currency]
+    return r > 0 ? amount * r : amount
 }
-function saveExchangeRate(){
-    data.exchangeRate = parseFloat(document.getElementById('exchangeRateInput').value) || 500
-    saveData()
-    renderAll()
+function fromCUP(cup, currency){
+    if(currency === 'CUP' || !currency) return cup
+    const r = data.exchangeRates[currency]
+    return r > 0 ? cup / r : cup
 }
 
-// LOGIN SIMPLE
-function handleLogin() {
+// ─── Formato: muestra en moneda base + botón ℹ️ ───────────────────────────────
+function fmtCUP(cup){
+    if(!cup) cup = 0
+    const base = data.baseCurrency
+    const val  = fromCUP(cup, base).toFixed(2)
+    return val + ' <span class="text-xs text-zinc-500">' + base + '</span>'
+}
+function fmtInfo(cup, label){
+    if(!cup) cup = 0
+    const c = cup.toFixed(2)
+    const u = fromCUP(cup,'USD').toFixed(2)
+    const e = fromCUP(cup,'EUR').toFixed(2)
+    const msg = (label ? label+':\n' : '') + c+' CUP\n'+u+' USD\n'+e+' EUR'
+    // encode para onclick seguro
+    const enc = msg.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,'\\n')
+    return fmtCUP(cup) + ' <button onclick="alert(\'' + enc + '\')" class="text-zinc-500 hover:text-zinc-300 text-xs">ℹ️</button>'
+}
+
+// ─── Login ────────────────────────────────────────────────────────────────────
+function handleLogin(){
     const user = document.getElementById('loginUser').value.trim()
-    if (!user) return alert('Ingresa tu nombre')
-    if (!localStorage.getItem(`tienda_${user}`)) {
-        localStorage.setItem(`tienda_${user}`, JSON.stringify({ products:[], purchases:[], sales:[], customers:[], discounts:[], exchangeRate:500, audit:[] }))
+    if(!user) return alert('Ingresa tu nombre')
+    const isNew = !localStorage.getItem('tienda_' + user)
+    if(isNew){
+        currentUser = user
+        saveData() // crea registro vacío
     }
     currentUser = user
     localStorage.setItem('tienda_lastUser', user)
@@ -386,92 +459,91 @@ function handleLogin() {
     document.getElementById('app').classList.remove('hidden')
     document.getElementById('currentUser').textContent = user
     renderAll()
+    if(isNew) document.getElementById('modalSetupRates').classList.remove('hidden')
 }
-function logout(){ saveData(); currentUser = ''; document.getElementById('app').classList.add('hidden'); document.getElementById('loginPage').classList.remove('hidden'); document.getElementById('loginUser').value = '' }
+function logout(){
+    saveData()
+    currentUser = ''
+    document.getElementById('app').classList.add('hidden')
+    document.getElementById('loginPage').classList.remove('hidden')
+    document.getElementById('loginUser').value = ''
+}
+function saveSetupRates(){
+    const usd = parseFloat(document.getElementById('setupRateUSD').value)
+    const eur = parseFloat(document.getElementById('setupRateEUR').value)
+    if(!usd || usd <= 0) return alert('Tasa USD inválida')
+    if(!eur || eur <= 0) return alert('Tasa EUR inválida')
+    data.exchangeRates.USD = usd
+    data.exchangeRates.EUR = eur
+    saveData()
+    document.getElementById('modalSetupRates').classList.add('hidden')
+    renderAll()
+    addAudit('AJUSTES: tasas iniciales USD='+usd+' EUR='+eur)
+}
 
-// WARNING MODAL
-function showWarningModal(){
-    document.getElementById('warningModal').classList.remove('hidden')
-}
-function hideWarningModal(){
-    document.getElementById('warningModal').classList.add('hidden')
-}
-
-// MOBILE MENU
-function toggleMobileMenu(){
-    const nav = document.querySelector('.app-nav')
-    nav.classList.toggle('mobile-open')
-}
-
-// SECTIONS
+// ─── Modales / Nav ────────────────────────────────────────────────────────────
+function hideModal(id){ document.getElementById(id).classList.add('hidden') }
+function showWarningModal(){ document.getElementById('warningModal').classList.remove('hidden') }
+function hideWarningModal(){ document.getElementById('warningModal').classList.add('hidden') }
+function toggleMobileMenu(){ document.querySelector('.app-nav').classList.toggle('mobile-open') }
 function showSection(sec){
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'))
     document.getElementById(sec).classList.add('active')
-    // Cerrar menú en móvil
     const nav = document.querySelector('.app-nav')
-    if(nav && window.innerWidth <= 1023) {
-        nav.classList.remove('mobile-open')
-    }
+    if(nav && window.innerWidth <= 1023) nav.classList.remove('mobile-open')
     if(sec==='dashboard') renderDashboard()
-    if(sec==='products') renderProducts()
+    if(sec==='products')  renderProducts()
     if(sec==='discounts') renderDiscounts()
     if(sec==='purchases') renderPurchases()
-    if(sec==='sales') renderSales()
-    if(sec==='reports') renderReports()
+    if(sec==='sales')     renderSales()
+    if(sec==='reports')   renderReports()
+    if(sec==='settings')  renderSettings()
 }
-function renderAll(){ renderDashboard(); renderProducts(); renderDiscounts(); renderPurchases(); renderSales(); renderReports() }
+function renderAll(){ renderDashboard(); renderProducts(); renderDiscounts(); renderPurchases(); renderSales(); renderReports(); renderSettings() }
 
-// DASHBOARD
+// ─── Dashboard ────────────────────────────────────────────────────────────────
 function renderDashboard(){
-    let stockValue = data.products.reduce((a,p) => a + (p.currentStock||0)*(p.avgCost||0), 0)
-    let totalDebt = data.customers.reduce((a,c) => a + (c.debt||0), 0)
+    const stockValue  = data.products.reduce((a,p) => a + (p.currentStock||0)*(p.avgCost||0), 0)
+    const totalDebt   = data.customers.reduce((a,c) => a + (c.debt||0), 0)
     const today = new Date().toISOString().slice(0,10)
-    let todayProfit = data.sales.filter(s=>s.date===today).reduce((a,s)=>{
+    const todayProfit = data.sales.filter(s=>s.date===today).reduce((a,s)=>{
         const p = data.products.find(pr=>pr.id===s.productId)
-        return a + s.qty * (s.unitSellPrice - (p ? p.avgCost : 0))
-    },0)
-    document.getElementById('dashStockValue').innerHTML = formatDual(stockValue)
-    document.getElementById('dashDebt').innerHTML = formatDual(totalDebt)
-    document.getElementById('dashTodayProfit').innerHTML = formatDual(todayProfit)
+        const price = s.finalPriceCUP || s.unitSellPriceCUP || 0
+        return a + s.qty * (price - (p ? p.avgCost : 0))
+    }, 0)
+    document.getElementById('dashStockValue').innerHTML  = fmtInfo(stockValue,  'Valor stock')
+    document.getElementById('dashDebt').innerHTML        = fmtInfo(totalDebt,   'Deudores')
+    document.getElementById('dashTodayProfit').innerHTML = fmtInfo(todayProfit, 'Ganancia hoy')
     document.getElementById('dashMonthSales').textContent = data.sales.length
-    document.getElementById('exchangeRateInput').value = data.exchangeRate
 }
 
-// PRODUCTOS
+// ─── Productos ────────────────────────────────────────────────────────────────
 function renderProducts(){
     const tbody = document.getElementById('productsTable')
     tbody.innerHTML = ''
     data.products.forEach(p => {
         const tr = document.createElement('tr')
         tr.className = 'border-b border-zinc-800 hover:bg-zinc-900'
-        tr.innerHTML = `<td class="py-4">${p.name}</td><td>${p.category}</td><td class="${p.currentStock < (p.minStock||0) ? 'text-red-400' : 'text-emerald-400'}">${p.currentStock||0}</td><td>${formatDual(p.avgCost||0)}</td><td>${p.minStock||0}</td>`
+        tr.innerHTML = '<td class="py-4">'+p.name+'</td><td>'+p.category+'</td><td class="'+(p.currentStock<(p.minStock||0)?'text-red-400':'text-emerald-400')+'">'+(p.currentStock||0)+'</td><td>'+fmtInfo(p.avgCost||0,'Costo promedio')+'</td><td>'+(p.minStock||0)+'</td>'
         tbody.appendChild(tr)
     })
 }
 function showAddProduct(){ document.getElementById('modalProduct').classList.remove('hidden') }
 function saveProduct(){
-    const name = document.getElementById('prodName').value.trim()
-    const cat = document.getElementById('prodCat').value.trim()
-    const min = parseFloat(document.getElementById('prodMin').value) || 0
+    const name   = document.getElementById('prodName').value.trim()
+    const cat    = document.getElementById('prodCat').value.trim()
+    const min    = parseFloat(document.getElementById('prodMin').value) || 0
     const markup = (parseFloat(document.getElementById('prodMarkup').value) || 50) / 100
     if(!name) return alert('Nombre requerido')
-    data.products.push({id:nextId++,name,category:cat||'General',minStock:min,currentStock:0,totalCostValue:0,avgCost:0,markup})
-    saveData()
-    hideModal('modalProduct')
-    renderProducts()
-    renderDashboard()
+    data.products.push({id:nextId++, name, category:cat||'General', minStock:min, currentStock:0, totalCostValue:0, avgCost:0, markup})
+    saveData(); hideModal('modalProduct'); renderProducts(); renderDashboard()
 }
 
-// DESCUENTOS
+// ─── Descuentos ───────────────────────────────────────────────────────────────
 function showAddDiscount(){
-    const prodSel = document.getElementById('discountProduct')
-    prodSel.innerHTML = '<option value="">Todos los productos</option>'
-    data.products.forEach(p => {
-        const opt = document.createElement('option')
-        opt.value = p.id
-        opt.textContent = p.name
-        prodSel.appendChild(opt)
-    })
+    const sel = document.getElementById('discountProduct')
+    sel.innerHTML = '<option value="">Todos los productos</option>'
+    data.products.forEach(p => { const o=document.createElement('option'); o.value=p.id; o.textContent=p.name; sel.appendChild(o) })
     document.getElementById('discountType').value = 'mayor'
     document.getElementById('discountPercent').value = ''
     updateDiscountFields()
@@ -479,107 +551,54 @@ function showAddDiscount(){
 }
 function updateDiscountFields(){
     const type = document.getElementById('discountType').value
-    const fieldsDiv = document.getElementById('discountFields')
-    fieldsDiv.innerHTML = ''
-    if(type === 'mayor'){
-        fieldsDiv.innerHTML = '<div class="mb-3 md:mb-4"><label class="text-xs md:text-sm text-zinc-400 block mb-1 md:mb-2">Cantidad minima</label><input id="discountQtyMin" type="number" placeholder="ej: 50" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-3 text-sm" min="1"></div>'
-    } else if(type === 'especial'){
-        fieldsDiv.innerHTML = '<div class="mb-3 md:mb-4"><label class="text-xs md:text-sm text-zinc-400 block mb-1 md:mb-2">Dia especial (ej: Viernes, NaviDad)</label><input id="discountDay" type="text" placeholder="Nombre del evento" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-3 text-sm"></div>'
-    } else if(type === 'cliente'){
-        fieldsDiv.innerHTML = '<div class="mb-3 md:mb-4"><label class="text-xs md:text-sm text-zinc-400 block mb-1 md:mb-2">Nombre del cliente</label><input id="discountClient" type="text" placeholder="Cliente especifico" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-3 text-sm"></div>'
-    }
+    const f    = document.getElementById('discountFields')
+    f.innerHTML = ''
+    if(type==='mayor')   f.innerHTML='<div class="mb-3"><label class="text-xs text-zinc-400 block mb-1">Cantidad mínima</label><input id="discountQtyMin" type="number" placeholder="ej: 50" class="block w-full bg-zinc-800 border-0 rounded-2xl px-4 py-3 text-sm" min="1"></div>'
+    else if(type==='especial') f.innerHTML='<div class="mb-3"><label class="text-xs text-zinc-400 block mb-1">Día especial</label><input id="discountDay" type="text" placeholder="ej: Viernes" class="block w-full bg-zinc-800 border-0 rounded-2xl px-4 py-3 text-sm"></div>'
+    else if(type==='cliente')  f.innerHTML='<div class="mb-3"><label class="text-xs text-zinc-400 block mb-1">Nombre cliente</label><input id="discountClient" type="text" placeholder="Cliente" class="block w-full bg-zinc-800 border-0 rounded-2xl px-4 py-3 text-sm"></div>'
 }
 function saveDiscount(){
-    const type = document.getElementById('discountType').value
-    const percent = parseFloat(document.getElementById('discountPercent').value)
+    const type      = document.getElementById('discountType').value
+    const percent   = parseFloat(document.getElementById('discountPercent').value)
     const productId = document.getElementById('discountProduct').value ? parseInt(document.getElementById('discountProduct').value) : null
-    if(!percent || percent <= 0 || percent >= 100) return alert('Porcentaje invalido')
-    if(!data.discounts) data.discounts = []
-    let discount = {id:nextId++, type, percent, productId}
-    if(type === 'mayor'){
-        discount.qtyMin = parseInt(document.getElementById('discountQtyMin').value)
-        if(!discount.qtyMin) return alert('Cantidad minima requerida')
-    } else if(type === 'especial'){
-        discount.dayName = document.getElementById('discountDay').value.trim()
-        if(!discount.dayName) return alert('Nombre del evento requerido')
-    } else if(type === 'cliente'){
-        discount.clientName = document.getElementById('discountClient').value.trim()
-        if(!discount.clientName) return alert('Nombre del cliente requerido')
-    }
-    data.discounts.push(discount)
+    if(!percent || percent<=0 || percent>=100) return alert('Porcentaje inválido')
+    let d = {id:nextId++, type, percent, productId}
+    if(type==='mayor')  { d.qtyMin=parseInt(document.getElementById('discountQtyMin').value); if(!d.qtyMin) return alert('Cantidad mínima requerida') }
+    else if(type==='especial'){ d.dayName=document.getElementById('discountDay').value.trim(); if(!d.dayName) return alert('Nombre del evento requerido') }
+    else if(type==='cliente') { d.clientName=document.getElementById('discountClient').value.trim(); if(!d.clientName) return alert('Nombre del cliente requerido') }
+    data.discounts.push(d)
     saveData()
-    const prodName = productId ? (data.products.find(p => p.id === productId)?.name || '?') : 'Todos'
-    addAudit(`DESCUENTO: ${type} con ${percent}% en ${prodName}`)
-    hideModal('modalDiscount')
-    renderDiscounts()
+    addAudit('DESCUENTO: '+type+' '+percent+'%')
+    hideModal('modalDiscount'); renderDiscounts()
 }
 function renderDiscounts(){
-    const container = document.getElementById('discountsContainer')
-    container.innerHTML = ''
-    if(!data.discounts || data.discounts.length === 0){
-        container.innerHTML = '<div class="col-span-full text-center py-12 text-zinc-500">No hay descuentos configurados</div>'
-        return
-    }
+    const c = document.getElementById('discountsContainer')
+    c.innerHTML = ''
+    if(!data.discounts || !data.discounts.length){ c.innerHTML='<div class="col-span-full text-center py-12 text-zinc-500">No hay descuentos</div>'; return }
     data.discounts.forEach(d => {
-        let desc = '', aplica = '', emoji = '', producto = ''
-        if(d.type === 'mayor'){
-            desc = 'Al por mayor'
-            aplica = `Cantidad >= ${d.qtyMin}`
-            emoji = '📦'
-        } else if(d.type === 'especial'){
-            desc = 'Dia especial'
-            aplica = d.dayName
-            emoji = '📅'
-        } else if(d.type === 'cliente'){
-            desc = 'Cliente especifico'
-            aplica = d.clientName
-            emoji = '👤'
-        } else if(d.type === 'general'){
-            desc = 'General'
-            aplica = 'Para todos'
-            emoji = '🎁'
-        }
-        if(d.productId){
-            const prod = data.products.find(p => p.id === d.productId)
-            producto = prod ? prod.name : '?'
-        } else {
-            producto = 'Todos los productos'
-        }
+        let desc='', aplica='', emoji=''
+        if(d.type==='mayor')   { desc='Al por mayor'; aplica='Cant. >= '+d.qtyMin; emoji='📦' }
+        else if(d.type==='especial'){ desc='Día especial'; aplica=d.dayName; emoji='📅' }
+        else if(d.type==='cliente') { desc='Cliente'; aplica=d.clientName; emoji='👤' }
+        else if(d.type==='general') { desc='General'; aplica='Para todos'; emoji='🎁' }
+        const prod = d.productId ? (data.products.find(p=>p.id===d.productId)?.name||'?') : 'Todos'
         const card = document.createElement('div')
         card.className = 'bg-zinc-900 border border-zinc-800 rounded-lg p-4 hover:border-emerald-600 transition'
-        card.innerHTML = `
-            <div class="flex justify-between items-start mb-3">
-                <div>
-                    <div class="text-2xl font-bold text-emerald-400">${d.percent}%</div>
-                    <div class="text-xs text-zinc-500">${emoji} ${desc}</div>
-                </div>
-                <button onclick="deleteDiscount(${d.id})" class="text-red-400 hover:text-red-300 hover:scale-125 transition">🗑️</button>
-            </div>
-            <div class="space-y-2 text-sm">
-                <div><span class="text-zinc-500">Condición:</span> <span class="text-zinc-200">${aplica}</span></div>
-                <div><span class="text-zinc-500">Aplica a:</span> <span class="text-emerald-300 font-medium">${producto}</span></div>
-            </div>
-        `
-        container.appendChild(card)
+        card.innerHTML = '<div class="flex justify-between items-start mb-3"><div><div class="text-2xl font-bold text-emerald-400">'+d.percent+'%</div><div class="text-xs text-zinc-500">'+emoji+' '+desc+'</div></div><button onclick="deleteDiscount('+d.id+')" class="text-red-400 hover:text-red-300">🗑️</button></div><div class="space-y-2 text-sm"><div><span class="text-zinc-500">Condición:</span> <span class="text-zinc-200">'+aplica+'</span></div><div><span class="text-zinc-500">Aplica a:</span> <span class="text-emerald-300">'+prod+'</span></div></div>'
+        c.appendChild(card)
     })
 }
 function deleteDiscount(id){
-    if(!confirm('Eliminar este descuento?')) return
-    const disc = data.discounts.find(d => d.id === id)
-    if(disc){
-        data.discounts = data.discounts.filter(d => d.id !== id)
-        saveData()
-        addAudit(`DESCUENTO ELIMINADO: ${disc.type}`)
-        renderDiscounts()
-    }
+    if(!confirm('Eliminar descuento?')) return
+    data.discounts = data.discounts.filter(d=>d.id!==id)
+    saveData(); addAudit('DESCUENTO ELIMINADO'); renderDiscounts()
 }
 
-// COMPRAS
+// ─── Compras ──────────────────────────────────────────────────────────────────
 let purchaseLines = []
 let currentExpenses = []
 function showAddPurchase(){
-    purchaseLines = []
-    currentExpenses = []
+    purchaseLines = []; currentExpenses = []
     document.getElementById('purchaseDate').value = new Date().toISOString().slice(0,10)
     document.getElementById('purchaseSupp').value = ''
     document.getElementById('purchaseLinesList').innerHTML = '<div class="text-zinc-500 text-sm">No hay productos. Haz clic en "+ Agregar producto"</div>'
@@ -591,127 +610,143 @@ function addPurchaseLine(){
     const div = document.createElement('div')
     div.className = 'bg-zinc-700 p-2 md:p-4 rounded-xl'
     div.dataset.lineId = lineId
-    const prodOptions = data.products.map(p => `<option value="${p.id}">${p.name}</option>`).join('')
-    div.innerHTML = `
-        <div class="grid grid-cols-12 gap-1 md:gap-2 items-end">
-            <select class="col-span-5 bg-zinc-800 border-0 rounded-lg px-2 md:px-3 py-1 md:py-2 text-xs md:text-sm purchase-prod" onchange="updatePurchaseLine(${lineId})">
-                <option value="">Selecciona producto</option>
-                ${prodOptions}
-            </select>
-            <input type="number" placeholder="Cant." class="col-span-2 bg-zinc-800 border-0 rounded-lg px-2 md:px-3 py-1 md:py-2 text-xs md:text-sm purchase-qty" onchange="updatePurchaseLine(${lineId})">
-            <input type="number" placeholder="USD/u" class="col-span-3 bg-zinc-800 border-0 rounded-lg px-2 md:px-3 py-1 md:py-2 text-xs md:text-sm purchase-unit" onchange="updatePurchaseLine(${lineId})">
-            <span class="col-span-2 text-right text-zinc-400 text-xs md:text-sm purchase-subtotal">$0</span>
-            <button onclick="removePurchaseLine(${lineId})" class="text-zinc-500 hover:text-red-400 text-lg">×</button>
-        </div>
-    `
-    if(document.getElementById('purchaseLinesList').querySelector('.text-zinc-500')) {
+    const prods   = data.products.map(p=>'<option value="'+p.id+'">'+p.name+'</option>').join('')
+    const currs   = ['CUP','USD','EUR'].map(c=>'<option value="'+c+'"'+(c===data.baseCurrency?' selected':'')+'>'+c+'</option>').join('')
+    div.innerHTML = '<div class="grid grid-cols-12 gap-1 md:gap-2 items-end">'
+        +'<select class="col-span-4 bg-zinc-800 border-0 rounded-lg px-2 py-1 md:py-2 text-xs purchase-prod" onchange="updatePurchaseLine('+lineId+')">'
+        +'<option value="">Producto</option>'+prods+'</select>'
+        +'<input type="number" placeholder="Cant." class="col-span-2 bg-zinc-800 border-0 rounded-lg px-2 py-1 text-xs purchase-qty" onchange="updatePurchaseLine('+lineId+')">'
+        +'<input type="number" placeholder="Precio" class="col-span-2 bg-zinc-800 border-0 rounded-lg px-2 py-1 text-xs purchase-unit" onchange="updatePurchaseLine('+lineId+')">'
+        +'<select class="col-span-2 bg-zinc-800 border-0 rounded-lg px-1 py-1 text-xs purchase-currency" onchange="updatePurchaseLine('+lineId+')">'+currs+'</select>'
+        +'<span class="col-span-1 text-right text-zinc-400 text-xs purchase-subtotal">0</span>'
+        +'<button onclick="removePurchaseLine('+lineId+')" class="text-zinc-500 hover:text-red-400 text-lg">×</button>'
+        +'</div>'
+    if(document.getElementById('purchaseLinesList').querySelector('.text-zinc-500'))
         document.getElementById('purchaseLinesList').innerHTML = ''
-    }
     document.getElementById('purchaseLinesList').appendChild(div)
 }
 function updatePurchaseLine(lineId){
-    const div = document.querySelector(`[data-line-id="${lineId}"]`)
-    const qty = parseFloat(div.querySelector('.purchase-qty').value) || 0
+    const div  = document.querySelector('[data-line-id="'+lineId+'"]')
+    const qty  = parseFloat(div.querySelector('.purchase-qty').value)  || 0
     const unit = parseFloat(div.querySelector('.purchase-unit').value) || 0
-    const subtotal = qty * unit
-    div.querySelector('.purchase-subtotal').textContent = `$${subtotal.toFixed(2)}`
+    const cur  = div.querySelector('.purchase-currency').value
+    div.querySelector('.purchase-subtotal').textContent = fromCUP(toCUP(qty*unit,cur),data.baseCurrency).toFixed(2)+' '+data.baseCurrency
 }
 function removePurchaseLine(lineId){
-    const div = document.querySelector(`[data-line-id="${lineId}"]`)
+    const div = document.querySelector('[data-line-id="'+lineId+'"]')
     if(div) div.remove()
-    if(document.getElementById('purchaseLinesList').children.length === 0) {
+    if(!document.getElementById('purchaseLinesList').children.length)
         document.getElementById('purchaseLinesList').innerHTML = '<div class="text-zinc-500 text-sm">No hay productos. Haz clic en "+ Agregar producto"</div>'
-    }
 }
 function addExpenseLine(){
     const div = document.createElement('div')
-    div.className = 'flex gap-2 md:gap-3'
-    div.innerHTML = `<input placeholder="Descripción gasto" class="flex-1 bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-3 text-xs md:text-sm expense-desc"><input type="number" placeholder="Monto USD" class="w-20 md:w-28 bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-3 text-xs md:text-sm expense-amount"><span class="text-zinc-500 cursor-pointer text-lg" onclick="this.parentElement.remove()">×</span>`
+    div.className = 'flex gap-2 expense-row'
+    const currs = ['CUP','USD','EUR'].map(c=>'<option value="'+c+'"'+(c===data.baseCurrency?' selected':'')+'>'+c+'</option>').join('')
+    div.innerHTML = '<input placeholder="Descripción" class="flex-1 bg-zinc-800 border-0 rounded-2xl px-3 py-2 text-xs expense-desc">'
+        +'<input type="number" placeholder="Monto" class="w-20 bg-zinc-800 border-0 rounded-2xl px-3 py-2 text-xs expense-amount">'
+        +'<select class="bg-zinc-800 border-0 rounded-2xl px-2 py-2 text-xs expense-currency">'+currs+'</select>'
+        +'<span class="text-zinc-500 cursor-pointer text-lg" onclick="this.parentElement.remove()">×</span>'
     document.getElementById('expensesList').appendChild(div)
 }
 function savePurchase(){
     const date = document.getElementById('purchaseDate').value
     const supp = document.getElementById('purchaseSupp').value.trim()
     if(!date || !supp) return alert('Fecha y proveedor requeridos')
-    
     const lines = []
     document.querySelectorAll('[data-line-id]').forEach(div => {
         const prodId = parseInt(div.querySelector('.purchase-prod').value)
-        const qty = parseFloat(div.querySelector('.purchase-qty').value)
-        const unit = parseFloat(div.querySelector('.purchase-unit').value)
-        if(prodId && qty && unit) lines.push({prodId, qty, unit})
+        const qty    = parseFloat(div.querySelector('.purchase-qty').value)
+        const unit   = parseFloat(div.querySelector('.purchase-unit').value)
+        const cur    = div.querySelector('.purchase-currency').value
+        if(prodId && qty && unit) lines.push({prodId, qty, unit, cur})
     })
-    
-    if(lines.length === 0) return alert('Agrega al menos un producto')
-    
-    let totalExpenses = 0
-    document.querySelectorAll('.expense-amount').forEach(e => totalExpenses += parseFloat(e.value) || 0)
-    
-    const totalValue = lines.reduce((a, l) => a + (l.qty * l.unit), 0)
-    
+    if(!lines.length) return alert('Agrega al menos un producto')
+    let totalExpCUP = 0
+    document.querySelectorAll('.expense-row').forEach(row => {
+        totalExpCUP += toCUP(parseFloat(row.querySelector('.expense-amount').value)||0, row.querySelector('.expense-currency').value)
+    })
+    const totalValCUP = lines.reduce((a,l) => a + toCUP(l.qty*l.unit, l.cur), 0)
     lines.forEach(line => {
         const prod = data.products.find(p => p.id === line.prodId)
-        if(prod){
-            const proportionalExpense = (line.qty * line.unit / totalValue) * totalExpenses
-            const finalCost = line.unit + (proportionalExpense / line.qty)
-            prod.currentStock = (prod.currentStock || 0) + line.qty
-            prod.totalCostValue = (prod.totalCostValue || 0) + (line.qty * finalCost)
-            prod.avgCost = prod.totalCostValue / prod.currentStock
-            data.purchases.push({id:nextId++, productId:line.prodId, date, qty:line.qty, unitCost:line.unit, proportionalExpense, totalExpenses, supplier:supp})
-        }
+        if(!prod) return
+        const unitCostCUP = toCUP(line.unit, line.cur)
+        const propExpCUP  = totalValCUP > 0 ? (line.qty*unitCostCUP/totalValCUP)*totalExpCUP : 0
+        const finalCostCUP = unitCostCUP + propExpCUP/line.qty
+        prod.currentStock   = (prod.currentStock  ||0) + line.qty
+        prod.totalCostValue = (prod.totalCostValue ||0) + line.qty*finalCostCUP
+        prod.avgCost        = prod.totalCostValue / prod.currentStock
+        data.purchases.push({id:nextId++, productId:line.prodId, date, qty:line.qty, unitCostCUP, propExpCUP, totalExpCUP, currencyOriginal:line.cur, supplier:supp})
     })
-    
-    if(supp && !data.customers.find(c => c.name === supp)) data.customers.push({id:nextId++, name:supp, debt:0})
+    if(supp && !data.customers.find(c=>c.name===supp)) data.customers.push({id:nextId++, name:supp, debt:0})
     saveData()
-    addAudit(`COMPRA: ${lines.map(l => {const p = data.products.find(pr => pr.id === l.prodId); return p ? `${p.name} x${l.qty}` : '?'}).join(', ')} de ${supp}`)
-    hideModal('modalPurchase')
-    renderPurchases()
-    renderDashboard()
+    addAudit('COMPRA: '+lines.map(l=>{const p=data.products.find(pr=>pr.id===l.prodId); return p?p.name+' x'+l.qty:'?'}).join(', ')+' de '+supp)
+    hideModal('modalPurchase'); renderPurchases(); renderDashboard()
 }
 function renderPurchases(){
     const tbody = document.getElementById('purchasesTable')
     tbody.innerHTML = ''
     data.purchases.forEach(p => {
-        const prod = data.products.find(pr => pr.id === p.productId)
+        const prod = data.products.find(pr=>pr.id===p.productId)
+        const costCUP = p.unitCostCUP !== undefined ? p.unitCostCUP : 0
         const tr = document.createElement('tr')
         tr.className = 'border-b border-zinc-800 hover:bg-zinc-900'
-        tr.innerHTML = `<td class="py-4">${p.date}</td><td>${prod ? prod.name : '?'}</td><td>${p.qty}</td><td>${formatDual(p.unitCost)}</td><td>${p.supplier}</td><td><button onclick="showPurchaseInfo(${p.id})" class="text-emerald-400 hover:text-emerald-300 text-sm mr-2">ℹ️</button><button onclick="deletePurchase(${p.id})" class="text-red-400 hover:text-red-300 text-sm">🗑️</button></td>`
+        tr.innerHTML = '<td class="py-4">'+p.date+'</td><td>'+(prod?prod.name:'?')+'</td><td>'+p.qty+'</td><td>'+fmtInfo(costCUP,'Costo unitario')+'</td><td>'+(p.supplier||'-')+'</td><td>'
+            +'<button onclick="showPurchaseInfo('+p.id+')" class="text-emerald-400 hover:text-emerald-300 text-sm mr-2">ℹ️</button>'
+            +'<button onclick="deletePurchase('+p.id+')" class="text-red-400 hover:text-red-300 text-sm">🗑️</button></td>'
         tbody.appendChild(tr)
     })
 }
-
 function showPurchaseInfo(id){
-    const p = data.purchases.find(x => x.id === id)
-    if(!p) return alert('Compra no encontrada')
-    const prod = data.products.find(pr => pr.id === p.productId)
-    const c = document.getElementById('purchaseInfoContent')
-    const proportional = parseFloat(p.proportionalExpense || 0)
-    const totalExpenses = parseFloat(p.totalExpenses || 0)
-    const subtotal = (p.qty * p.unitCost) || 0
-    const total = subtotal + proportional
-    c.innerHTML = `
-        <div><span class="text-zinc-500">Fecha:</span> <span class="text-zinc-200">${p.date}</span></div>
-        <div><span class="text-zinc-500">Producto:</span> <span class="text-emerald-300 font-medium">${prod ? prod.name : '?'}</span></div>
-        <div><span class="text-zinc-500">Cantidad:</span> <span class="text-zinc-200">${p.qty}</span></div>
-        <div><span class="text-zinc-500">Costo unitario:</span> <span class="text-emerald-300">${formatDual(p.unitCost)}</span></div>
-        <div><span class="text-zinc-500">Subtotal (qty * costo):</span> <span class="text-zinc-200">${formatDual(subtotal)}</span></div>
-        <div><span class="text-zinc-500">Gastos proporcionales asignados:</span> <span class="text-zinc-200">${formatDual(proportional)}</span></div>
-        <div><span class="text-zinc-500">Gastos totales del lote:</span> <span class="text-zinc-200">${formatDual(totalExpenses)}</span></div>
-        <div class="text-lg font-bold mt-2"><span>Total:</span> <span class="text-emerald-400">${formatDual(total)}</span></div>
-        <div class="text-sm text-zinc-500 mt-2">Proveedor: ${p.supplier || '-'}</div>
-    `
+    const p = data.purchases.find(x=>x.id===id)
+    if(!p) return
+    const prod = data.products.find(pr=>pr.id===p.productId)
+    const unitCUP  = p.unitCostCUP  || 0
+    const propCUP  = p.propExpCUP   || 0
+    const totalExp = p.totalExpCUP  || 0
+    const sub      = p.qty * unitCUP
+    const total    = sub + propCUP
+    document.getElementById('purchaseInfoContent').innerHTML =
+        '<div><span class="text-zinc-500">Fecha:</span> <span class="text-zinc-200">'+p.date+'</span></div>'
+        +'<div><span class="text-zinc-500">Producto:</span> <span class="text-emerald-300 font-medium">'+(prod?prod.name:'?')+'</span></div>'
+        +'<div><span class="text-zinc-500">Cantidad:</span> <span class="text-zinc-200">'+p.qty+'</span></div>'
+        +'<div><span class="text-zinc-500">Moneda original:</span> <span class="text-zinc-200">'+(p.currencyOriginal||'-')+'</span></div>'
+        +'<div><span class="text-zinc-500">Costo unitario:</span> <span class="text-emerald-300">'+fmtInfo(unitCUP,'Costo unitario')+'</span></div>'
+        +'<div><span class="text-zinc-500">Subtotal:</span> <span class="text-zinc-200">'+fmtInfo(sub,'Subtotal')+'</span></div>'
+        +'<div><span class="text-zinc-500">Gastos proporcionales:</span> <span class="text-zinc-200">'+fmtInfo(propCUP,'G. proporcionales')+'</span></div>'
+        +'<div><span class="text-zinc-500">Gastos totales lote:</span> <span class="text-zinc-200">'+fmtInfo(totalExp,'G. totales lote')+'</span></div>'
+        +'<div class="text-lg font-bold mt-2">Total: <span class="text-emerald-400">'+fmtInfo(total,'Total compra')+'</span></div>'
+        +'<div class="text-sm text-zinc-500 mt-2">Proveedor: '+(p.supplier||'-')+'</div>'
     document.getElementById('modalPurchaseInfo').classList.remove('hidden')
 }
+function deletePurchase(id){
+    if(!confirm('¿Eliminar esta compra? El stock será ajustado.')) return
+    const p = data.purchases.find(x=>x.id===id)
+    if(!p) return
+    const prod = data.products.find(x=>x.id===p.productId)
+    if(prod){
+        const unitCUP = p.unitCostCUP || 0
+        const propCUP = p.propExpCUP  || 0
+        const finalCostCUP = unitCUP + propCUP / p.qty
+        prod.currentStock   -= p.qty
+        prod.totalCostValue -= p.qty * finalCostCUP
+        if(prod.currentStock > 0) prod.avgCost = prod.totalCostValue / prod.currentStock
+        else { prod.avgCost = 0; prod.totalCostValue = 0; prod.currentStock = 0 }
+    }
+    data.purchases = data.purchases.filter(x=>x.id!==id)
+    saveData(); addAudit('COMPRA ELIMINADA: '+(prod?prod.name:'?')+' x'+p.qty)
+    renderPurchases(); renderDashboard()
+}
 
-// VENTAS
+// ─── Ventas ───────────────────────────────────────────────────────────────────
 function updateSuggestedPrice(){
     const prodId = parseInt(document.getElementById('saleProd').value)
-    const prod = data.products.find(p => p.id === prodId)
+    const prod   = data.products.find(p=>p.id===prodId)
+    const cur    = document.getElementById('saleCurrency').value
     if(prod && prod.avgCost > 0){
-        const markup = prod.markup || 0.5
-        const suggestedPrice = prod.avgCost * (1 + markup)
-        document.getElementById('suggestedPriceDisplay').innerHTML = formatDual(suggestedPrice)
-        document.getElementById('salePrice').value = suggestedPrice.toFixed(2)
+        const markup  = prod.markup || 0.5
+        const sugCUP  = prod.avgCost * (1 + markup)
+        document.getElementById('suggestedPriceDisplay').innerHTML = fmtInfo(sugCUP,'Precio sugerido')
+        document.getElementById('salePrice').value = fromCUP(sugCUP, cur).toFixed(2)
     } else {
         document.getElementById('suggestedPriceDisplay').textContent = '-'
         document.getElementById('salePrice').value = ''
@@ -720,184 +755,177 @@ function updateSuggestedPrice(){
 function showQuickSale(){
     const sel = document.getElementById('saleProd')
     sel.innerHTML = '<option value="">Selecciona producto</option>'
-    data.products.forEach(p => { const opt = document.createElement('option'); opt.value = p.id; opt.textContent = `${p.name} (Stock: ${p.currentStock || 0})`; sel.appendChild(opt) })
-    document.getElementById('saleQty').value = ''
-    document.getElementById('salePrice').value = ''
+    data.products.forEach(p => { const o=document.createElement('option'); o.value=p.id; o.textContent=p.name+' (Stock: '+(p.currentStock||0)+')'; sel.appendChild(o) })
+    document.getElementById('saleQty').value    = ''
+    document.getElementById('salePrice').value  = ''
     document.getElementById('saleClient').value = ''
     document.getElementById('saleCredit').checked = false
     document.getElementById('suggestedPriceDisplay').textContent = '-'
+    document.getElementById('saleCurrency').value = data.baseCurrency
     document.getElementById('modalSale').classList.remove('hidden')
 }
 function getApplicableDiscount(qty, clientName, productId){
     if(!data.discounts) return 0
-    let maxDiscount = 0
+    let max = 0
     data.discounts.forEach(d => {
-        const appliesToProduct = !d.productId || d.productId === productId
-        if(!appliesToProduct) return
-        if(d.type === 'mayor' && qty >= d.qtyMin) maxDiscount = Math.max(maxDiscount, d.percent)
-        else if(d.type === 'cliente' && clientName.toLowerCase().includes(d.clientName.toLowerCase())) maxDiscount = Math.max(maxDiscount, d.percent)
-        else if(d.type === 'general') maxDiscount = Math.max(maxDiscount, d.percent)
+        const ok = !d.productId || d.productId===productId
+        if(!ok) return
+        if(d.type==='mayor'  && qty>=d.qtyMin)                              max=Math.max(max,d.percent)
+        else if(d.type==='cliente' && clientName && clientName.toLowerCase().includes(d.clientName.toLowerCase())) max=Math.max(max,d.percent)
+        else if(d.type==='general')                                          max=Math.max(max,d.percent)
     })
-    return maxDiscount / 100
+    return max/100
 }
 function saveSale(){
-    const prodId = parseInt(document.getElementById('saleProd').value)
-    const qty = parseFloat(document.getElementById('saleQty').value)
-    const price = parseFloat(document.getElementById('salePrice').value)
-    const client = document.getElementById('saleClient').value.trim()
-    const credit = document.getElementById('saleCredit').checked
+    const prodId  = parseInt(document.getElementById('saleProd').value)
+    const qty     = parseFloat(document.getElementById('saleQty').value)
+    const price   = parseFloat(document.getElementById('salePrice').value)
+    const cur     = document.getElementById('saleCurrency').value
+    const client  = document.getElementById('saleClient').value.trim()
+    const credit  = document.getElementById('saleCredit').checked
     if(!prodId || !qty || !price) return alert('Campos requeridos')
-    const prod = data.products.find(p => p.id === prodId)
+    const prod = data.products.find(p=>p.id===prodId)
     if(!prod || prod.currentStock < qty) return alert('Stock insuficiente')
+    const unitSellPriceCUP = toCUP(price, cur)
+    const discountPercent  = getApplicableDiscount(qty, client, prodId)
+    const finalPriceCUP    = unitSellPriceCUP * (1 - discountPercent)
     prod.currentStock -= qty
     const today = new Date().toISOString().slice(0,10)
-    const discountPercent = getApplicableDiscount(qty, client, prodId)
-    const finalPrice = price * (1 - discountPercent)
-    data.sales.push({id:nextId++, productId:prodId, date:today, qty, unitSellPrice:price, finalPrice, discountPercent, client, onCredit:credit})
-    if(credit){
-        let cust = data.customers.find(c => c.name === client)
-        if(!cust) { cust = {id:nextId++, name:client, debt:0}; data.customers.push(cust) }
-        cust.debt = (cust.debt || 0) + (qty * finalPrice)
+    data.sales.push({id:nextId++, productId:prodId, date:today, qty, unitSellPriceCUP, finalPriceCUP, discountPercent, currencyOriginal:cur, client:client||'-', onCredit:credit})
+    if(credit && client){
+        let cust = data.customers.find(c=>c.name===client)
+        if(!cust){ cust={id:nextId++,name:client,debt:0}; data.customers.push(cust) }
+        cust.debt = (cust.debt||0) + qty*finalPriceCUP
     }
     saveData()
-    const discountText = discountPercent > 0 ? ` (descuento ${(discountPercent*100).toFixed(0)}%)` : ''
-    addAudit(`VENTA: ${prod.name} x${qty} a $${finalPrice.toFixed(2)}${discountText}`)
-    hideModal('modalSale')
-    renderSales()
-    renderDashboard()
+    const dtxt = discountPercent > 0 ? ' (dto '+((discountPercent*100).toFixed(0))+'%)' : ''
+    addAudit('VENTA: '+prod.name+' x'+qty+' a '+fmtCUP(finalPriceCUP)+dtxt)
+    hideModal('modalSale'); renderSales(); renderDashboard()
 }
 function renderSales(){
     const tbody = document.getElementById('salesTable')
     tbody.innerHTML = ''
     data.sales.forEach(s => {
-        const prod = data.products.find(pr => pr.id === s.productId)
+        const prod = data.products.find(pr=>pr.id===s.productId)
+        const priceCUP = s.finalPriceCUP || s.unitSellPriceCUP || 0
+        const hasDiscount = s.discountPercent && s.discountPercent > 0
+        const priceHtml = hasDiscount
+            ? '<span class="text-emerald-400">'+fmtInfo(priceCUP,'Precio final')+'</span> <span class="text-xs text-zinc-500">(-'+(s.discountPercent*100).toFixed(0)+'%)</span>'
+            : fmtInfo(priceCUP,'Precio venta')
         const tr = document.createElement('tr')
         tr.className = 'border-b border-zinc-800 hover:bg-zinc-900'
-        const priceDisplay = s.finalPrice ? `<span class="text-emerald-400">${formatDual(s.finalPrice)}</span> <span class="text-xs text-zinc-500">(-${(s.discountPercent*100).toFixed(0)}%)</span>` : formatDual(s.unitSellPrice)
-        tr.innerHTML = `<td class="py-4">${s.date}</td><td>${prod ? prod.name : '?'}</td><td>${s.qty}</td><td>${priceDisplay}</td><td>${s.onCredit ? '💳 ' : ''}${s.client}</td><td><button onclick="deleteSale(${s.id})" class="text-red-400 hover:text-red-300 text-sm">🗑️</button></td>`
+        tr.innerHTML = '<td class="py-4">'+s.date+'</td><td>'+(prod?prod.name:'?')+'</td><td>'+s.qty+'</td><td>'+priceHtml+'</td><td>'+(s.onCredit?'💳 ':'')+s.client+'</td><td><button onclick="deleteSale('+s.id+')" class="text-red-400 hover:text-red-300 text-sm">🗑️</button></td>'
         tbody.appendChild(tr)
     })
 }
-
-// REPORTES
-function renderReports(){
-    let totalRevenue = 0, totalCost = 0
-    data.sales.forEach(s => {
-        const prod = data.products.find(p => p.id === s.productId)
-        const salePrice = s.finalPrice || s.unitSellPrice
-        totalRevenue += s.qty * salePrice
-        totalCost += s.qty * (prod ? prod.avgCost : 0)
-    })
-    // Total de ventas en efectivo (no fiado)
-    let cashTotal = 0
-    data.sales.forEach(s => {
-        if(!s.onCredit){
-            const salePrice = s.finalPrice || s.unitSellPrice
-            cashTotal += s.qty * salePrice
-        }
-    })
-    document.getElementById('totalProfit').innerHTML = formatDual(totalRevenue - totalCost)
-    document.getElementById('totalCOGS').innerHTML = formatDual(totalCost)
-    const cashEl = document.getElementById('totalCash')
-    if(cashEl) cashEl.innerHTML = formatDual(cashTotal)
-}
-
-// MODALES
-function hideModal(id) { document.getElementById(id).classList.add('hidden') }
-function deletePurchase(id){
-    if(!confirm('¿Eliminar esta compra? El stock será ajustado.')) return
-    const purchase = data.purchases.find(p => p.id === id)
-    if(!purchase) return
-    const prod = data.products.find(p => p.id === purchase.productId)
-    if(prod){
-        prod.currentStock -= purchase.qty
-        prod.totalCostValue -= purchase.qty * (purchase.unitCost + purchase.proportionalExpense / purchase.qty)
-        if(prod.currentStock > 0) prod.avgCost = prod.totalCostValue / prod.currentStock
-    }
-    data.purchases = data.purchases.filter(p => p.id !== id)
-    saveData()
-    addAudit(`COMPRA ELIMINADA: ${prod ? prod.name : '?'} x${purchase.qty}`)
-    renderPurchases()
-    renderDashboard()
-}
 function deleteSale(id){
-    if(!confirm('Eliminar esta venta? El stock sera devuelto.')) return
-    const sale = data.sales.find(s => s.id === id)
-    if(!sale) return
-    const prod = data.products.find(p => p.id === sale.productId)
-    if(prod) prod.currentStock += sale.qty
-    if(sale.onCredit){
-        let cust = data.customers.find(c => c.name === sale.client)
-        const salePrice = sale.finalPrice || sale.unitSellPrice
-        if(cust) cust.debt -= sale.qty * salePrice
+    if(!confirm('Eliminar esta venta? El stock será devuelto.')) return
+    const s = data.sales.find(x=>x.id===id)
+    if(!s) return
+    const prod = data.products.find(p=>p.id===s.productId)
+    if(prod) prod.currentStock += s.qty
+    if(s.onCredit && s.client && s.client!=='-'){
+        const cust = data.customers.find(c=>c.name===s.client)
+        if(cust){ cust.debt -= s.qty*(s.finalPriceCUP||s.unitSellPriceCUP||0); if(cust.debt<0) cust.debt=0 }
     }
-    data.sales = data.sales.filter(s => s.id !== id)
-    saveData()
-    addAudit(`VENTA ELIMINADA: ${prod ? prod.name : '?'} x${sale.qty}`)
-    renderSales()
-    renderDashboard()
+    data.sales = data.sales.filter(x=>x.id!==id)
+    saveData(); addAudit('VENTA ELIMINADA: '+(prod?prod.name:'?')+' x'+s.qty)
+    renderSales(); renderDashboard()
 }
+
+// ─── Reportes ─────────────────────────────────────────────────────────────────
+function renderReports(){
+    let revenue=0, cost=0, cash=0
+    data.sales.forEach(s => {
+        const prod     = data.products.find(p=>p.id===s.productId)
+        const priceCUP = s.finalPriceCUP || s.unitSellPriceCUP || 0
+        revenue += s.qty * priceCUP
+        cost    += s.qty * (prod ? prod.avgCost : 0)
+        if(!s.onCredit) cash += s.qty * priceCUP
+    })
+    document.getElementById('totalProfit').innerHTML = fmtInfo(revenue-cost,'Ganancia neta')
+    document.getElementById('totalCOGS').innerHTML   = fmtInfo(cost,'Costo mercancía')
+    document.getElementById('totalCash').innerHTML   = fmtInfo(cash,'Total en caja')
+}
+
+// ─── Ajustes ──────────────────────────────────────────────────────────────────
+function renderSettings(){
+    document.getElementById('baseCurrencySelect').value = data.baseCurrency
+    document.getElementById('rateUSD').value = data.exchangeRates.USD
+    document.getElementById('rateEUR').value = data.exchangeRates.EUR
+}
+function updateBaseCurrency(){
+    data.baseCurrency = document.getElementById('baseCurrencySelect').value
+    saveData(); renderAll()
+}
+function saveRates(){
+    const usd = parseFloat(document.getElementById('rateUSD').value)
+    const eur = parseFloat(document.getElementById('rateEUR').value)
+    if(usd > 0) data.exchangeRates.USD = usd
+    if(eur > 0) data.exchangeRates.EUR = eur
+    saveData(); renderAll()
+    addAudit('AJUSTES: tasas USD='+data.exchangeRates.USD+' EUR='+data.exchangeRates.EUR)
+}
+
+// ─── Auditoría ────────────────────────────────────────────────────────────────
 function addAudit(action){
     if(!data.audit) data.audit = []
-    const timestamp = new Date().toLocaleString()
-    data.audit.push({timestamp, user:currentUser, action})
+    data.audit.push({timestamp:new Date().toLocaleString(), user:currentUser, action})
     saveData()
 }
 function showAudit(){
-    const auditDiv = document.getElementById('auditLog')
-    auditDiv.innerHTML = ''
-    if(!data.audit || data.audit.length === 0){
-        auditDiv.innerHTML = '<div class="text-zinc-500">Sin registros de auditoría</div>'
-        return
-    }
-    [...data.audit].reverse().forEach(log => {
-        const div = document.createElement('div')
-        div.className = 'bg-zinc-800 p-3 rounded-lg border-l-2 border-emerald-600'
-        div.innerHTML = `<div class="text-xs text-zinc-400">${log.timestamp} - ${log.user}</div><div class="text-zinc-200">${log.action}</div>`
-        auditDiv.appendChild(div)
+    const div = document.getElementById('auditLog')
+    div.innerHTML = ''
+    if(!data.audit || !data.audit.length){ div.innerHTML='<div class="text-zinc-500">Sin registros</div>'; }
+    else [...data.audit].reverse().forEach(log => {
+        const d = document.createElement('div')
+        d.className = 'bg-zinc-800 p-3 rounded-lg border-l-2 border-emerald-600'
+        d.innerHTML = '<div class="text-xs text-zinc-400">'+log.timestamp+' — '+log.user+'</div><div class="text-zinc-200">'+log.action+'</div>'
+        div.appendChild(d)
     })
     document.getElementById('modalAudit').classList.remove('hidden')
 }
+
+// ─── Export / Import ──────────────────────────────────────────────────────────
 function exportData(){
-    const json = JSON.stringify(data, null, 2)
-    const blob = new Blob([json], {type: 'application/json'})
-    const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
-    a.href = url
-    a.download = `tienda_${currentUser}_${new Date().toISOString().slice(0,10)}.json`
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(data,null,2)], {type:'application/json'}))
+    a.download = 'tienda_'+currentUser+'_'+new Date().toISOString().slice(0,10)+'.json'
     a.click()
 }
 function importData(){
     const input = document.createElement('input')
-    input.type = 'file'
-    input.accept = '.json'
-    input.onchange = (e) => {
-        const file = e.target.files[0]
-        if (!file) return
+    input.type = 'file'; input.accept = '.json'
+    input.onchange = e => {
         const reader = new FileReader()
-        reader.onload = (event) => {
+        reader.onload = ev => {
             try {
-                const importedData = JSON.parse(event.target.result)
-                if (!importedData.products || !importedData.purchases || !importedData.sales) {
-                    return alert('Formato de archivo inválido')
+                const d = JSON.parse(ev.target.result)
+                if(!d.products || !d.purchases || !d.sales) return alert('Archivo inválido')
+                // Aplicar misma migración que loadData
+                if(!d.exchangeRates){
+                    const r = parseFloat(d.exchangeRate)||500
+                    d.exchangeRates = {USD:r,EUR:650}; d.baseCurrency='CUP'
+                    ;(d.products||[]).forEach(p=>{p.avgCost=(p.avgCost||0)*r; p.totalCostValue=(p.totalCostValue||0)*r})
+                    ;(d.purchases||[]).forEach(p=>{p.unitCostCUP=(p.unitCost||0)*r; p.propExpCUP=(p.proportionalExpense||0)*r; p.totalExpCUP=(p.totalExpenses||0)*r})
+                    ;(d.sales||[]).forEach(s=>{s.unitSellPriceCUP=(s.unitSellPrice||0)*r; s.finalPriceCUP=((s.finalPrice||s.unitSellPrice)||0)*r})
+                    ;(d.customers||[]).forEach(c=>{c.debt=(c.debt||0)*r})
                 }
-                data = importedData
-                saveData()
-                renderAll()
+                data = d
+                saveData(); renderAll()
                 alert('Base de datos importada correctamente')
-            } catch (err) {
-                alert('Error al leer el archivo: ' + err.message)
-            }
+            } catch(err){ alert('Error: '+err.message) }
         }
-        reader.readAsText(file)
+        reader.readAsText(e.target.files[0])
     }
     input.click()
 }
-window.addEventListener('DOMContentLoaded', () => { 
-    // Auto-login si ya existe usuario
-    const savedUser = localStorage.getItem('tienda_lastUser')
-    if (savedUser && localStorage.getItem(`tienda_${savedUser}`)) {
-        document.getElementById('loginUser').value = savedUser
+
+// ─── Auto-login ───────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+    const saved = localStorage.getItem('tienda_lastUser')
+    if(saved && localStorage.getItem('tienda_'+saved)){
+        document.getElementById('loginUser').value = saved
         handleLogin()
     }
 })
