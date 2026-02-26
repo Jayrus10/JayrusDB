@@ -53,8 +53,8 @@
         #warningModal > div { animation: scaleUp .32s cubic-bezier(0.34, 3.56, 0.64, 1); }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        #modalProduct, #modalPurchase, #modalSale, #modalAudit, #modalDiscount, #modalPurchaseInfo, #modalSetupRates { animation: fadeIn .3s ease; }
-        #modalProduct > div, #modalPurchase > div, #modalSale > div, #modalAudit > div, #modalDiscount > div, #modalPurchaseInfo > div, #modalSetupRates > div { animation: scaleUp .32s cubic-bezier(0.34, 3.56, 0.64, 1); }
+        #modalProduct, #modalPurchase, #modalSale, #modalAudit, #modalDiscount, #modalPurchaseInfo, #modalSetupRates, #modalConfirm, #modalCustomer, #modalVipLevel { animation: fadeIn .3s ease; }
+        #modalProduct > div, #modalPurchase > div, #modalSale > div, #modalAudit > div, #modalDiscount > div, #modalPurchaseInfo > div, #modalSetupRates > div, #modalConfirm > div, #modalCustomer > div, #modalVipLevel > div { animation: scaleUp .32s cubic-bezier(0.34, 3.56, 0.64, 1); }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #52525b; border-radius: 3px; }
@@ -107,7 +107,7 @@
         
             <div class="flex justify-between items-center mb-4">
                 <h3 id="currencyInfoTitle" class="text-lg md:text-xl font-bold">Detalle</h3>
-                <button onclick="hideCurrencyInfo()" class="text-zinc-500 hover:text-zinc-300 text-xl">×</button>
+                <button onclick="hideCurrencyInfo()" class="text-red-400 hover:text-red-300 text-xl">&times;</button>
             </div>
 
         <div id="currencyInfoContent" class="space-y-2 text-sm"></div>
@@ -144,6 +144,7 @@
                 <div onclick="showSection('dashboard')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">📊 Dashboard</div>
                 <div onclick="showSection('products')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">📦 Productos</div>
                 <div onclick="showSection('discounts')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">🏷️ Descuentos</div>
+                <div onclick="showSection('customers')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">👥 Clientes</div>
                 <div onclick="showSection('purchases')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">🛒 Compras</div>
                 <div onclick="showSection('sales')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">💰 Ventas</div>
                 <div onclick="showSection('reports')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">📈 Reportes</div>
@@ -224,10 +225,27 @@
                     <div id="discountsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
                 </div>
 
+                <!-- CLIENTES -->
+                <div id="customers" class="section">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold">Clientes</h2>
+                        <div class="flex gap-2">
+                            <button onclick="showManageVipLevels()" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-xl text-sm">⚙️ Niveles VIP</button>
+                            <button onclick="showAddCustomer()" class="bg-emerald-600 px-6 py-2 rounded-xl">+ Nuevo</button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead><tr class="text-left text-zinc-400 text-sm"><th class="pb-3">Nombre</th><th>Nivel VIP</th><th>Deuda</th><th>Acción</th></tr></thead>
+                        <tbody id="customersTable" class="text-sm"></tbody>
+                    </table>
+                    </div>
+                </div>
+
                 <!-- COMPRAS -->
                 <div id="purchases" class="section">
                     <div class="flex justify-between mb-6"><h2 class="text-2xl font-bold">Compras / Lotes</h2><button onclick="showAddPurchase()" class="bg-emerald-600 px-6 py-2 rounded-xl">+ Nueva compra</button></div>
-                    <div class="overflow-x-auto"><table class="w-full"><thead><tr class="text-left text-zinc-400 text-sm"><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Costo unitario</th><th>Proveedor</th><th>Acción</th></tr></thead>
+                    <div class="overflow-x-auto"><table class="w-full"><thead><tr class="text-left text-zinc-400 text-sm"><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Costo unitario</th><th>Proveedor</th><th>Estado</th><th>Acción</th></tr></thead>
                     <tbody id="purchasesTable" class="text-sm"></tbody></table></div>
                 </div>
 
@@ -322,7 +340,7 @@
         <div class="bg-zinc-900 w-full max-w-sm rounded-3xl p-6" style="animation: scaleUp .32s cubic-bezier(0.34,3.56,0.64,1)">
             <div class="flex justify-between items-center mb-5">
                 <h3 class="text-lg font-bold">Resumen de productos</h3>
-                <button onclick="hideModal('modalProductsInfo')" class="text-zinc-500 hover:text-zinc-300 text-xl">×</button>
+                <button onclick="hideModal('modalProductsInfo')" class="text-red-400 hover:text-red-300 text-xl">&times;</button>
             </div>
             <div id="productsInfoContent" class="space-y-3 text-sm"></div>
             <button onclick="hideModal('modalProductsInfo')" class="w-full mt-6 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-2xl text-sm font-medium">Cerrar</button>
@@ -346,17 +364,31 @@
     <!-- Add Purchase -->
     <div id="modalPurchase" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4">
         <div class="bg-zinc-900 w-full max-w-2xl rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0">
-            <h3 class="text-lg md:text-xl font-bold mb-4 md:mb-6">Nueva Compra por Lote</h3>
+            <div class="flex justify-between items-center mb-4 md:mb-6">
+                <h3 class="text-lg md:text-xl font-bold">Nueva Compra por Lote</h3>
+                <button onclick="hideModal('modalPurchase')" class="text-red-400 hover:text-red-300 text-2xl leading-none">&times;</button>
+            </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 mb-4 md:mb-6">
                 <div><label class="text-xs md:text-sm text-zinc-400 block mb-1 md:mb-2">Fecha</label><input id="purchaseDate" type="date" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-3 text-sm"></div>
                 <div><label class="text-xs md:text-sm text-zinc-400 block mb-1 md:mb-2">Proveedor</label><input id="purchaseSupp" placeholder="Proveedor" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-3 text-sm"></div>
             </div>
+            <!-- Envío toggle -->
+            <div class="bg-zinc-800 rounded-2xl px-4 py-3 mb-4 flex items-center justify-between">
+                <div>
+                    <div class="text-sm font-medium text-zinc-200">Estado de envío</div>
+                    <div id="purchaseShippingLabel" class="text-xs text-zinc-500 mt-0.5">🚚 En camino — aún no llegó al almacén</div>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer ml-4">
+                    <input type="checkbox" id="purchaseInStock" class="sr-only peer" onchange="updateShippingLabel()">
+                    <div class="w-11 h-6 bg-zinc-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                </label>
+            </div>
             <div class="text-xs md:text-sm text-zinc-400 mb-2 md:mb-3">Productos del lote</div>
-            <div id="purchaseLinesList" class="space-y-2 md:space-y-3 mb-4 md:mb-6 bg-zinc-800 p-3 md:p-4 rounded-2xl"></div>
-            <button onclick="addPurchaseLine()" class="text-emerald-400 text-xs md:text-sm mb-4 md:mb-6">+ Agregar producto</button>
+            <div id="purchaseLinesList" class="space-y-2 md:space-y-3 mb-2 md:mb-3 bg-zinc-800 p-3 md:p-4 rounded-2xl min-h-[60px]"></div>
+            <button onclick="addPurchaseLine()" class="text-emerald-400 text-xs md:text-sm mb-4 md:mb-6 block">+ Agregar producto</button>
             <div class="text-xs md:text-sm text-zinc-400 mb-2 md:mb-3">Gastos generales del lote</div>
             <div id="expensesList" class="space-y-1 md:space-y-2 mb-3 md:mb-4"></div>
-            <button onclick="addExpenseLine()" class="text-emerald-400 text-xs md:text-sm mb-4 md:mb-6">+ Agregar gasto</button>
+            <button onclick="addExpenseLine()" class="text-emerald-400 text-xs md:text-sm mb-4 md:mb-6 block">+ Agregar gasto</button>
             <div class="flex gap-2 md:gap-3 mt-6 md:mt-10">
                 <button onclick="hideModal('modalPurchase')" class="flex-1 py-2 md:py-4 bg-zinc-800 rounded-2xl text-sm">Cancelar</button>
                 <button onclick="savePurchase()" class="flex-1 py-2 md:py-4 bg-emerald-600 rounded-2xl text-sm">Guardar lote</button>
@@ -393,7 +425,7 @@
         <div class="bg-zinc-900 w-full max-w-2xl rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0">
             <div class="flex justify-between items-center mb-4 md:mb-6">
                 <h3 class="text-lg md:text-xl font-bold">Historial de Auditoria</h3>
-                <button onclick="hideModal('modalAudit')" class="text-zinc-500 hover:text-zinc-300 text-xl md:text-2xl">x</button>
+                <button onclick="hideModal('modalAudit')" class="text-red-400 hover:text-red-300 text-xl md:text-2xl">&times;</button>
             </div>
             <div id="auditLog" class="space-y-2 md:space-y-3 text-xs md:text-sm"></div>
         </div>
@@ -433,7 +465,7 @@
         <div class="bg-zinc-900 w-full max-w-lg rounded-3xl p-4 md:p-6 max-h-[95vh] overflow-y-auto my-4 md:my-0">
             <div class="flex justify-between items-center mb-3 md:mb-4">
                 <h3 class="text-lg md:text-xl font-bold">Detalle de Compra</h3>
-                <button onclick="hideModal('modalPurchaseInfo')" class="text-zinc-500 hover:text-zinc-300 text-xl md:text-2xl">x</button>
+                <button onclick="hideModal('modalPurchaseInfo')" class="text-red-400 hover:text-red-300 text-xl md:text-2xl">&times;</button>
             </div>
             <div id="purchaseInfoContent" class="text-xs md:text-sm space-y-2 md:space-y-3"></div>
         </div>
@@ -472,12 +504,82 @@
         </div>
     </div>
 
+
+    <!-- Confirm Modal (replaces all alert confirmations) -->
+    <div id="modalConfirm" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-[60]">
+        <div class="bg-zinc-900 w-full max-w-sm rounded-3xl p-6">
+            <div class="text-center mb-5">
+                <div id="confirmIcon" class="text-4xl mb-3">🗑️</div>
+                <h3 id="confirmTitle" class="text-lg font-bold mb-2">¿Eliminar?</h3>
+                <p id="confirmMessage" class="text-sm text-zinc-400"></p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="hideModal('modalConfirm')" class="flex-1 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm">Cancelar</button>
+                <button id="confirmBtn" class="flex-1 py-3 bg-red-600 hover:bg-red-500 rounded-2xl text-sm font-semibold">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Customer Modal -->
+    <div id="modalCustomer" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4 z-50">
+        <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0">
+            <div class="flex justify-between items-center mb-5">
+                <h3 class="text-lg font-bold">Cliente</h3>
+                <button onclick="hideModal('modalCustomer')" class="text-red-400 hover:text-red-300 text-xl">&times;</button>
+            </div>
+            <input id="customerName" placeholder="Nombre del cliente" class="block w-full bg-zinc-800 border-0 rounded-2xl px-4 py-3 mb-4 text-sm">
+            <div class="mb-4">
+                <label class="text-xs text-zinc-400 block mb-2">Nivel VIP</label>
+                <select id="customerVipLevel" class="block w-full bg-zinc-800 border-0 rounded-2xl px-4 py-3 text-sm">
+                    <option value="">Sin nivel VIP</option>
+                </select>
+            </div>
+            <input id="customerId" type="hidden" value="">
+            <div class="flex gap-3 mt-6">
+                <button onclick="hideModal('modalCustomer')" class="flex-1 py-3 bg-zinc-800 rounded-2xl text-sm">Cancelar</button>
+                <button onclick="saveCustomer()" class="flex-1 py-3 bg-emerald-600 rounded-2xl text-sm">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIP Levels Manager Modal -->
+    <div id="modalVipLevel" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4 z-50">
+        <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0">
+            <div class="flex justify-between items-center mb-5">
+                <h3 class="text-lg font-bold">⭐ Niveles VIP</h3>
+                <button onclick="hideModal('modalVipLevel')" class="text-red-400 hover:text-red-300 text-xl">&times;</button>
+            </div>
+            <div id="vipLevelsList" class="space-y-2 mb-4"></div>
+            <div class="bg-zinc-800 rounded-2xl p-4 space-y-3">
+                <div class="text-xs text-zinc-400 font-semibold">Nuevo nivel</div>
+                <input id="vipLevelName" placeholder="Nombre (ej: Oro, Premium...)" class="block w-full bg-zinc-700 border-0 rounded-xl px-4 py-2 text-sm">
+                <div class="flex gap-2 items-center">
+                    <input id="vipLevelPercent" type="number" placeholder="% descuento" min="1" max="99" class="flex-1 bg-zinc-700 border-0 rounded-xl px-4 py-2 text-sm">
+                    <button onclick="addVipLevel()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-xl text-sm">Agregar</button>
+                </div>
+            </div>
+            <button onclick="hideModal('modalVipLevel')" class="w-full mt-5 py-3 bg-zinc-800 rounded-2xl text-sm">Cerrar</button>
+        </div>
+    </div>
+
+    <!-- In-transit purchase info (from product table truck icon) -->
+    <div id="modalTransitInfo" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50" style="animation: fadeIn .3s ease">
+        <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-6" style="animation: scaleUp .32s cubic-bezier(0.34,3.56,0.64,1)">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold">🚚 Stock en camino</h3>
+                <button onclick="hideModal('modalTransitInfo')" class="text-red-400 hover:text-red-300 text-xl">&times;</button>
+            </div>
+            <div id="transitInfoContent" class="space-y-2 text-sm"></div>
+            <button onclick="hideModal('modalTransitInfo')" class="w-full mt-5 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-2xl text-sm">Cerrar</button>
+        </div>
+    </div>
+
 <script>
 // ─── Estado global ────────────────────────────────────────────────────────────
 let cashRoundingStep = 1    // múltiplo mínimo de billete
 let cashRoundingDir  = 'round'  // 'ceil' | 'floor' | 'round'
 let currentUser = ''
-let data = { products:[], purchases:[], sales:[], customers:[], discounts:[], audit:[], exchangeRates:{USD:500,EUR:650}, baseCurrency:'CUP' }
+let data = { products:[], purchases:[], sales:[], customers:[], discounts:[], audit:[], vipLevels:[], exchangeRates:{USD:500,EUR:650}, baseCurrency:'CUP' }
 let nextId = 1
 
 // ─── Persistencia ─────────────────────────────────────────────────────────────
@@ -506,6 +608,7 @@ function loadData(){
     if(!d.audit)     d.audit     = []
     if(!d.discounts) d.discounts = []
     if(!d.customers) d.customers = []
+    if(!d.vipLevels) d.vipLevels = []
     data = d
     saveData()
     nextId = Math.max(1, ...[...data.products,...data.purchases,...data.sales,...data.customers,...data.discounts].map(x=>x.id||0)) + 1
@@ -645,16 +748,155 @@ function showSection(sec){
     if(sec==='dashboard') renderDashboard()
     if(sec==='products')  renderProducts()
     if(sec==='discounts') renderDiscounts()
+    if(sec==='customers') renderCustomers()
     if(sec==='purchases') renderPurchases()
     if(sec==='sales')     renderSales()
     if(sec==='reports')   renderReports()
     if(sec==='settings')  renderSettings()
 }
-function renderAll(){ renderDashboard(); renderProducts(); renderDiscounts(); renderPurchases(); renderSales(); renderReports(); renderSettings() }
+// ─── Modal de Confirmación ────────────────────────────────────────────────────
+function showConfirm(title, message, onConfirm){
+    document.getElementById('confirmTitle').textContent = title
+    document.getElementById('confirmMessage').textContent = message
+    const btn = document.getElementById('confirmBtn')
+    btn.onclick = () => { hideModal('modalConfirm'); onConfirm() }
+    document.getElementById('modalConfirm').classList.remove('hidden')
+}
+
+// ─── Clientes y VIP ──────────────────────────────────────────────────────────
+function renderCustomers(){
+    const tbody = document.getElementById('customersTable')
+    if(!tbody) return
+    tbody.innerHTML = ''
+    const list = data.customers || []
+    if(!list.length){
+        tbody.innerHTML = '<tr><td colspan="4" class="py-8 text-center text-zinc-500">No hay clientes registrados</td></tr>'
+        return
+    }
+    list.forEach(c => {
+        const vip = c.vipLevel ? (data.vipLevels||[]).find(v=>v.id===c.vipLevel) : null
+        const vipBadge = vip
+            ? '<span class="text-xs bg-amber-900 text-amber-300 px-2 py-0.5 rounded-full ml-1">⭐ '+vip.name+' ('+vip.percent+'%)</span>'
+            : '<span class="text-xs text-zinc-600">—</span>'
+        const tr = document.createElement('tr')
+        tr.className = 'border-b border-zinc-800 hover:bg-zinc-900'
+        tr.innerHTML = '<td class="py-4">'+c.name+'</td>'
+            +'<td>'+vipBadge+'</td>'
+            +'<td>'+fmtInfo(c.debt||0,'Deuda')+'</td>'
+            +'<td class="flex gap-2 py-4">'
+            +'<button onclick="showEditCustomer('+c.id+')" class="text-emerald-400 hover:text-emerald-300 text-sm">✏️</button>'
+            +'<button onclick="deleteCustomer('+c.id+')" class="text-red-400 hover:text-red-300 text-sm">🗑️</button>'
+            +'</td>'
+        tbody.appendChild(tr)
+    })
+}
+function showAddCustomer(){
+    if(!data.vipLevels) data.vipLevels = []
+    const sel = document.getElementById('customerVipLevel')
+    sel.innerHTML = '<option value="">Sin nivel VIP</option>'
+    data.vipLevels.forEach(v => {
+        const o = document.createElement('option')
+        o.value = v.id; o.textContent = '⭐ '+v.name+' ('+v.percent+'%)'
+        sel.appendChild(o)
+    })
+    document.getElementById('customerName').value = ''
+    document.getElementById('customerId').value = ''
+    document.getElementById('customerVipLevel').value = ''
+    document.getElementById('modalCustomer').classList.remove('hidden')
+}
+function showEditCustomer(id){
+    const c = data.customers.find(x=>x.id===id)
+    if(!c) return
+    if(!data.vipLevels) data.vipLevels = []
+    const sel = document.getElementById('customerVipLevel')
+    sel.innerHTML = '<option value="">Sin nivel VIP</option>'
+    data.vipLevels.forEach(v => {
+        const o = document.createElement('option')
+        o.value = v.id; o.textContent = '⭐ '+v.name+' ('+v.percent+'%)'
+        sel.appendChild(o)
+    })
+    document.getElementById('customerName').value = c.name
+    document.getElementById('customerId').value = c.id
+    document.getElementById('customerVipLevel').value = c.vipLevel || ''
+    document.getElementById('modalCustomer').classList.remove('hidden')
+}
+function saveCustomer(){
+    const name  = document.getElementById('customerName').value.trim()
+    const idVal = document.getElementById('customerId').value
+    const vip   = document.getElementById('customerVipLevel').value
+    if(!name) return alert('Nombre requerido')
+    if(idVal){
+        const c = data.customers.find(x=>x.id===parseInt(idVal))
+        if(c){ c.name = name; c.vipLevel = vip }
+    } else {
+        data.customers.push({id:nextId++, name, debt:0, vipLevel:vip})
+    }
+    saveData(); hideModal('modalCustomer'); renderCustomers()
+    addAudit('CLIENTE: '+name+(vip?' VIP='+vip:''))
+}
+function deleteCustomer(id){
+    const c = data.customers.find(x=>x.id===id)
+    if(!c) return
+    showConfirm('¿Eliminar cliente?', '"'+c.name+'" será eliminado. Sus deudas en ventas se conservan.', () => {
+        data.customers = data.customers.filter(x=>x.id!==id)
+        saveData(); addAudit('CLIENTE ELIMINADO: '+c.name); renderCustomers()
+    })
+}
+function showManageVipLevels(){
+    if(!data.vipLevels) data.vipLevels = []
+    renderVipLevels()
+    document.getElementById('vipLevelName').value = ''
+    document.getElementById('vipLevelPercent').value = ''
+    document.getElementById('modalVipLevel').classList.remove('hidden')
+}
+function renderVipLevels(){
+    const c = document.getElementById('vipLevelsList')
+    c.innerHTML = ''
+    if(!data.vipLevels || !data.vipLevels.length){
+        c.innerHTML = '<div class="text-zinc-500 text-sm text-center py-3">No hay niveles creados</div>'
+        return
+    }
+    data.vipLevels.forEach(v => {
+        const div = document.createElement('div')
+        div.className = 'bg-zinc-800 rounded-2xl px-4 py-3 flex justify-between items-center'
+        div.innerHTML = '<div><span class="text-amber-400 font-semibold">⭐ '+v.name+'</span><span class="text-zinc-400 text-xs ml-2">'+v.percent+'% descuento</span></div>'
+            +'<button onclick="deleteVipLevel(\''+v.id+'\')" class="text-red-400 hover:text-red-300 text-sm">🗑️</button>'
+        c.appendChild(div)
+    })
+}
+function addVipLevel(){
+    const name    = document.getElementById('vipLevelName').value.trim()
+    const percent = parseFloat(document.getElementById('vipLevelPercent').value)
+    if(!name) return alert('Nombre requerido')
+    if(!percent || percent <= 0 || percent >= 100) return alert('Porcentaje inválido (1-99)')
+    if(!data.vipLevels) data.vipLevels = []
+    const id = 'vip_'+Date.now()
+    data.vipLevels.push({id, name, percent})
+    saveData()
+    addAudit('NIVEL VIP: '+name+' '+percent+'%')
+    document.getElementById('vipLevelName').value = ''
+    document.getElementById('vipLevelPercent').value = ''
+    renderVipLevels()
+}
+function deleteVipLevel(id){
+    showConfirm('¿Eliminar nivel VIP?', 'Los clientes con este nivel quedarán sin nivel.', () => {
+        data.vipLevels = (data.vipLevels||[]).filter(v=>v.id!==id)
+        // Remove from customers
+        ;(data.customers||[]).forEach(c=>{ if(c.vipLevel===id) c.vipLevel='' })
+        saveData(); renderVipLevels(); renderCustomers()
+    })
+}
+
+function renderAll(){ renderDashboard(); renderProducts(); renderDiscounts(); renderCustomers(); renderPurchases(); renderSales(); renderReports(); renderSettings() }
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 function renderDashboard(){
-    const stockValue  = data.products.reduce((a,p) => a + (p.currentStock||0)*(p.avgCost||0), 0)
+    // Stock value: in-storage products only (avgCost * currentStock)
+    const stockValue = data.products.reduce((a,p) => a + (p.currentStock||0)*(p.avgCost||0), 0)
+    // Add in-transit value (purchased but not arrived yet) — counted as committed spend
+    const transitValue = data.purchases
+        .filter(p => !p.inStock)
+        .reduce((a,p) => a + p.qty * (p.unitCostCUP||0), 0)
     const totalDebt   = data.customers.reduce((a,c) => a + (c.debt||0), 0)
     const today = new Date().toISOString().slice(0,10)
     const todayProfit = data.sales.filter(s=>s.date===today).reduce((a,s)=>{
@@ -662,7 +904,11 @@ function renderDashboard(){
         const price = s.finalPriceCUP || s.unitSellPriceCUP || 0
         return a + s.qty * (price - (p ? p.avgCost : 0))
     }, 0)
-    document.getElementById('dashStockValue').innerHTML  = fmtInfo(stockValue,  'Valor stock')
+    const transitCount = data.purchases.filter(p => !p.inStock).length
+    const stockLabel = transitCount > 0
+        ? 'Valor stock <span class="text-xs text-amber-400 ml-1">+🚚'+transitCount+'</span>'
+        : 'Valor stock'
+    document.getElementById('dashStockValue').innerHTML  = fmtInfo(stockValue + transitValue, 'Valor stock (incl. en camino)')
     document.getElementById('dashDebt').innerHTML        = fmtInfo(totalDebt,   'Deudores')
     document.getElementById('dashTodayProfit').innerHTML = fmtInfo(todayProfit, 'Ganancia hoy')
     document.getElementById('dashMonthSales').textContent = data.sales.length
@@ -715,27 +961,32 @@ function renderProducts(){
     }
 
     list.forEach(p => {
+        const transitPurchases = (data.purchases||[]).filter(pu => pu.productId === p.id && !pu.inStock)
+        const transitQty = transitPurchases.reduce((a,pu) => a + pu.qty, 0)
         const stockClass = p.currentStock <= 0
             ? 'text-red-400 font-semibold'
             : p.currentStock < (p.minStock || 0)
                 ? 'text-amber-400'
                 : 'text-emerald-400'
+        const truckHtml = transitQty > 0
+            ? ' <button onclick="showTransitInfo('+p.id+')" class="text-amber-400 hover:text-amber-300 text-base" title="'+transitQty+' en camino">🚚</button>'
+            : ''
         const tr = document.createElement('tr')
         tr.className = 'border-b border-zinc-800 hover:bg-zinc-900'
-        tr.innerHTML = '<td class="py-4">'+p.name+'</td>'
+        tr.innerHTML = '<td class="py-4">'+p.name+truckHtml+'</td>'
             +'<td>'+p.category+'</td>'
             +'<td class="'+stockClass+'">'+(p.currentStock||0)+'</td>'
             +'<td>'+fmtInfo(p.avgCost||0,'Costo promedio')+'</td>'
             +'<td>'+(p.minStock||0)+'</td>'
-            +'<td><button onclick="deleteProduct('+p.id+')" class="text-red-400 hover:text-red-300 text-sm" title="Eliminar">\ud83d\uddd1\ufe0f</button></td>'
+            +'<td><button onclick="deleteProduct('+p.id+')" class="text-red-400 hover:text-red-300 text-sm" title="Eliminar">🗑️</button></td>'
         tbody.appendChild(tr)
     })
 }
 
-function deleteProduct(id){
+function deleteProduct(id){ showConfirm('¿Eliminar producto?', 'El historial se conservará (aparecerá como "?").', () => _deleteProduct(id)) }
+function _deleteProduct(id){
     const prod = data.products.find(p=>p.id===id)
     if(!prod) return
-    if(!confirm('¿Eliminar "'+prod.name+'"?\n\nEl historial de compras y ventas se conservará (aparecerá como "?").')) return
     data.products = data.products.filter(p=>p.id!==id)
     saveData()
     addAudit('PRODUCTO ELIMINADO: '+prod.name)
@@ -771,6 +1022,30 @@ function showProductsInfo(){
             +'<span class="font-bold text-emerald-300 text-sm">'+fmtInfo(stockVal,'Valor stock')+'</span>'
         +'</div>'
     document.getElementById('modalProductsInfo').classList.remove('hidden')
+}
+
+function showTransitInfo(productId){
+    const prod = data.products.find(p=>p.id===productId)
+    if(!prod) return
+    const transitPurchases = data.purchases.filter(p=>p.productId===productId && !p.inStock)
+    let html = '<div class="text-sm font-semibold text-zinc-300 mb-3">'+prod.name+'</div>'
+    if(!transitPurchases.length){
+        html += '<div class="text-zinc-500">No hay stock en camino.</div>'
+    } else {
+        transitPurchases.forEach(p => {
+            const totalCUP = p.qty * (p.unitCostCUP||0)
+            html += '<div class="bg-zinc-800 rounded-2xl p-3 space-y-1">'
+                + '<div class="flex justify-between"><span class="text-zinc-400">Fecha:</span><span>'+p.date+'</span></div>'
+                + '<div class="flex justify-between"><span class="text-zinc-400">Cantidad:</span><span class="text-amber-400 font-semibold">'+p.qty+'</span></div>'
+                + '<div class="flex justify-between"><span class="text-zinc-400">Proveedor:</span><span>'+(p.supplier||'-')+'</span></div>'
+                + '<div class="flex justify-between"><span class="text-zinc-400">Costo total:</span><span>'+fmtInfo(totalCUP,'Costo en camino')+'</span></div>'
+                + '</div>'
+        })
+        const totalQty = transitPurchases.reduce((a,p)=>a+p.qty,0)
+        html += '<div class="mt-2 text-center text-sm text-amber-400 font-semibold">🚚 Total en camino: '+totalQty+' unidades</div>'
+    }
+    document.getElementById('transitInfoContent').innerHTML = html
+    document.getElementById('modalTransitInfo').classList.remove('hidden')
 }
 
 function showAddProduct(){ document.getElementById('modalProduct').classList.remove('hidden') }
@@ -833,55 +1108,61 @@ function renderDiscounts(){
         c.appendChild(card)
     })
 }
-function deleteDiscount(id){
-    if(!confirm('Eliminar descuento?')) return
+function deleteDiscount(id){ showConfirm('¿Eliminar descuento?', 'Esta acción no se puede deshacer.', () => _deleteDiscount(id)) }
+function _deleteDiscount(id){
     data.discounts = data.discounts.filter(d=>d.id!==id)
     saveData(); addAudit('DESCUENTO ELIMINADO'); renderDiscounts()
 }
 
 // ─── Compras ──────────────────────────────────────────────────────────────────
-let purchaseLines = []
-let currentExpenses = []
+function updateShippingLabel(){
+    const inStock = document.getElementById('purchaseInStock').checked
+    document.getElementById('purchaseShippingLabel').textContent = inStock
+        ? '✅ En almacén — stock disponible de inmediato'
+        : '🚚 En camino — aún no llegó al almacén'
+}
+
 function showAddPurchase(){
-    purchaseLines = []; currentExpenses = []
     document.getElementById('purchaseDate').value = new Date().toISOString().slice(0,10)
     document.getElementById('purchaseSupp').value = ''
-    document.getElementById('purchaseLinesList').innerHTML = '<div class="text-zinc-500 text-sm">No hay productos. Haz clic en "+ Agregar producto"</div>'
+    document.getElementById('purchaseInStock').checked = false
+    updateShippingLabel()
+    document.getElementById('purchaseLinesList').innerHTML = '<div class="text-zinc-500 text-sm px-1">Haz clic en “+ Agregar producto”</div>'
     document.getElementById('expensesList').innerHTML = ''
     document.getElementById('modalPurchase').classList.remove('hidden')
 }
 function addPurchaseLine(){
-    const lineId = Math.random()
+    const list = document.getElementById('purchaseLinesList')
+    // remove placeholder
+    const ph = list.querySelector('.text-zinc-500')
+    if(ph) ph.remove()
+
+    const lineId = 'line_' + Date.now() + '_' + Math.floor(Math.random()*1000)
     const div = document.createElement('div')
-    div.className = 'bg-zinc-700 p-2 md:p-4 rounded-xl'
+    div.className = 'bg-zinc-700 p-2 md:p-3 rounded-xl'
     div.dataset.lineId = lineId
-    const prods   = data.products.map(p=>'<option value="'+p.id+'">'+p.name+'</option>').join('')
-    const currs   = ['CUP','USD','EUR'].map(c=>'<option value="'+c+'"'+(c===data.baseCurrency?' selected':'')+'>'+c+'</option>').join('')
-    div.innerHTML = '<div class="grid grid-cols-12 gap-1 md:gap-2 items-end">'
-        +'<select class="col-span-4 bg-zinc-800 border-0 rounded-lg px-2 py-1 md:py-2 text-xs purchase-prod" onchange="updatePurchaseLine('+lineId+')">'
-        +'<option value="">Producto</option>'+prods+'</select>'
-        +'<input type="number" placeholder="Cant." class="col-span-2 bg-zinc-800 border-0 rounded-lg px-2 py-1 text-xs purchase-qty" onchange="updatePurchaseLine('+lineId+')">'
-        +'<input type="number" placeholder="Precio" class="col-span-2 bg-zinc-800 border-0 rounded-lg px-2 py-1 text-xs purchase-unit" onchange="updatePurchaseLine('+lineId+')">'
-        +'<select class="col-span-2 bg-zinc-800 border-0 rounded-lg px-1 py-1 text-xs purchase-currency" onchange="updatePurchaseLine('+lineId+')">'+currs+'</select>'
-        +'<span class="col-span-1 text-right text-zinc-400 text-xs purchase-subtotal">0</span>'
-        +'<button onclick="removePurchaseLine('+lineId+')" class="text-zinc-500 hover:text-red-400 text-lg">×</button>'
+    const prods = data.products.map(p=>'<option value="'+p.id+'">'+p.name+'</option>').join('')
+    const currs = ['CUP','USD','EUR'].map(c=>'<option value="'+c+'"'+(c===data.baseCurrency?' selected':'')+'>'+c+'</option>').join('')
+    div.innerHTML =
+        '<div class="grid grid-cols-12 gap-1 items-center">'
+        +'<select class="col-span-4 bg-zinc-800 border-0 rounded-lg px-2 py-1 text-xs purchase-prod" onchange="updatePurchaseLine(\''+lineId+'\')">'
+        +'<option value="">Producto…</option>'+prods+'</select>'
+        +'<input type="number" placeholder="Cant." class="col-span-2 bg-zinc-800 border-0 rounded-lg px-2 py-1 text-xs purchase-qty" oninput="updatePurchaseLine(\''+lineId+'\')">'
+        +'<input type="number" placeholder="Precio" class="col-span-2 bg-zinc-800 border-0 rounded-lg px-2 py-1 text-xs purchase-unit" oninput="updatePurchaseLine(\''+lineId+'\')">'
+        +'<select class="col-span-2 bg-zinc-800 border-0 rounded-lg px-1 py-1 text-xs purchase-currency" onchange="updatePurchaseLine(\''+lineId+'\')">'+currs+'</select>'
+        +'<span class="col-span-1 text-right text-zinc-400 text-xs purchase-subtotal">-</span>'
+        +'<button type="button" onclick="this.closest(\'[data-line-id]\').remove()" class="text-zinc-500 hover:text-red-400 text-lg leading-none">×</button>'
         +'</div>'
-    if(document.getElementById('purchaseLinesList').querySelector('.text-zinc-500'))
-        document.getElementById('purchaseLinesList').innerHTML = ''
-    document.getElementById('purchaseLinesList').appendChild(div)
+    list.appendChild(div)
 }
 function updatePurchaseLine(lineId){
-    const div  = document.querySelector('[data-line-id="'+lineId+'"]')
+    const div = document.querySelector('[data-line-id="'+lineId+'"]')
+    if(!div) return
     const qty  = parseFloat(div.querySelector('.purchase-qty').value)  || 0
     const unit = parseFloat(div.querySelector('.purchase-unit').value) || 0
     const cur  = div.querySelector('.purchase-currency').value
-    div.querySelector('.purchase-subtotal').textContent = fromCUP(toCUP(qty*unit,cur),data.baseCurrency).toFixed(2)+' '+data.baseCurrency
-}
-function removePurchaseLine(lineId){
-    const div = document.querySelector('[data-line-id="'+lineId+'"]')
-    if(div) div.remove()
-    if(!document.getElementById('purchaseLinesList').children.length)
-        document.getElementById('purchaseLinesList').innerHTML = '<div class="text-zinc-500 text-sm">No hay productos. Haz clic en "+ Agregar producto"</div>'
+    const sub  = fromCUP(toCUP(qty*unit,cur),data.baseCurrency)
+    div.querySelector('.purchase-subtotal').textContent = sub > 0 ? sub.toFixed(2)+' '+data.baseCurrency : '-'
 }
 function addExpenseLine(){
     const div = document.createElement('div')
@@ -894,50 +1175,79 @@ function addExpenseLine(){
     document.getElementById('expensesList').appendChild(div)
 }
 function savePurchase(){
-    const date = document.getElementById('purchaseDate').value
-    const supp = document.getElementById('purchaseSupp').value.trim()
+    const date    = document.getElementById('purchaseDate').value
+    const supp    = document.getElementById('purchaseSupp').value.trim()
+    const inStock = document.getElementById('purchaseInStock').checked
     if(!date || !supp) return alert('Fecha y proveedor requeridos')
+
+    const lineDivs = document.querySelectorAll('#purchaseLinesList [data-line-id]')
     const lines = []
-    document.querySelectorAll('[data-line-id]').forEach(div => {
+    lineDivs.forEach(div => {
         const prodId = parseInt(div.querySelector('.purchase-prod').value)
         const qty    = parseFloat(div.querySelector('.purchase-qty').value)
         const unit   = parseFloat(div.querySelector('.purchase-unit').value)
         const cur    = div.querySelector('.purchase-currency').value
-        if(prodId && qty && unit) lines.push({prodId, qty, unit, cur})
+        if(prodId && qty > 0 && unit > 0) lines.push({prodId, qty, unit, cur})
     })
-    if(!lines.length) return alert('Agrega al menos un producto')
+    if(!lines.length) return alert('Agrega al menos un producto con cantidad y precio')
+
     let totalExpCUP = 0
     document.querySelectorAll('.expense-row').forEach(row => {
         totalExpCUP += toCUP(parseFloat(row.querySelector('.expense-amount').value)||0, row.querySelector('.expense-currency').value)
     })
     const totalValCUP = lines.reduce((a,l) => a + toCUP(l.qty*l.unit, l.cur), 0)
+
+    const batchId = nextId++
     lines.forEach(line => {
         const prod = data.products.find(p => p.id === line.prodId)
         if(!prod) return
-        const unitCostCUP = toCUP(line.unit, line.cur)
-        const propExpCUP  = totalValCUP > 0 ? (line.qty*unitCostCUP/totalValCUP)*totalExpCUP : 0
-        const finalCostCUP = unitCostCUP + propExpCUP/line.qty
-        prod.currentStock   = (prod.currentStock  ||0) + line.qty
-        prod.totalCostValue = (prod.totalCostValue ||0) + line.qty*finalCostCUP
-        prod.avgCost        = prod.totalCostValue / prod.currentStock
-        data.purchases.push({id:nextId++, productId:line.prodId, date, qty:line.qty, unitCostCUP, propExpCUP, totalExpCUP, currencyOriginal:line.cur, supplier:supp})
+        const unitCostCUP  = toCUP(line.unit, line.cur)
+        const propExpCUP   = totalValCUP > 0 ? (line.qty*unitCostCUP/totalValCUP)*totalExpCUP : 0
+        const finalCostCUP = unitCostCUP + (line.qty > 0 ? propExpCUP/line.qty : 0)
+
+        // Only add to live stock if inStock (already arrived)
+        if(inStock){
+            prod.currentStock   = (prod.currentStock  ||0) + line.qty
+            prod.totalCostValue = (prod.totalCostValue ||0) + line.qty*finalCostCUP
+            prod.avgCost        = prod.totalCostValue / prod.currentStock
+        }
+
+        data.purchases.push({
+            id: nextId++, batchId, productId:line.prodId,
+            date, qty:line.qty, unitCostCUP, propExpCUP, totalExpCUP,
+            currencyOriginal:line.cur, supplier:supp,
+            inStock  // true = en almacen, false = en camino
+        })
     })
-    if(supp && !data.customers.find(c=>c.name===supp)) data.customers.push({id:nextId++, name:supp, debt:0})
+    if(supp && !data.customers.find(c=>c.name===supp))
+        data.customers.push({id:nextId++, name:supp, debt:0, vipLevel:''})
+
     saveData()
-    addAudit('COMPRA: '+lines.map(l=>{const p=data.products.find(pr=>pr.id===l.prodId); return p?p.name+' x'+l.qty:'?'}).join(', ')+' de '+supp)
-    hideModal('modalPurchase'); renderPurchases(); renderDashboard()
+    const status = inStock ? 'en almacén' : 'en camino'
+    addAudit('COMPRA ('+status+'): '+lines.map(l=>{const p=data.products.find(pr=>pr.id===l.prodId); return p?p.name+' x'+l.qty:'?'}).join(', ')+' de '+supp)
+    hideModal('modalPurchase'); renderPurchases(); renderProducts(); renderDashboard()
 }
 function renderPurchases(){
     const tbody = document.getElementById('purchasesTable')
     tbody.innerHTML = ''
     data.purchases.forEach(p => {
-        const prod = data.products.find(pr=>pr.id===p.productId)
+        const prod    = data.products.find(pr=>pr.id===p.productId)
         const costCUP = p.unitCostCUP !== undefined ? p.unitCostCUP : 0
+        const statusHtml = p.inStock
+            ? '<span class="text-xs text-emerald-400">✅ Almacén</span>'
+            : '<span class="text-xs text-amber-400">🚚 En camino</span>'
         const tr = document.createElement('tr')
         tr.className = 'border-b border-zinc-800 hover:bg-zinc-900'
-        tr.innerHTML = '<td class="py-4">'+p.date+'</td><td>'+(prod?prod.name:'?')+'</td><td>'+p.qty+'</td><td>'+fmtInfo(costCUP,'Costo unitario')+'</td><td>'+(p.supplier||'-')+'</td><td>'
+        tr.innerHTML = '<td class="py-4">'+p.date+'</td>'
+            +'<td>'+(prod?prod.name:'?')+'</td>'
+            +'<td>'+p.qty+'</td>'
+            +'<td>'+fmtInfo(costCUP,'Costo unitario')+'</td>'
+            +'<td>'+(p.supplier||'-')+'</td>'
+            +'<td>'+statusHtml+'</td>'
+            +'<td>'
             +'<button onclick="showPurchaseInfo('+p.id+')" class="text-emerald-400 hover:text-emerald-300 text-sm mr-2">ℹ️</button>'
-            +'<button onclick="deletePurchase('+p.id+')" class="text-red-400 hover:text-red-300 text-sm">🗑️</button></td>'
+            +'<button onclick="deletePurchase('+p.id+')" class="text-red-400 hover:text-red-300 text-sm">🗑️</button>'
+            +'</td>'
         tbody.appendChild(tr)
     })
 }
@@ -963,15 +1273,16 @@ function showPurchaseInfo(id){
         +'<div class="text-sm text-zinc-500 mt-2">Proveedor: '+(p.supplier||'-')+'</div>'
     document.getElementById('modalPurchaseInfo').classList.remove('hidden')
 }
-function deletePurchase(id){
-    if(!confirm('¿Eliminar esta compra? El stock será ajustado.')) return
+function deletePurchase(id){ showConfirm('¿Eliminar compra?', 'El stock del producto será ajustado.', () => _deletePurchase(id)) }
+function _deletePurchase(id){
     const p = data.purchases.find(x=>x.id===id)
     if(!p) return
     const prod = data.products.find(x=>x.id===p.productId)
-    if(prod){
+    // Only revert stock if the purchase was already in storage
+    if(prod && p.inStock){
         const unitCUP = p.unitCostCUP || 0
         const propCUP = p.propExpCUP  || 0
-        const finalCostCUP = unitCUP + propCUP / p.qty
+        const finalCostCUP = unitCUP + (p.qty > 0 ? propCUP / p.qty : 0)
         prod.currentStock   -= p.qty
         prod.totalCostValue -= p.qty * finalCostCUP
         if(prod.currentStock > 0) prod.avgCost = prod.totalCostValue / prod.currentStock
@@ -979,7 +1290,7 @@ function deletePurchase(id){
     }
     data.purchases = data.purchases.filter(x=>x.id!==id)
     saveData(); addAudit('COMPRA ELIMINADA: '+(prod?prod.name:'?')+' x'+p.qty)
-    renderPurchases(); renderDashboard()
+    renderPurchases(); renderProducts(); renderDashboard()
 }
 
 // ─── Ventas ───────────────────────────────────────────────────────────────────
@@ -1016,6 +1327,7 @@ function showQuickSale(){
 function getApplicableDiscount(qty, clientName, productId){
     if(!data.discounts) return 0
     let max = 0
+    // Regular discounts
     data.discounts.forEach(d => {
         const ok = !d.productId || d.productId===productId
         if(!ok) return
@@ -1023,6 +1335,14 @@ function getApplicableDiscount(qty, clientName, productId){
         else if(d.type==='cliente' && clientName && clientName.toLowerCase().includes(d.clientName.toLowerCase())) max=Math.max(max,d.percent)
         else if(d.type==='general')                                          max=Math.max(max,d.percent)
     })
+    // VIP discount: look up customer by name and check their level
+    if(clientName && data.customers && data.vipLevels){
+        const cust = data.customers.find(c=>c.name.toLowerCase()===clientName.toLowerCase())
+        if(cust && cust.vipLevel){
+            const level = data.vipLevels.find(v=>v.id===cust.vipLevel)
+            if(level) max = Math.max(max, level.percent)
+        }
+    }
     return max/100
 }
 function saveSale(){
@@ -1067,8 +1387,8 @@ function renderSales(){
         tbody.appendChild(tr)
     })
 }
-function deleteSale(id){
-    if(!confirm('Eliminar esta venta? El stock será devuelto.')) return
+function deleteSale(id){ showConfirm('¿Eliminar venta?', 'El stock será devuelto al inventario.', () => _deleteSale(id)) }
+function _deleteSale(id){
     const s = data.sales.find(x=>x.id===id)
     if(!s) return
     const prod = data.products.find(p=>p.id===s.productId)
