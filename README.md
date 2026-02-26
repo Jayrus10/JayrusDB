@@ -2,4 +2,4 @@
 [Sitio Principal](https://jayrus10.github.io/JayrusDB/)  
 [RadioAccess Web Version](https://jayrus10.github.io/JayrusDB/raweb.html)
 [Calculadora de duración de baterias para inversor](https://jayrus10.github.io/JayrusDB/battery.html)
-[MiTienda](https://jayrus10.github.io/JayrusDB/MiTienda/index.html)
+[Vexto (MiTienda antes)](https://jayrus10.github.io/JayrusDB/MiTienda/index.html)
