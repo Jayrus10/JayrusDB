@@ -97,6 +97,30 @@
         </div>
     </div>
 
+    <!-- Currency Info Modal -->
+    <div id="modalCurrencyInfo" 
+         class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4 transition-opacity duration-300 opacity-0">
+
+        <div id="modalCurrencyInfoBox"
+             class="bg-zinc-900 w-full max-w-md rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0
+                transform scale-95 transition-transform duration-300">
+        
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="currencyInfoTitle" class="text-lg md:text-xl font-bold">Detalle</h3>
+                <button onclick="hideCurrencyInfo()" class="text-zinc-500 hover:text-zinc-300 text-xl">×</button>
+            </div>
+
+        <div id="currencyInfoContent" class="space-y-2 text-sm"></div>
+
+        <div class="mt-6">
+            <button onclick="hideCurrencyInfo()" 
+                    class="w-full py-3 bg-emerald-600 rounded-2xl text-sm">
+                Cerrar
+            </button>
+        </div>
+        </div>
+    </div>
+
     <!-- APP -->
     <div id="app" class="hidden min-h-screen bg-zinc-950">
         <div class="bg-zinc-900 border-b border-zinc-800 px-4 md:px-6 py-3 md:py-4 flex justify-between items-center gap-3">
@@ -425,22 +449,64 @@ function fromCUP(cup, currency){
     return r > 0 ? cup / r : cup
 }
 
-// ─── Formato: muestra en moneda base + botón ℹ️ ───────────────────────────────
-function fmtCUP(cup){
-    if(!cup) cup = 0
-    const base = data.baseCurrency
-    const val  = fromCUP(cup, base).toFixed(2)
-    return val + ' <span class="text-xs text-zinc-500">' + base + '</span>'
+// ─── Formato CUP ───────────────────────────────
+function fmtCUP(amount){
+    amount = Number(amount) || 0
+    return amount.toFixed(2) + ' CUP'
 }
+
+// ─── Formato: muestra en moneda base + botón ℹ️ ───────────────────────────────
 function fmtInfo(cup, label){
-    if(!cup) cup = 0
+    cup = Number(cup) || 0
+    const safeLabel = (label || 'Detalle').replace(/"/g, '&quot;')
+
+    return fmtCUP(cup) + 
+        ' <button class="text-zinc-500 hover:text-zinc-300 text-xs currency-info-btn" ' +
+        'data-value="'+cup+'" data-label="'+safeLabel+'">ℹ️</button>'
+}
+
+function showCurrencyInfo(cup, label){
     const c = cup.toFixed(2)
     const u = fromCUP(cup,'USD').toFixed(2)
     const e = fromCUP(cup,'EUR').toFixed(2)
-    const msg = (label ? label+':\n' : '') + c+' CUP\n'+u+' USD\n'+e+' EUR'
-    // encode para onclick seguro
-    const enc = msg.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,'\\n')
-    return fmtCUP(cup) + ' <button onclick="alert(\'' + enc + '\')" class="text-zinc-500 hover:text-zinc-300 text-xs">ℹ️</button>'
+
+    document.getElementById('currencyInfoTitle').textContent = label || 'Detalle'
+    document.getElementById('currencyInfoContent').innerHTML = `
+        <div class="bg-zinc-800 rounded-2xl p-4 flex justify-between">
+            <span>CUP</span>
+            <span class="font-bold text-emerald-400">${c}</span>
+        </div>
+        <div class="bg-zinc-800 rounded-2xl p-4 flex justify-between">
+            <span>USD</span>
+            <span class="font-bold text-emerald-400">${u}</span>
+        </div>
+        <div class="bg-zinc-800 rounded-2xl p-4 flex justify-between">
+            <span>EUR</span>
+            <span class="font-bold text-emerald-400">${e}</span>
+        </div>
+    `
+    
+    const modal = document.getElementById('modalCurrencyInfo')
+    const box   = document.getElementById('modalCurrencyInfoBox')
+
+    modal.classList.remove('hidden')
+
+    setTimeout(() => {
+        modal.classList.remove('opacity-0')
+        box.classList.remove('scale-95')
+    }, 10)
+}
+
+function hideCurrencyInfo(){
+    const modal = document.getElementById('modalCurrencyInfo')
+    const box   = document.getElementById('modalCurrencyInfoBox')
+
+    modal.classList.add('opacity-0')
+    box.classList.add('scale-95')
+
+    setTimeout(() => {
+        modal.classList.add('hidden')
+    }, 300)
 }
 
 // ─── Login ────────────────────────────────────────────────────────────────────
@@ -921,12 +987,22 @@ function importData(){
     input.click()
 }
 
+
+
 // ─── Auto-login ───────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
     const saved = localStorage.getItem('tienda_lastUser')
     if(saved && localStorage.getItem('tienda_'+saved)){
         document.getElementById('loginUser').value = saved
         handleLogin()
+    }
+})
+
+document.addEventListener('click', function(e){
+    if(e.target.classList.contains('currency-info-btn')){
+        const cup   = parseFloat(e.target.dataset.value)
+        const label = e.target.dataset.label
+        showCurrencyInfo(cup, label)
     }
 })
 </script>
