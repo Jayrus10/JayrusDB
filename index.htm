@@ -3,24 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RadioAccess</title>
+    <title>Mis Proyectos</title>
     <link rel="stylesheet" href="com.jayrus10.revolutionradio/style.css">
+    <style>
+        /* =========================================
+           CONFIGURACIÓN DEL SLIDER (ESTRUCTURA)
+           ========================================= */
+        .slider-proyectos {
+            overflow: hidden; /* Oculta lo que sale de la pantalla */
+            width: 100%;
+            padding: 60px 0; /* Más padding para dar espacio al escalado (hover) */
+            background: #f9f9f9;
+            position: relative;
+        }
+
+        .track-proyectos {
+            display: flex;
+            /* Ancho total: (ancho card + márgenes laterales) * número total de cards (6) */
+            /* (350px + 40px) * 6 = 2340px */
+            width: calc((350px + 40px) * 6); 
+            animation: scroll 25s linear infinite;
+            align-items: center; /* Centra verticalmente las cards */
+        }
+
+        /* Pausa la animación general al interactuar con el slider */
+        .slider-proyectos:hover .track-proyectos {
+            animation-play-state: paused;
+        }
+
+        /* =========================================
+           DISEÑO DE CADA PROYECTO (ESTILOS Y HOVER)
+           ========================================= */
+        .proyecto-card {
+            width: 350px; /* Ancho fijo */
+            margin: 0 20px; /* Espacio entre cards */
+            padding: 30px 20px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 15px;
+            text-align: center;
+            flex-shrink: 0; /* Evita que se compriman */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            
+            /* --- CLAVE PARA LA ANIMACIÓN INDIVIDUAL --- */
+            transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+            /* ------------------------------------------- */
+            
+            box-sizing: border-box; /* Asegura que el padding no sume al ancho */
+        }
+
+        /* EFECTO HOVER INDIVIDUAL (NUEVO) */
+        .proyecto-card:hover {
+            transform: scale(1.08); /* Se agranda un 8% */
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15); /* Sombra más profunda */
+            border-color: #007bff; /* Cambia el borde al color principal */
+            cursor: pointer;
+        }
+
+        /* ESTILOS INTERNOS DE LA CARD (Basados en tu diseño) */
+        .proyecto-card img {
+            max-width: 120px;
+            height: auto;
+            margin-bottom: 20px;
+            transition: transform 0.4s ease;
+        }
+
+        /* Efecto extra opcional: el logo se mueve un poco en hover */
+        .proyecto-card:hover img {
+            transform: translateY(-5px);
+        }
+
+        .proyecto-card h2 {
+            font-size: 1.4rem;
+            margin: 10px 0;
+            color: #333;
+        }
+
+        .proyecto-card p {
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .proyecto-card a {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+
+        .proyecto-card a:hover {
+            background: #0056b3;
+        }
+
+        /* =========================================
+           KEYFRAMES (LÓGICA DEL MOVIMIENTO INFINITO)
+           ========================================= */
+        @keyframes scroll {
+            0% { 
+                transform: translateX(0); 
+            }
+            100% { 
+                /* Se mueve exactamente el ancho de los 3 originales (incluyendo gaps) */
+                /* -(350px + 40px) * 3 = -1170px */
+                transform: translateX(calc(-390px * 3)); 
+            }
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Desarrollo de RadioAccess</h1>
+    <header style="padding: 20px; text-align: center;">
+        <h1>Mis Proyectos</h1>
     </header>
+
     <main>
-        <section class="contenido">
-            <img id="logo" src="com.jayrus10.revolutionradio/logo.png" alt="Logo de RadioAccess">
-            <h2 id="version-disponible">Última versión disponible:</h2>
-            <p id="version-numero"></p>
-            <p><a href="enlace-de-descarga" id="enlace-descarga">Descargar ahora</a></p>
+        <section class="slider-proyectos">
+            <div class="track-proyectos">
+                
+                <div class="proyecto-card">
+                    <img src="com.jayrus10.revolutionradio/logo.png" alt="Logo RadioAccess">
+                    <h2>RadioAccess</h2>
+                    <p>Gestión de emisoras profesional.</p>
+                    <a href="#">Descargar v116</a>
+                </div>
+
+                <div class="proyecto-card">
+                    <img src="https://jayrus10.github.io/JayrusDB/Vexto/image.png" alt="Logo Vexto">
+                    <h2>Vexto</h2>
+                    <p>Gestor de negocios de reventas.</p>
+                    <a href="https://jayrus10.github.io/JayrusDB/Vexto/index.html">Entrar</a>
+                </div>
+
+            </div>
         </section>
     </main>
-    <footer>
-        <p>&copy; 2025 RadioAccess</p>
+
+    <footer style="text-align: center; padding: 5px; color: #888;">
+        <p>&copy; 2026 Jayrus10 - Todos los derechos reservados.</p>
     </footer>
+
     <script src="com.jayrus10.revolutionradio/script.js"></script>
 </body>
 </html>
