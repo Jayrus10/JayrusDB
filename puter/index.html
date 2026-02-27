@@ -3,65 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Chat Puter Pro</title>
+    <title>Puter AI Cloud</title>
     <script src="https://js.puter.com/v2/"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         :root{ --bg:#0f172a; --panel:#1e293b; --accent:#3b82f6; --text:#e2e8f0; --border:#334155; }
-        body{ margin:0; font-family:system-ui; background:var(--bg); color:var(--text); display:flex; flex-direction:column; height:100vh; }
-        header{ padding:10px; background:var(--panel); display:flex; gap:8px; align-items:center; border-bottom:1px solid var(--border); flex-wrap:wrap; }
-        select, input, button{ background:#0f172a; color:var(--text); border:1px solid var(--border); padding:6px 8px; border-radius:6px; }
-        button{ cursor:pointer; background:var(--accent); border:none; font-weight:bold; }
-        #chat{ flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:12px; }
-        .msg{ padding:12px; border-radius:8px; max-width:85%; line-height:1.5; }
+        body{ margin:0; font-family:system-ui; background:var(--bg); color:var(--text); display:flex; height:100vh; overflow:hidden; }
+        aside { width: 260px; background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 15px; gap: 10px; }
+        #file-list { flex:1; overflow-y:auto; }
+        .file-item { font-size: 12px; display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.2); margin-bottom: 4px; border-radius: 4px; }
+        .btn-del { color: #f87171; cursor: pointer; border: none; background: none; font-weight: bold; }
+        main { flex: 1; display: flex; flex-direction: column; background: var(--bg); }
+        header{ padding:10px; background:var(--panel); display:flex; gap:8px; align-items:center; border-bottom:1px solid var(--border); }
+        #chat{ flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:15px; }
+        .msg{ padding:12px 16px; border-radius:8px; max-width:85%; line-height:1.6; font-size: 15px; }
+        .msg pre { background: #000; padding: 10px; border-radius: 5px; overflow-x: auto; }
         .user{ background:var(--border); align-self:flex-end; }
-        .ai{ background:var(--panel); align-self:flex-start; border:1px solid var(--border); }
-        footer{ display:flex; padding:15px; gap:8px; background:var(--panel); }
-        textarea{ flex:1; resize:none; height:50px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:white; padding:10px; }
-        .status{ font-size:11px; opacity: 0.7; }
+        .ai{ background:var(--panel); align-self:flex-start; border: 1px solid var(--border); }
+        footer{ display:flex; padding:15px; gap:8px; background:var(--panel); border-top: 1px solid var(--border); }
+        textarea{ flex:1; resize:none; height:60px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:white; padding:10px; }
+        select, button, input{ background:#0f172a; color:var(--text); border:1px solid var(--border); padding:6px 12px; border-radius:6px; cursor:pointer; }
+        button:hover{ background: var(--accent); }
     </style>
 </head>
 <body>
 
-<header>
-    <select id="model">
-        <option value="claude-3-7-sonnet">Claude 3.7 Sonnet</option>
-        <option value="claude-3-5-sonnet">Claude 3.5 Sonnet</option>
-        <option value="claude-3-haiku">Claude 3 Haiku</option>
-        <option value="claude-sonnet-4-6">Claude Sonnet 4.6 (Erróneo?)</option>
-        <option value="claude-opus-4-6">Claude Opus 4.6</option>
-    </select>
-    <input type="number" id="temp" step="0.1" min="0" max="2" value="0.7">
-    <button onclick="clearChat()" style="background:#ef4444">Limpiar</button>
-    <span class="status" id="status">Verificando sesión...</span>
-</header>
+<aside>
+    <h3>Archivos Nube</h3>
+    <div id="file-list">Cargando...</div>
+    <input type="file" id="file-input" hidden>
+    <button onclick="document.getElementById('file-input').click()" style="width:100%">+ Subir Archivo</button>
+</aside>
 
-<div id="chat"></div>
+<main>
+    <header>
+        <select id="model">
+            <option value="claude-sonnet-4-6" selected>Claude Sonnet 4.6</option>
+            <option value="claude-3-7-sonnet">Claude 3.7 Sonnet</option>
+            <option value="claude-3-5-sonnet">Claude 3.5 Sonnet</option>
+            <option value="claude-3-haiku">Claude 3 Haiku</option>
+        </select>
+        <button onclick="clearChat()" style="background:#b91c1c; color:white;">Limpiar</button>
+        <div style="flex:1"></div>
+        <span id="status" style="font-size:12px; opacity:0.5">Iniciando...</span>
+    </header>
 
-<footer>
-    <textarea id="input" placeholder="Escribe aquí... (Enter para enviar)"></textarea>
-    <button onclick="send()">Enviar</button>
-</footer>
+    <div id="chat"></div>
+
+    <footer>
+        <textarea id="input" placeholder="Escribe un mensaje... (Shift+Enter para línea nueva)"></textarea>
+        <button onclick="send()" style="background:var(--accent); color:white;">Enviar</button>
+    </footer>
+</main>
 
 <script>
-let messages = JSON.parse(localStorage.getItem("chat_history")) || [];
+let messages = JSON.parse(localStorage.getItem("chat_v4")) || [];
+const FILE_DIR = ".chat_files";
 
 async function init() {
     try {
         await puter.auth.getUser() || await puter.auth.signIn();
-        document.getElementById("status").textContent = "Sesión activa";
+        document.getElementById("status").textContent = "En línea";
+        try { await puter.fs.mkdir(FILE_DIR); } catch(e){}
+        refreshFileList();
         renderHistory();
-    } catch (e) {
-        document.getElementById("status").textContent = "Error de sesión";
-    }
+    } catch (e) { document.getElementById("status").textContent = "Error Auth"; }
 }
 
-function addMessage(role, text) {
+function renderHistory() {
+    const chatDiv = document.getElementById("chat");
+    chatDiv.innerHTML = "";
+    messages.forEach(m => {
+        if(m.role !== "system") addMessageToUI(m.role, m.content);
+    });
+}
+
+function addMessageToUI(role, text) {
+    const chatDiv = document.getElementById("chat");
     const div = document.createElement("div");
     div.className = `msg ${role === 'user' ? 'user' : 'ai'}`;
-    div.innerHTML = role === 'ai' ? marked.parse(text) : text;
-    document.getElementById("chat").appendChild(div);
-    document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
+    // Corrección de formato: Usar marked para rol AI siempre
+    div.innerHTML = role === 'assistant' || role === 'ai' ? marked.parse(text) : text;
+    chatDiv.appendChild(div);
+    chatDiv.scrollTop = chatDiv.scrollHeight;
     return div;
 }
 
@@ -70,17 +94,16 @@ async function send() {
     const text = input.value.trim();
     if (!text) return;
 
-    addMessage("user", text);
+    addMessageToUI("user", text);
     messages.push({ role: "user", content: text });
     input.value = "";
 
-    const aiDiv = addMessage("ai", "...");
+    const aiDiv = addMessageToUI("assistant", "...");
     let fullText = "";
 
     try {
         const response = await puter.ai.chat(messages, {
             model: document.getElementById("model").value,
-            temperature: parseFloat(document.getElementById("temp").value),
             stream: true 
         });
 
@@ -93,20 +116,48 @@ async function send() {
             }
         }
         messages.push({ role: "assistant", content: fullText });
-        localStorage.setItem("chat_history", JSON.stringify(messages));
-    } catch (e) {
-        aiDiv.textContent = "Error: " + e.message;
+        localStorage.setItem("chat_v4", JSON.stringify(messages));
+    } catch (e) { 
+        aiDiv.textContent = "Error: " + e.message; 
+        console.error(e);
     }
 }
 
-function renderHistory() {
-    document.getElementById("chat").innerHTML = "";
-    messages.forEach(m => addMessage(m.role, m.content));
+// Persistencia en Puter.fs
+async function refreshFileList() {
+    const listDiv = document.getElementById("file-list");
+    try {
+        const items = await puter.fs.list(FILE_DIR);
+        listDiv.innerHTML = items.length ? "" : "<p style='font-size:12px'>Vacío</p>";
+        items.forEach(item => {
+            const div = document.createElement("div");
+            div.className = "file-item";
+            div.innerHTML = `<span>${item.name}</span><button class="btn-del" onclick="deleteFile('${item.name}')">×</button>`;
+            listDiv.appendChild(div);
+        });
+    } catch (e) { listDiv.textContent = "Error FS"; }
 }
+
+async function deleteFile(name) {
+    await puter.fs.delete(`${FILE_DIR}/${name}`);
+    refreshFileList();
+}
+
+document.getElementById("file-input").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+        await puter.fs.write(`${FILE_DIR}/${file.name}`, file);
+        const text = await file.text();
+        messages.push({ role: "system", content: `Contexto archivo ${file.name}: ${text.substring(0, 10000)}` });
+        addMessageToUI("assistant", `📁 Archivo **${file.name}** cargado con éxito.`);
+        refreshFileList();
+    } catch (e) { alert("Error subida"); }
+});
 
 function clearChat() {
     messages = [];
-    localStorage.removeItem("chat_history");
+    localStorage.removeItem("chat_v4");
     renderHistory();
 }
 
