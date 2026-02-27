@@ -155,6 +155,7 @@
                 <div onclick="showSection('sales')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">💰 Ventas</div>
                 <div onclick="showSection('reports')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">📈 Reportes</div>
                 <div onclick="showSection('settings')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">⚙️ Ajustes</div>
+                <div onclick="showSection('info')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">ℹ️ Información</div>
             </div>
 
             <!-- CONTENT -->
@@ -265,16 +266,42 @@
                 <!-- REPORTES -->
                 <div id="reports" class="section">
                     <h2 class="text-2xl font-bold mb-6">Reportes</h2>
-                    <div class="bg-zinc-900 p-6 rounded-3xl">
+                    <div class="bg-zinc-900 p-6 rounded-3xl mb-4">
                         <div class="grid grid-cols-2 gap-8">
                             <div><div class="text-sm text-zinc-400">Ganancia neta total</div><div id="totalProfit" class="text-5xl font-bold text-emerald-400"></div></div>
                             <div><div class="text-sm text-zinc-400">Costo mercancía vendida</div><div id="totalCOGS" class="text-5xl font-bold text-zinc-400"></div></div>
                         </div>
-                        <div class="mt-6 border-t border-zinc-800 pt-4">
-                            <div class="text-sm text-zinc-400">Total en caja (estimado)</div>
-                            <div id="totalCash" class="text-3xl font-bold text-emerald-300">-</div>
+                        <div class="mt-6 border-t border-zinc-800 pt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <div class="text-xs text-zinc-500 mb-1">💵 Cobrado en efectivo</div>
+                                <div id="totalCash" class="text-2xl font-bold text-emerald-300">-</div>
+                                <div class="text-xs text-zinc-600 mt-1">Ventas al contado + cobros de deuda</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-zinc-500 mb-1">💳 Deuda pendiente (fiado)</div>
+                                <div id="totalPendingDebt" class="text-2xl font-bold text-amber-400">-</div>
+                                <div class="text-xs text-zinc-600 mt-1">Dinero vendido aún no cobrado</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-zinc-500 mb-1">🏦 Total si todo se cobra</div>
+                                <div id="totalIfAllPaid" class="text-2xl font-bold text-sky-400">-</div>
+                                <div class="text-xs text-zinc-600 mt-1">Efectivo + deuda pendiente</div>
+                            </div>
                         </div>
+                        <div id="debtBreakdown" class="mt-4 border-t border-zinc-800 pt-4 hidden">
+                            <div class="text-xs text-zinc-500 mb-2">Detalle de deudas por cliente</div>
+                            <div id="debtBreakdownList" class="space-y-1"></div>
+                        </div>
+                        <button onclick="toggleDebtBreakdown()" class="mt-3 text-xs text-zinc-500 hover:text-zinc-300">Ver detalle por cliente ▾</button>
                     </div>
+                </div>
+
+
+                <!-- INFORMACIÓN -->
+                <div id="info" class="section">
+                    <h2 class="text-2xl font-bold mb-2">Información</h2>
+                    <p class="text-zinc-500 text-sm mb-6">Cómo funciona la lógica económica de Vexto — con ejemplos reales.</p>
+                    <div class="space-y-6 max-w-3xl" id="infoContent"></div>
                 </div>
 
                 <!-- AJUSTES -->
@@ -812,12 +839,16 @@ function showSection(sec){
     if(sec==='sales')     renderSales()
     if(sec==='reports')   renderReports()
     if(sec==='settings')  renderSettings()
+    if(sec==='info')      renderInfo()
 }
 // ─── Modal de Confirmación ────────────────────────────────────────────────────
-function showConfirm(title, message, onConfirm){
+function showConfirm(title, message, onConfirm, opts){
+    opts = opts||{}
     document.getElementById('confirmTitle').textContent = title
     document.getElementById('confirmMessage').textContent = message
     const btn = document.getElementById('confirmBtn')
+    btn.textContent  = opts.label    || 'Eliminar'
+    btn.className    = 'flex-1 py-3 rounded-2xl text-sm font-semibold ' + (opts.btnClass || 'bg-red-600 hover:bg-red-500')
     btn.onclick = () => { hideModal('modalConfirm'); onConfirm() }
     showModal('modalConfirm')
 }
@@ -969,7 +1000,7 @@ function markPurchaseReceived(id){
         saveData()
         addAudit('RECIBIDO: '+(prod?prod.name:'?')+' x'+p.qty+' de '+(p.supplier||'-'))
         renderPurchases(); renderProducts(); renderDashboard()
-    })
+    }, {label:'Entregado', btnClass:'bg-emerald-600 hover:bg-emerald-500'})
 }
 function markProductReceived(productId){
     const pending = data.purchases.filter(p=>p.productId===productId && !p.inStock)
@@ -989,7 +1020,7 @@ function markProductReceived(productId){
         saveData()
         addAudit('RECIBIDO (lote): '+prod.name+' — '+pending.reduce((a,p)=>a+p.qty,0)+' unidades')
         renderPurchases(); renderProducts(); renderDashboard()
-    })
+    }, {label:'Entregado', btnClass:'bg-emerald-600 hover:bg-emerald-500'})
 }
 
 // ─── Pago de deudas ──────────────────────────────────────────────────────────
@@ -1034,9 +1065,110 @@ function saveDebtPayment(){
     addAudit('PAGO DEUDA: '+cust.name+' pagó '+fmtCUP(paid)+(paid < amountCUP ? ' (deuda era menor, ajustado)':''))
     hideModal('modalPayDebt')
     renderCustomers(); renderReports(); renderDashboard()
-    showConfirm('✅ Pago registrado', cust.name+' pagó '+paid.toFixed(2)+' CUP. Deuda restante: '+cust.debt.toFixed(2)+' CUP.', ()=>{})
+    showConfirm('✅ Pago registrado', cust.name+' pagó '+paid.toFixed(2)+' CUP. Deuda restante: '+cust.debt.toFixed(2)+' CUP.', ()=>{}, {label:'Aceptar', btnClass:'bg-emerald-600 hover:bg-emerald-500'})
     // Override confirm button to just close
-    setTimeout(()=>{ const btn = document.getElementById('confirmBtn'); if(btn){ btn.textContent='Aceptar'; btn.className='flex-1 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-2xl text-sm font-semibold' } }, 10)
+}
+
+
+// ─── Sección Información ─────────────────────────────────────────────────────
+function renderInfo(){
+    const c = document.getElementById('infoContent')
+    if(!c) return
+
+    const card = (emoji, title, body) =>
+        `<div class="bg-zinc-900 rounded-3xl p-6">
+            <div class="flex items-center gap-3 mb-4">
+                <span class="text-3xl">${emoji}</span>
+                <h3 class="text-lg font-bold text-zinc-100">${title}</h3>
+            </div>
+            <div class="text-sm text-zinc-300 space-y-3">${body}</div>
+        </div>`
+
+    const ex = (label, val) =>
+        `<div class="bg-zinc-800 rounded-2xl px-4 py-3 flex justify-between items-center text-xs">
+            <span class="text-zinc-400">${label}</span>
+            <span class="text-emerald-400 font-mono font-semibold">${val}</span>
+        </div>`
+
+    const p = s => `<p>${s}</p>`
+    const note = s => `<p class="text-zinc-500 text-xs">${s}</p>`
+
+    c.innerHTML = [
+
+      card('📦','Costo promedio ponderado (avgCost)',
+        p('Cada vez que compras unidades de un producto, Vexto recalcula el costo promedio considerando tanto las unidades existentes como las nuevas.')
+        + p('La fórmula es: <code class="bg-zinc-800 px-1 rounded">(stock_anterior × costo_anterior + nuevas_unidades × nuevo_costo) ÷ stock_total</code>')
+        + ex('Tienes 10 unidades a 100 CUP c/u → compras 5 más a 130 CUP c/u',
+             '(10×100 + 5×130) ÷ 15 = 110 CUP promedio')
+        + note('Esto asegura que el precio sugerido de venta refleje cuánto costó la mezcla real de inventario, no solo el último lote.')
+      ),
+
+      card('💰','Precio sugerido de venta',
+        p('Vexto sugiere un precio basado en el costo promedio más tu margen de ganancia configurado.')
+        + p('Fórmula: <code class="bg-zinc-800 px-1 rounded">costo_promedio × (1 + margen/100)</code>')
+        + ex('Costo promedio: 110 CUP · Margen: 50%', '110 × 1.5 = 165 CUP sugerido')
+        + note('Puedes cambiar el margen al crear un producto. Si hay redondeo activo, el precio se ajusta al múltiplo de billete más cercano.')
+      ),
+
+      card('🔄','Redondeo de precios',
+        p('Para evitar vueltos en billetes pequeños, puedes configurar un múltiplo mínimo de billete (ej: 50 CUP).')
+        + p('Modos disponibles: al más cercano, siempre hacia arriba ↑, siempre hacia abajo ↓.')
+        + ex('Precio calculado: 163 CUP · Múltiplo 50 · Modo: arriba', '→ 200 CUP')
+        + ex('Precio calculado: 163 CUP · Múltiplo 50 · Modo: cercano', '→ 150 CUP')
+        + note('El precio sugerido se redondea; el precio final siempre lo decides tú.')
+      ),
+
+      card('💱','Conversión de monedas',
+        p('Vexto trabaja internamente en CUP. Cuando registras una compra o venta en USD o EUR, convierte al momento usando las tasas que configuraste.')
+        + p('Los valores históricos quedan guardados en CUP para que los reportes sean consistentes aunque cambies las tasas después.')
+        + ex('Compra: 10 unidades a 1 USD c/u · Tasa: 500 CUP/USD', '→ Costo unitario: 500 CUP')
+        + ex('Venta: 1 unidad a 0.5 USD · Tasa: 500 CUP/USD', '→ Ingreso: 250 CUP')
+        + note('Actualiza las tasas regularmente en ⚙️ Ajustes para que los precios sugeridos sean precisos.')
+      ),
+
+      card('🏷️','Descuentos y niveles VIP',
+        p('Los descuentos se aplican automáticamente en la venta. Vexto toma el mayor descuento aplicable entre todos los activos.')
+        + p('Tipos de descuento: al por mayor (por cantidad mínima), día especial (por nombre de evento), cliente específico, general (para todos).')
+        + p('Los niveles VIP asignan un % de descuento permanente a clientes. Si un cliente tiene nivel VIP y también hay un descuento por cantidad, gana el mayor.')
+        + ex('Cliente con VIP 15% compra 60 unidades · Descuento mayoreo 10%', '→ Se aplica 15% (el mayor)')
+        + note('Los descuentos reducen el ingreso de la venta. La ganancia neta se calcula sobre el precio final con descuento.')
+      ),
+
+      card('🚚','Compras: En camino vs En almacén',
+        p('Al registrar una compra puedes marcarla como "En camino" o "En almacén".')
+        + p('"En camino": el stock NO se suma al inventario todavía, pero el gasto sí se cuenta en el valor comprometido del Dashboard.')
+        + p('"En almacén": el stock se suma inmediatamente y el costo promedio se recalcula.')
+        + ex('Pediste 20 unidades a 100 CUP (en camino)', '→ Stock: sin cambios · Dashboard suma 2.000 CUP comprometidos')
+        + ex('Marcas como Entregado', '→ Stock +20 · Costo promedio recalculado')
+        + note('Al eliminar una compra "En camino", el stock no se toca. Al eliminar una "En almacén", el stock se descuenta.')
+      ),
+
+      card('📊','Cálculo de ganancia',
+        p('La ganancia neta por venta es: <code class="bg-zinc-800 px-1 rounded">(precio_final - costo_promedio) × cantidad</code>')
+        + p('La ganancia neta total en Reportes suma todas las ventas. El costo de mercancía vendida (COGS) es la suma de costo_promedio × cantidad de cada venta.')
+        + ex('Vendiste 5 unidades a 200 CUP · Costo promedio: 110 CUP', '→ Ganancia: (200-110)×5 = 450 CUP')
+        + note('Si eliminas una venta, el stock se devuelve pero la auditoría queda registrada.')
+      ),
+
+      card('💵','Caja, deudas y fiado',
+        p('La sección Reportes separa tres valores:')
+        + `<ul class="list-disc pl-5 space-y-1">
+            <li><span class="text-emerald-400 font-semibold">Cobrado en efectivo</span>: ventas al contado + pagos de deuda ya cobrados.</li>
+            <li><span class="text-amber-400 font-semibold">Deuda pendiente</span>: ventas a fiado que aún no fueron pagadas. Este dinero existe pero no está en caja.</li>
+            <li><span class="text-sky-400 font-semibold">Total si todo se cobra</span>: suma de los dos anteriores — tu potencial real si todos pagan.</li>
+        </ul>`
+        + ex('Efectivo: 5.000 CUP · Fiado pendiente: 1.200 CUP', '→ Total potencial: 6.200 CUP')
+        + note('Registra los pagos de deuda con el botón 💵 en Clientes o Ventas. Solo entonces el dinero pasa a Cobrado en efectivo.')
+      ),
+
+      card('🔢','Valor del stock',
+        p('El Dashboard muestra el valor total del inventario calculado como: suma de <code class="bg-zinc-800 px-1 rounded">stock × costo_promedio</code> de cada producto.')
+        + p('También incluye el valor comprometido en envíos "En camino" (calculado sobre el costo unitario de cada compra pendiente).')
+        + ex('Producto A: 10 uds × 110 CUP = 1.100 CUP · Producto B: 5 uds × 200 CUP = 1.000 CUP', '→ Valor stock: 2.100 CUP')
+        + note('Este valor no es la ganancia potencial — es cuánto dinero tienes invertido en mercancía.')
+      ),
+
+    ].join('')
 }
 
 function renderAll(){ renderDashboard(); renderProducts(); renderDiscounts(); renderCustomers(); renderPurchases(); renderSales(); renderReports(); renderSettings() }
@@ -1599,20 +1731,35 @@ function _deleteSale(id){
 
 // ─── Reportes ─────────────────────────────────────────────────────────────────
 function renderReports(){
-    let revenue=0, cost=0, cash=0
+    let revenue=0, cost=0, cashSales=0
     data.sales.forEach(s => {
         const prod     = data.products.find(p=>p.id===s.productId)
         const priceCUP = s.finalPriceCUP || s.unitSellPriceCUP || 0
         revenue += s.qty * priceCUP
         cost    += s.qty * (prod ? prod.avgCost : 0)
-        if(!s.onCredit) cash += s.qty * priceCUP
+        if(!s.onCredit) cashSales += s.qty * priceCUP
     })
-    // Add debt payments to cash
-    const debtPaid = (data.cashPayments||[]).reduce((a,p)=>a+p.amountCUP,0)
-    cash += debtPaid
-    document.getElementById('totalProfit').innerHTML = fmtInfo(revenue-cost,'Ganancia neta')
-    document.getElementById('totalCOGS').innerHTML   = fmtInfo(cost,'Costo mercancía')
-    document.getElementById('totalCash').innerHTML   = fmtInfo(cash,'Total en caja (incl. cobros de deuda)')
+    const debtPaid   = (data.cashPayments||[]).reduce((a,p)=>a+p.amountCUP,0)
+    const cash       = cashSales + debtPaid
+    const pending    = data.customers.reduce((a,c)=>a+(c.debt||0),0)
+    document.getElementById('totalProfit').innerHTML      = fmtInfo(revenue-cost,'Ganancia neta')
+    document.getElementById('totalCOGS').innerHTML        = fmtInfo(cost,'Costo mercancía vendida')
+    document.getElementById('totalCash').innerHTML        = fmtInfo(cash,'Cobrado en efectivo')
+    document.getElementById('totalPendingDebt').innerHTML = fmtInfo(pending,'Deuda pendiente')
+    document.getElementById('totalIfAllPaid').innerHTML   = fmtInfo(cash+pending,'Total si todo se cobra')
+    // Debt breakdown
+    const debtors = data.customers.filter(c=>(c.debt||0)>0)
+    const breakdown = document.getElementById('debtBreakdown')
+    const list = document.getElementById('debtBreakdownList')
+    if(debtors.length){
+        list.innerHTML = debtors.map(c=>'<div class="flex justify-between text-sm"><span class="text-zinc-300">'+c.name+'</span><span class="text-amber-400">'+fmtInfo(c.debt,"Deuda de "+c.name)+'</span></div>').join('')
+    } else {
+        list.innerHTML = '<div class="text-zinc-500 text-sm">Sin deudas pendientes ✅</div>'
+    }
+}
+function toggleDebtBreakdown(){
+    const el = document.getElementById('debtBreakdown')
+    el.classList.toggle('hidden')
 }
 
 // ─── Ajustes ──────────────────────────────────────────────────────────────────
