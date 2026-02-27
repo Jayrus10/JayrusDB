@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PuterLab — AI & Cloud Studio</title>
+  <script src="https://js.puter.com/v2/"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #060608;
+      --surface: #0d0d12;
+      --surface2: #14141c;
+      --border: rgba(255,255,255,0.07);
+      --accent: #7c6dff;
+      --accent2: #ff6b9d;
+      --accent3: #00e5c0;
+      --text: #e8e8f0;
+      --text-dim: #6b6b80;
+      --text-muted: #3a3a48;
+      --glow: rgba(124,109,255,0.15);
+      --radius: 14px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(124,109,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124,109,255,0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Glow orbs */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb-1 { width: 600px; height: 600px; background: rgba(124,109,255,0.08); top: -200px; right: -100px; }
+    .orb-2 { width: 400px; height: 400px; background: rgba(255,107,157,0.06); bottom: 100px; left: -100px; }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      left: 0; top: 0; bottom: 0;
+      width: 240px;
+      background: rgba(13,13,18,0.95);
+      border-right: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+    }
+
+    .sidebar-logo {
+      padding: 28px 24px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-logo .logo-mark {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .sidebar-logo .logo-sub {
+      font-size: 10px;
+      font-weight: 400;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 2px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 16px 12px;
+      overflow-y: auto;
+    }
+
+    .nav-section-label {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 8px 12px 6px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      color: var(--text-dim);
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.15s;
+      margin-bottom: 2px;
+      border: 1px solid transparent;
+    }
+    .nav-item:hover { background: var(--surface2); color: var(--text); }
+    .nav-item.active {
+      background: rgba(124,109,255,0.12);
+      color: var(--accent);
+      border-color: rgba(124,109,255,0.2);
+    }
+    .nav-item .icon { font-size: 15px; width: 20px; text-align: center; }
+
+    .sidebar-footer {
+      padding: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .auth-status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--surface2);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+    .auth-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #ff4444;
+      flex-shrink: 0;
+      transition: background 0.3s;
+    }
+    .auth-dot.connected { background: var(--accent3); box-shadow: 0 0 6px var(--accent3); }
+    .auth-info { flex: 1; min-width: 0; }
+    .auth-label { font-size: 10px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+    .auth-username { font-size: 12px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .btn-auth {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 6px;
+      border: none;
+      background: var(--accent);
+      color: white;
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      transition: opacity 0.15s;
+      white-space: nowrap;
+    }
+    .btn-auth:hover { opacity: 0.85; }
+
+    /* Main content */
+    .main {
+      margin-left: 240px;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    .topbar {
+      padding: 20px 36px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(6,6,8,0.8);
+      backdrop-filter: blur(20px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .page-title { font-size: 18px; font-weight: 800; }
+    .page-title span { color: var(--accent); }
+    .model-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      padding: 5px 12px;
+      background: rgba(124,109,255,0.1);
+      border: 1px solid rgba(124,109,255,0.25);
+      border-radius: 20px;
+      color: var(--accent);
+    }
+
+    /* Panels */
+    .panel {
+      display: none;
+      padding: 32px 36px;
+      animation: fadeIn 0.2s ease;
+    }
+    .panel.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(124,109,255,0.3), transparent);
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-title .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    /* Form elements */
+    textarea, input[type="text"], select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.15s;
+      resize: vertical;
+    }
+    textarea:focus, input:focus, select:focus {
+      border-color: rgba(124,109,255,0.4);
+      box-shadow: 0 0 0 3px rgba(124,109,255,0.08);
+    }
+    textarea::placeholder, input::placeholder { color: var(--text-muted); }
+    select option { background: var(--surface2); }
+
+    /* Buttons */
+    .btn {
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: none;
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #9b8fff);
+      color: white;
+      box-shadow: 0 4px 20px rgba(124,109,255,0.3);
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(124,109,255,0.4); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn-ghost {
+      background: var(--surface2);
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
+    .btn-danger { background: rgba(255,68,68,0.15); color: #ff6b6b; border: 1px solid rgba(255,68,68,0.2); }
+    .btn-danger:hover { background: rgba(255,68,68,0.25); }
+    .btn-success { background: rgba(0,229,192,0.12); color: var(--accent3); border: 1px solid rgba(0,229,192,0.2); }
+    .btn-success:hover { background: rgba(0,229,192,0.2); }
+
+    /* Output box */
+    .output {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      line-height: 1.7;
+      color: var(--text);
+      min-height: 60px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .output.loading {
+      color: var(--text-dim);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    .output.error { color: #ff6b6b; border-color: rgba(255,68,68,0.2); }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+
+    /* Grid layouts */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+    /* File list */
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      transition: border-color 0.15s;
+    }
+    .file-item:hover { border-color: rgba(124,109,255,0.25); }
+    .file-icon { font-size: 18px; }
+    .file-name { flex: 1; font-size: 13px; font-family: 'JetBrains Mono', monospace; }
+    .file-size { font-size: 11px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+    .file-actions { display: flex; gap: 6px; }
+
+    /* KV Table */
+    .kv-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 8px;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+
+    /* Stat cards */
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-value {
+      font-size: 32px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-label { font-size: 11px; color: var(--text-dim); margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* Image output */
+    .img-output {
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .img-output img {
+      width: 100%;
+      display: block;
+    }
+
+    /* Row layout */
+    .row { display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+    .row .fill { flex: 1; }
+
+    /* Label */
+    label { display: block; font-size: 11px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; font-family: 'JetBrains Mono', monospace; }
+
+    /* Space */
+    .mt-4 { margin-top: 4px; }
+    .mt-8 { margin-top: 8px; }
+    .mt-12 { margin-top: 12px; }
+    .mt-16 { margin-top: 16px; }
+    .mt-20 { margin-top: 20px; }
+
+    /* Model selector row */
+    .model-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .model-chip {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.15s;
+      background: transparent;
+      color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .model-chip:hover { border-color: var(--accent); color: var(--accent); }
+    .model-chip.selected { background: rgba(124,109,255,0.15); border-color: var(--accent); color: var(--accent); }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      z-index: 999;
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { border-color: rgba(0,229,192,0.3); }
+    .toast.error { border-color: rgba(255,68,68,0.3); }
+
+    /* Dashboard hero */
+    .dashboard-hero {
+      background: linear-gradient(135deg, rgba(124,109,255,0.08), rgba(255,107,157,0.05));
+      border: 1px solid rgba(124,109,255,0.15);
+      border-radius: 20px;
+      padding: 40px;
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .dashboard-hero::after {
+      content: '';
+      position: absolute;
+      right: -60px; top: -60px;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(124,109,255,0.12), transparent 70%);
+    }
+    .dashboard-hero h1 { font-size: 36px; font-weight: 800; line-height: 1.1; }
+    .dashboard-hero h1 em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .dashboard-hero p { color: var(--text-dim); margin-top: 12px; font-size: 15px; line-height: 1.6; max-width: 500px; }
+
+    /* Feature grid */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card:hover {
+      border-color: rgba(124,109,255,0.3);
+      transform: translateY(-2px);
+      background: var(--surface2);
+    }
+    .feature-card .f-icon { font-size: 28px; margin-bottom: 12px; }
+    .feature-card .f-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+    .feature-card .f-desc { font-size: 11px; color: var(--text-dim); line-height: 1.5; }
+
+    /* Streaming cursor */
+    .cursor {
+      display: inline-block;
+      width: 2px;
+      height: 14px;
+      background: var(--accent);
+      animation: blink 1s step-end infinite;
+      vertical-align: text-bottom;
+      margin-left: 2px;
+    }
+    @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0; } }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+    /* Upload area */
+    .upload-area {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 40px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--text-dim);
+    }
+    .upload-area:hover, .upload-area.dragover {
+      border-color: var(--accent);
+      background: rgba(124,109,255,0.05);
+      color: var(--text);
+    }
+    .upload-area .upload-icon { font-size: 40px; margin-bottom: 12px; }
+    .upload-area p { font-size: 14px; }
+    .upload-area small { font-size: 11px; color: var(--text-muted); margin-top: 6px; display: block; }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 4px; margin-bottom: 20px; background: var(--surface2); padding: 4px; border-radius: 10px; border: 1px solid var(--border); }
+    .tab {
+      flex: 1; padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer;
+      font-size: 12px; font-weight: 700; font-family: 'Syne', sans-serif;
+      background: transparent; color: var(--text-dim); transition: all 0.15s;
+    }
+    .tab.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.4); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* Radio group */
+    .radio-group { display: flex; gap: 8px; flex-wrap: wrap; }
+    .radio-btn {
+      padding: 7px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-dim);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .radio-btn.selected { background: rgba(124,109,255,0.12); border-color: var(--accent); color: var(--accent); }
+
+    /* Mobile */
+    .hamburger {
+      display: none;
+      position: fixed;
+      top: 16px; left: 16px;
+      z-index: 200;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); transition: transform 0.3s; }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .hamburger { display: block; }
+      .grid-2 { grid-template-columns: 1fr; }
+      .grid-3 { grid-template-columns: 1fr 1fr; }
+      .panel { padding: 20px; }
+      .topbar { padding: 16px 20px; padding-left: 60px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <!-- Hamburger -->
+  <button class="hamburger" onclick="toggleSidebar()">☰</button>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">PuterLab</div>
+      <div class="logo-sub">AI & Cloud Studio</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">General</div>
+      <div class="nav-item active" onclick="showPanel('dashboard', this)">
+        <span class="icon">⚡</span> Dashboard
+      </div>
+
+      <div class="nav-section-label" style="margin-top:12px">AI</div>
+      <div class="nav-item" onclick="showPanel('chat', this)">
+        <span class="icon">💬</span> Chat IA
+      </div>
+      <div class="nav-item" onclick="showPanel('img-gen', this)">
+        <span class="icon">🎨</span> Imagen IA
+      </div>
+      <div class="nav-item" onclick="showPanel('tts', this)">
+        <span class="icon">🔊</span> Text-to-Speech
+      </div>
+      <div class="nav-item" onclick="showPanel('ocr', this)">
+        <span class="icon">🔍</span> OCR / img2txt
+      </div>
+
+      <div class="nav-section-label" style="margin-top:12px">Cloud</div>
+      <div class="nav-item" onclick="showPanel('filesystem', this)">
+        <span class="icon">📁</span> Archivos
+      </div>
+      <div class="nav-item" onclick="showPanel('kv', this)">
+        <span class="icon">🗄️</span> Key-Value Store
+      </div>
+
+      <div class="nav-section-label" style="margin-top:12px">Auth</div>
+      <div class="nav-item" onclick="showPanel('auth', this)">
+        <span class="icon">🔐</span> Autenticación
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="auth-status">
+        <div class="auth-dot" id="authDot"></div>
+        <div class="auth-info">
+          <div class="auth-label">Estado</div>
+          <div class="auth-username" id="authUsername">No autenticado</div>
+        </div>
+        <button class="btn-auth" id="authBtn" onclick="handleAuth()">Login</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div class="page-title">Puter<span>Lab</span></div>
+      <div class="model-badge">claude-sonnet-4-6 · default</div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="dashboard-hero">
+        <h1>AI & Cloud<br><em>sin backend.</em></h1>
+        <p>Explora todas las capacidades de Puter.js — inteligencia artificial, almacenamiento en la nube, y más, directamente desde tu navegador.</p>
+        <div style="margin-top:24px; display:flex; gap:12px; flex-wrap:wrap;">
+          <button class="btn btn-primary" onclick="showPanel('chat', document.querySelector('[onclick*=chat]'))">
+            💬 Probar Chat
+          </button>
+          <button class="btn btn-ghost" onclick="showPanel('filesystem', document.querySelector('[onclick*=filesystem]'))">
+            📁 Explorar Archivos
+          </button>
+        </div>
+      </div>
+
+      <div class="feature-grid">
+        <div class="feature-card" onclick="showPanel('chat', document.querySelector('[onclick*=\'chat\']'))">
+          <div class="f-icon">💬</div>
+          <div class="f-title">Chat IA</div>
+          <div class="f-desc">Conversaciones con Claude Sonnet 4.6, GPT, Gemini y más modelos.</div>
+        </div>
+        <div class="feature-card" onclick="showPanel('img-gen', document.querySelector('[onclick*=img-gen]'))">
+          <div class="f-icon">🎨</div>
+          <div class="f-title">Generación de Imágenes</div>
+          <div class="f-desc">Crea imágenes con DALL-E y otros modelos de IA generativa.</div>
+        </div>
+        <div class="feature-card" onclick="showPanel('tts', document.querySelector('[onclick*=tts]'))">
+          <div class="f-icon">🔊</div>
+          <div class="f-title">Text-to-Speech</div>
+          <div class="f-desc">Convierte texto en voz con motores estándar, neural y generativo.</div>
+        </div>
+        <div class="feature-card" onclick="showPanel('ocr', document.querySelector('[onclick*=ocr]'))">
+          <div class="f-icon">🔍</div>
+          <div class="f-title">OCR</div>
+          <div class="f-desc">Extrae texto de imágenes con reconocimiento óptico de caracteres.</div>
+        </div>
+        <div class="feature-card" onclick="showPanel('filesystem', document.querySelector('[onclick*=filesystem]'))">
+          <div class="f-icon">📁</div>
+          <div class="f-title">Sistema de Archivos</div>
+          <div class="f-desc">Almacenamiento en la nube: crea, lee, descarga y elimina archivos.</div>
+        </div>
+        <div class="feature-card" onclick="showPanel('kv', document.querySelector('[onclick*=kv]'))">
+          <div class="f-icon">🗄️</div>
+          <div class="f-title">Key-Value Store</div>
+          <div class="f-desc">Base de datos clave-valor en la nube sin configuración.</div>
+        </div>
+        <div class="feature-card" onclick="showPanel('auth', document.querySelector('[onclick*=auth]'))">
+          <div class="f-icon">🔐</div>
+          <div class="f-title">Autenticación</div>
+          <div class="f-desc">Sistema de auth automático con cuentas de Puter.com.</div>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="stat-card">
+          <div class="stat-value">∞</div>
+          <div class="stat-label">Sin rate limits</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">0</div>
+          <div class="stat-label">API keys necesarias</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">0ms</div>
+          <div class="stat-label">Configuración</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHAT AI -->
+    <div class="panel" id="panel-chat">
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>Modelo</div>
+        <div class="model-row" id="modelChips">
+          <button class="model-chip selected" onclick="selectModel(this, 'claude-sonnet-4-6')">claude-sonnet-4.6</button>
+          <button class="model-chip" onclick="selectModel(this, 'claude-opus-4-5')">claude-opus-4.5</button>
+          <button class="model-chip" onclick="selectModel(this, 'gpt-4o')">gpt-4o</button>
+          <button class="model-chip" onclick="selectModel(this, 'gpt-4o-mini')">gpt-4o-mini</button>
+          <button class="model-chip" onclick="selectModel(this, 'gemini-1-5-flash')">gemini-1.5-flash</button>
+          <button class="model-chip" onclick="selectModel(this, 'o3-mini')">o3-mini</button>
+        </div>
+      </div>
+
+      <div class="card" id="chatMessages" style="min-height:300px; max-height:500px; overflow-y:auto;">
+        <div class="card-title"><span class="dot"></span>Conversación</div>
+        <div id="chatHistory" style="display:flex;flex-direction:column;gap:12px;"></div>
+      </div>
+
+      <div class="card">
+        <label>Mensaje</label>
+        <textarea id="chatInput" rows="3" placeholder="Escribe tu mensaje... (Enter para enviar, Shift+Enter para nueva línea)"></textarea>
+        <div class="row mt-12">
+          <div>
+            <label>System prompt</label>
+            <input type="text" id="systemPrompt" value="Eres un asistente útil y conciso." style="width:300px;" />
+          </div>
+          <button class="btn btn-primary" onclick="sendChat()" id="chatBtn">
+            ✦ Enviar
+          </button>
+          <button class="btn btn-ghost" onclick="clearChat()">Limpiar</button>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin:0;text-transform:none;letter-spacing:0;">
+            <input type="checkbox" id="streamToggle" checked style="width:auto;" />
+            <span style="font-size:12px;color:var(--text-dim);">Streaming</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- IMAGE GENERATION -->
+    <div class="panel" id="panel-img-gen">
+      <div class="grid-2">
+        <div>
+          <div class="card">
+            <div class="card-title"><span class="dot"></span>Generación de Imagen</div>
+            <label>Prompt</label>
+            <textarea id="imgPrompt" rows="4" placeholder="Describe la imagen que quieres generar...">A futuristic neon city at night, cyberpunk style, highly detailed, 4k</textarea>
+            <div class="mt-12">
+              <label>Modelo</label>
+              <select id="imgModel">
+                <option value="dall-e-3">DALL-E 3</option>
+                <option value="dall-e-2">DALL-E 2</option>
+              </select>
+            </div>
+            <div class="mt-12">
+              <button class="btn btn-primary" onclick="generateImage()" id="imgBtn" style="width:100%;">
+                🎨 Generar Imagen
+              </button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="min-height:300px;">
+            <div class="card-title"><span class="dot"></span>Resultado</div>
+            <div id="imgOutput">
+              <div style="text-align:center;padding:60px 0;color:var(--text-muted);">
+                <div style="font-size:48px;margin-bottom:12px;">🖼️</div>
+                <div>La imagen aparecerá aquí</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TTS -->
+    <div class="panel" id="panel-tts">
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>Text-to-Speech</div>
+        <label>Texto a convertir</label>
+        <textarea id="ttsText" rows="5" placeholder="Escribe el texto que quieres convertir a voz...">Hola, soy PuterLab. Esta es una demostración de síntesis de voz usando Puter.js con motores de alta calidad.</textarea>
+
+        <div class="grid-2 mt-12">
+          <div>
+            <label>Motor</label>
+            <div class="radio-group" id="ttsEngine">
+              <button class="radio-btn selected" onclick="selectRadio(this, 'ttsEngine')">standard</button>
+              <button class="radio-btn" onclick="selectRadio(this, 'ttsEngine')">neural</button>
+              <button class="radio-btn" onclick="selectRadio(this, 'ttsEngine')">generative</button>
+            </div>
+          </div>
+          <div>
+            <label>Idioma</label>
+            <select id="ttsLang">
+              <option value="es-ES">Español</option>
+              <option value="en-US">English (US)</option>
+              <option value="fr-FR">Français</option>
+              <option value="de-DE">Deutsch</option>
+              <option value="it-IT">Italiano</option>
+              <option value="pt-BR">Português</option>
+              <option value="ja-JP">日本語</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="mt-16">
+          <button class="btn btn-primary" onclick="playTTS()" id="ttsBtn">
+            🔊 Reproducir
+          </button>
+          <span id="ttsStatus" style="margin-left:12px;font-size:12px;color:var(--text-dim);"></span>
+        </div>
+        <div id="ttsAudioContainer" class="mt-12"></div>
+      </div>
+    </div>
+
+    <!-- OCR -->
+    <div class="panel" id="panel-ocr">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title"><span class="dot"></span>Fuente de imagen</div>
+          <div class="tabs">
+            <button class="tab active" onclick="switchTab('ocr', 'url', this)">URL</button>
+            <button class="tab" onclick="switchTab('ocr', 'upload', this)">Subir archivo</button>
+          </div>
+          <div class="tab-panel active" id="ocr-tab-url">
+            <label>URL de la imagen</label>
+            <input type="text" id="ocrUrl" value="https://cdn.handwrytten.com/www/2020/02/home-hero-photo2@2x.png" placeholder="https://..." />
+            <div class="mt-12">
+              <img id="ocrPreviewUrl" src="https://cdn.handwrytten.com/www/2020/02/home-hero-photo2@2x.png" style="max-width:100%;border-radius:10px;border:1px solid var(--border);margin-top:8px;" onerror="this.style.display='none'" />
+            </div>
+          </div>
+          <div class="tab-panel" id="ocr-tab-upload">
+            <div class="upload-area" onclick="document.getElementById('ocrFile').click()" id="ocrUploadArea">
+              <div class="upload-icon">📷</div>
+              <p>Haz clic o arrastra una imagen</p>
+              <small>PNG, JPG, JPEG — Max 5MB</small>
+            </div>
+            <input type="file" id="ocrFile" accept="image/*" style="display:none" onchange="handleOcrFile(this)" />
+            <img id="ocrPreviewUpload" style="max-width:100%;border-radius:10px;border:1px solid var(--border);margin-top:8px;display:none;" />
+          </div>
+          <button class="btn btn-primary mt-16" onclick="runOCR()" id="ocrBtn" style="width:100%">
+            🔍 Extraer Texto
+          </button>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="dot"></span>Texto extraído</div>
+          <div class="output" id="ocrOutput" style="min-height:200px;">El texto extraído aparecerá aquí...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILESYSTEM -->
+    <div class="panel" id="panel-filesystem">
+      <div class="grid-2">
+        <div>
+          <div class="card">
+            <div class="card-title"><span class="dot"></span>Crear / Editar Archivo</div>
+            <label>Nombre del archivo</label>
+            <input type="text" id="fsFilename" value="mi-archivo.txt" placeholder="nombre.txt" />
+            <div class="mt-12">
+              <label>Contenido</label>
+              <textarea id="fsContent" rows="6" placeholder="Contenido del archivo...">¡Hola desde PuterLab! Este archivo fue creado con puter.fs.</textarea>
+            </div>
+            <div class="row mt-12">
+              <button class="btn btn-primary" onclick="fsWrite()">💾 Guardar</button>
+              <button class="btn btn-ghost" onclick="fsRead()">📖 Leer</button>
+            </div>
+            <div class="mt-12">
+              <div class="output" id="fsOutput" style="min-height:40px;"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><span class="dot"></span>Operaciones</div>
+            <div class="row">
+              <div class="fill">
+                <label>Origen (mover/copiar)</label>
+                <input type="text" id="fsSrc" placeholder="archivo-origen.txt" />
+              </div>
+              <div class="fill">
+                <label>Destino</label>
+                <input type="text" id="fsDst" placeholder="carpeta/destino.txt" />
+              </div>
+            </div>
+            <div class="row mt-12">
+              <button class="btn btn-ghost" onclick="fsMove()">✂️ Mover</button>
+              <button class="btn btn-ghost" onclick="fsCopy()">📋 Copiar</button>
+              <button class="btn btn-danger" onclick="fsDelete()">🗑️ Eliminar</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="min-height:400px;">
+          <div class="card-title" style="justify-content:space-between;">
+            <span><span class="dot"></span>Archivos en la nube</span>
+            <button class="btn btn-ghost" onclick="listFiles()" style="padding:4px 10px;font-size:11px;">↻ Refrescar</button>
+          </div>
+          <div>
+            <label>Ruta</label>
+            <div class="row">
+              <input type="text" id="fsPath" value="" placeholder="/ (raíz)" class="fill" />
+              <button class="btn btn-ghost" onclick="listFiles()">Listar</button>
+            </div>
+          </div>
+          <div id="fileList" class="mt-16">
+            <div style="text-align:center;padding:40px;color:var(--text-muted);">
+              <div style="font-size:32px">📂</div>
+              <div style="margin-top:8px;font-size:13px;">Haz clic en "Listar" para ver archivos</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KEY-VALUE STORE -->
+    <div class="panel" id="panel-kv">
+      <div class="grid-2">
+        <div>
+          <div class="card">
+            <div class="card-title"><span class="dot"></span>Operaciones KV</div>
+
+            <div class="tabs">
+              <button class="tab active" onclick="switchTab('kv', 'set', this)">Set</button>
+              <button class="tab" onclick="switchTab('kv', 'get', this)">Get</button>
+              <button class="tab" onclick="switchTab('kv', 'del', this)">Delete</button>
+            </div>
+
+            <div class="tab-panel active" id="kv-tab-set">
+              <label>Clave</label>
+              <input type="text" id="kvSetKey" placeholder="mi_clave" />
+              <div class="mt-12">
+                <label>Valor</label>
+                <textarea id="kvSetValue" rows="4" placeholder="El valor (puede ser JSON, texto, etc.)">{"usuario":"demo","preferencia":"dark","version":1}</textarea>
+              </div>
+              <button class="btn btn-primary mt-12" onclick="kvSet()">💾 Guardar</button>
+            </div>
+
+            <div class="tab-panel" id="kv-tab-get">
+              <label>Clave</label>
+              <input type="text" id="kvGetKey" placeholder="mi_clave" />
+              <button class="btn btn-primary mt-12" onclick="kvGet()">📖 Obtener</button>
+            </div>
+
+            <div class="tab-panel" id="kv-tab-del">
+              <label>Clave a eliminar</label>
+              <input type="text" id="kvDelKey" placeholder="mi_clave" />
+              <button class="btn btn-danger mt-12" onclick="kvDel()">🗑️ Eliminar</button>
+            </div>
+
+            <div class="mt-16">
+              <div class="output" id="kvOutput" style="min-height:60px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title" style="justify-content:space-between;">
+            <span><span class="dot"></span>Claves almacenadas</span>
+            <button class="btn btn-ghost" onclick="kvList()" style="padding:4px 10px;font-size:11px;">↻ Listar</button>
+          </div>
+          <div id="kvList" style="min-height:200px;">
+            <div style="text-align:center;padding:40px;color:var(--text-muted);">
+              <div style="font-size:32px">🗄️</div>
+              <div style="margin-top:8px;font-size:13px;">Haz clic en "Listar" para ver las claves</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AUTH -->
+    <div class="panel" id="panel-auth">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title"><span class="dot"></span>Estado de Autenticación</div>
+
+          <div id="authPanel">
+            <div style="text-align:center;padding:32px 0;">
+              <div style="font-size:60px;margin-bottom:16px;">🔐</div>
+              <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Autenticación automática</div>
+              <div style="color:var(--text-dim);font-size:13px;line-height:1.6;margin-bottom:24px;">
+                Puter.js gestiona la autenticación automáticamente.<br>
+                Al usar servicios en la nube, se solicitará login si es necesario.
+              </div>
+              <button class="btn btn-primary" onclick="checkAuthStatus()" style="margin-bottom:12px;width:100%;">
+                🔍 Verificar Estado
+              </button>
+              <button class="btn btn-ghost" onclick="doSignIn()" style="width:100%;">
+                👤 Iniciar Sesión
+              </button>
+            </div>
+          </div>
+
+          <div class="output mt-12" id="authOutput" style="min-height:60px;"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span class="dot"></span>Información del usuario</div>
+          <div id="userInfo">
+            <div style="text-align:center;padding:40px;color:var(--text-muted);">
+              <div style="font-size:32px">👤</div>
+              <div style="margin-top:8px;font-size:13px;">Verifica el estado para ver la información</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>Cómo funciona Puter Auth</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px;">
+          <div style="padding:16px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);">
+            <div style="font-size:24px;margin-bottom:8px;">1️⃣</div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:6px;">Sin configuración</div>
+            <div style="font-size:12px;color:var(--text-dim);">No necesitas API keys ni crear una cuenta de desarrollador.</div>
+          </div>
+          <div style="padding:16px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);">
+            <div style="font-size:24px;margin-bottom:8px;">2️⃣</div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:6px;">User-Pays model</div>
+            <div style="font-size:12px;color:var(--text-dim);">Cada usuario paga su propio uso con su cuenta de Puter.</div>
+          </div>
+          <div style="padding:16px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);">
+            <div style="font-size:24px;margin-bottom:8px;">3️⃣</div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:6px;">Automático</div>
+            <div style="font-size:12px;color:var(--text-dim);">Login se solicita solo cuando se necesita acceder a servicios cloud.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ─── State ───────────────────────────────────────────────────────────
+    let selectedModel = 'claude-sonnet-4-6';
+    let chatHistory = [];
+    let ocrActiveTab = 'url';
+    let kvActiveTab = 'set';
+    let ttsActiveEngine = 'standard';
+    let isAuthenticated = false;
+    let authUsername = null;
+
+    // ─── UI Helpers ───────────────────────────────────────────────────────
+    function showPanel(id, el) {
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById('panel-' + id).classList.add('active');
+      if (el) el.classList.add('active');
+      if (window.innerWidth < 900) closeSidebar();
+    }
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('open');
+    }
+
+    function toast(msg, type = 'success') {
+      const t = document.getElementById('toast');
+      t.textContent = (type === 'success' ? '✓ ' : '✗ ') + msg;
+      t.className = 'toast show ' + type;
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    function selectModel(chip, model) {
+      document.querySelectorAll('#modelChips .model-chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      selectedModel = model;
+    }
+
+    function selectRadio(btn, groupId) {
+      document.querySelectorAll('#' + groupId + ' .radio-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    }
+
+    function switchTab(panel, tab, btn) {
+      const prefix = panel + '-tab-';
+      document.querySelectorAll('[id^="' + prefix + '"]').forEach(p => p.classList.remove('active'));
+      document.getElementById(prefix + tab).classList.add('active');
+      btn.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      if (panel === 'ocr') ocrActiveTab = tab;
+      if (panel === 'kv') kvActiveTab = tab;
+    }
+
+    function setOutput(id, text, cls = '') {
+      const el = document.getElementById(id);
+      el.className = 'output' + (cls ? ' ' + cls : '');
+      el.textContent = text;
+    }
+
+    // ─── Chat ─────────────────────────────────────────────────────────────
+    function addMessage(role, content) {
+      const hist = document.getElementById('chatHistory');
+      const msg = document.createElement('div');
+      msg.style.cssText = `
+        padding: 12px 16px;
+        border-radius: 10px;
+        font-size: 13px;
+        line-height: 1.6;
+        font-family: 'JetBrains Mono', monospace;
+        max-width: 90%;
+        white-space: pre-wrap;
+        word-break: break-word;
+      `;
+      if (role === 'user') {
+        msg.style.background = 'rgba(124,109,255,0.12)';
+        msg.style.border = '1px solid rgba(124,109,255,0.2)';
+        msg.style.alignSelf = 'flex-end';
+        msg.style.marginLeft = 'auto';
+        msg.textContent = content;
+      } else {
+        msg.style.background = 'var(--surface2)';
+        msg.style.border = '1px solid var(--border)';
+        msg.id = 'lastAssistant';
+      }
+      hist.appendChild(msg);
+      hist.scrollTop = hist.scrollHeight;
+      return msg;
+    }
+
+    async function sendChat() {
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const btn = document.getElementById('chatBtn');
+      btn.disabled = true;
+      input.value = '';
+
+      addMessage('user', text);
+      chatHistory.push({ role: 'user', content: text });
+
+      const streaming = document.getElementById('streamToggle').checked;
+      const sysPrompt = document.getElementById('systemPrompt').value;
+
+      const assistantEl = addMessage('assistant', '');
+      const cursor = document.createElement('span');
+      cursor.className = 'cursor';
+      assistantEl.appendChild(cursor);
+
+      try {
+        let fullText = '';
+        if (streaming) {
+          const resp = await puter.ai.chat(chatHistory, {
+            model: selectedModel,
+            stream: true,
+            system: sysPrompt
+          });
+          for await (const chunk of resp) {
+            if (chunk?.text) {
+              fullText += chunk.text;
+              assistantEl.textContent = fullText;
+              assistantEl.appendChild(cursor);
+            }
+          }
+        } else {
+          assistantEl.textContent = '...';
+          const resp = await puter.ai.chat(chatHistory, {
+            model: selectedModel,
+            system: sysPrompt
+          });
+          fullText = resp?.message?.content?.[0]?.text || resp?.toString() || 'Sin respuesta';
+          assistantEl.textContent = fullText;
+        }
+        cursor.remove();
+        chatHistory.push({ role: 'assistant', content: fullText });
+      } catch (e) {
+        assistantEl.style.color = '#ff6b6b';
+        assistantEl.textContent = 'Error: ' + e.message;
+        cursor.remove();
+      }
+      btn.disabled = false;
+    }
+
+    function clearChat() {
+      chatHistory = [];
+      document.getElementById('chatHistory').innerHTML = '';
+      toast('Conversación borrada');
+    }
+
+    document.getElementById('chatInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+    });
+
+    // ─── Image Generation ─────────────────────────────────────────────────
+    async function generateImage() {
+      const prompt = document.getElementById('imgPrompt').value.trim();
+      if (!prompt) return toast('Escribe un prompt', 'error');
+      const btn = document.getElementById('imgBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ Generando...';
+      const out = document.getElementById('imgOutput');
+      out.innerHTML = '<div style="text-align:center;padding:60px 0;color:var(--text-dim);animation:pulse 1.5s infinite;">🎨 Generando imagen...</div>';
+      try {
+        const imgEl = await puter.ai.txt2img(prompt, { model: document.getElementById('imgModel').value });
+        imgEl.style.cssText = 'width:100%;border-radius:10px;display:block;';
+        out.innerHTML = '';
+        const wrap = document.createElement('div');
+        wrap.className = 'img-output';
+        wrap.appendChild(imgEl);
+        out.appendChild(wrap);
+        // Download button
+        const dl = document.createElement('button');
+        dl.className = 'btn btn-success';
+        dl.style.marginTop = '12px';
+        dl.textContent = '⬇ Descargar';
+        dl.onclick = () => {
+          const a = document.createElement('a');
+          a.href = imgEl.src;
+          a.download = 'puter-image.png';
+          a.click();
+        };
+        out.appendChild(dl);
+        toast('Imagen generada!');
+      } catch (e) {
+        out.innerHTML = '<div style="color:#ff6b6b;padding:20px;">Error: ' + e.message + '</div>';
+      }
+      btn.disabled = false;
+      btn.textContent = '🎨 Generar Imagen';
+    }
+
+    // ─── TTS ──────────────────────────────────────────────────────────────
+    async function playTTS() {
+      const text = document.getElementById('ttsText').value.trim();
+      if (!text) return toast('Escribe algún texto', 'error');
+      if (text.length > 3000) return toast('Máximo 3000 caracteres', 'error');
+
+      const btn = document.getElementById('ttsBtn');
+      const status = document.getElementById('ttsStatus');
+      btn.disabled = true;
+      status.textContent = 'Convirtiendo...';
+
+      const engine = document.querySelector('#ttsEngine .radio-btn.selected')?.textContent || 'standard';
+      const lang = document.getElementById('ttsLang').value;
+
+      try {
+        const audio = await puter.ai.txt2speech(text, { engine, language: lang });
+        const container = document.getElementById('ttsAudioContainer');
+        container.innerHTML = '';
+        audio.controls = true;
+        audio.style.cssText = 'width:100%;border-radius:8px;';
+        container.appendChild(audio);
+        audio.play();
+        status.textContent = '✓ Reproduciendo (' + engine + ')';
+        toast('Audio generado con motor ' + engine);
+      } catch (e) {
+        status.textContent = '✗ Error: ' + e.message;
+        toast(e.message, 'error');
+      }
+      btn.disabled = false;
+    }
+
+    // ─── OCR ──────────────────────────────────────────────────────────────
+    let ocrFileData = null;
+
+    function handleOcrFile(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        ocrFileData = e.target.result;
+        const preview = document.getElementById('ocrPreviewUpload');
+        preview.src = ocrFileData;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    document.getElementById('ocrUrl').addEventListener('input', function() {
+      document.getElementById('ocrPreviewUrl').src = this.value;
+    });
+
+    async function runOCR() {
+      const btn = document.getElementById('ocrBtn');
+      const output = document.getElementById('ocrOutput');
+      btn.disabled = true;
+      output.className = 'output loading';
+      output.textContent = 'Analizando imagen...';
+
+      try {
+        let result;
+        if (ocrActiveTab === 'url') {
+          const url = document.getElementById('ocrUrl').value.trim();
+          if (!url) { toast('Escribe una URL', 'error'); return; }
+          result = await puter.ai.img2txt(url);
+        } else {
+          if (!ocrFileData) { toast('Selecciona una imagen', 'error'); return; }
+          result = await puter.ai.img2txt(ocrFileData);
+        }
+        setOutput('ocrOutput', result || '(No se encontró texto en la imagen)');
+        toast('OCR completado');
+      } catch (e) {
+        setOutput('ocrOutput', 'Error: ' + e.message, 'error');
+      }
+      btn.disabled = false;
+    }
+
+    // Setup drag & drop for OCR
+    const ocrArea = document.getElementById('ocrUploadArea');
+    ocrArea.addEventListener('dragover', e => { e.preventDefault(); ocrArea.classList.add('dragover'); });
+    ocrArea.addEventListener('dragleave', () => ocrArea.classList.remove('dragover'));
+    ocrArea.addEventListener('drop', e => {
+      e.preventDefault();
+      ocrArea.classList.remove('dragover');
+      const f = e.dataTransfer.files[0];
+      if (f) {
+        const fakeInput = { files: [f] };
+        handleOcrFile(fakeInput);
+      }
+    });
+
+    // ─── Filesystem ───────────────────────────────────────────────────────
+    async function fsWrite() {
+      const name = document.getElementById('fsFilename').value.trim();
+      const content = document.getElementById('fsContent').value;
+      if (!name) return toast('Escribe un nombre', 'error');
+      setOutput('fsOutput', 'Guardando...', 'loading');
+      try {
+        await puter.fs.write(name, content);
+        setOutput('fsOutput', '✓ Archivo guardado: ' + name);
+        toast('Archivo guardado!');
+      } catch (e) {
+        setOutput('fsOutput', 'Error: ' + e.message, 'error');
+      }
+    }
+
+    async function fsRead() {
+      const name = document.getElementById('fsFilename').value.trim();
+      if (!name) return toast('Escribe un nombre', 'error');
+      setOutput('fsOutput', 'Leyendo...', 'loading');
+      try {
+        const file = await puter.fs.read(name);
+        const text = await file.text();
+        document.getElementById('fsContent').value = text;
+        setOutput('fsOutput', '✓ Archivo leído: ' + name);
+        toast('Archivo cargado!');
+      } catch (e) {
+        setOutput('fsOutput', 'Error: ' + e.message, 'error');
+      }
+    }
+
+    async function listFiles() {
+      const path = document.getElementById('fsPath').value.trim() || '/';
+      const list = document.getElementById('fileList');
+      list.innerHTML = '<div style="color:var(--text-dim);text-align:center;padding:20px;">Cargando...</div>';
+      try {
+        const items = await puter.fs.readdir(path);
+        if (!items || items.length === 0) {
+          list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);">📂 Carpeta vacía</div>';
+          return;
+        }
+        list.innerHTML = '';
+        items.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'file-item';
+          const icon = item.is_dir ? '📁' : '📄';
+          const size = item.size ? formatSize(item.size) : '—';
+          div.innerHTML = `
+            <span class="file-icon">${icon}</span>
+            <span class="file-name">${item.name}</span>
+            <span class="file-size">${size}</span>
+            <div class="file-actions">
+              ${!item.is_dir ? `<button class="btn btn-ghost" style="padding:4px 8px;font-size:11px;" onclick="quickRead('${item.name}')">👁</button>` : ''}
+              <button class="btn btn-danger" style="padding:4px 8px;font-size:11px;" onclick="quickDelete('${item.name}')">🗑</button>
+            </div>
+          `;
+          list.appendChild(div);
+        });
+      } catch (e) {
+        list.innerHTML = '<div style="color:#ff6b6b;padding:20px;font-size:12px;">Error: ' + e.message + '</div>';
+      }
+    }
+
+    function formatSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+    }
+
+    async function quickRead(name) {
+      document.getElementById('fsFilename').value = name;
+      await fsRead();
+    }
+
+    async function quickDelete(name) {
+      if (!confirm('¿Eliminar "' + name + '"?')) return;
+      try {
+        await puter.fs.delete(name);
+        toast('Eliminado: ' + name);
+        listFiles();
+      } catch (e) {
+        toast(e.message, 'error');
+      }
+    }
+
+    async function fsMove() {
+      const src = document.getElementById('fsSrc').value.trim();
+      const dst = document.getElementById('fsDst').value.trim();
+      if (!src || !dst) return toast('Rellena origen y destino', 'error');
+      try {
+        await puter.fs.move(src, dst);
+        toast('Movido: ' + src + ' → ' + dst);
+      } catch (e) { toast(e.message, 'error'); }
+    }
+
+    async function fsCopy() {
+      const src = document.getElementById('fsSrc').value.trim();
+      const dst = document.getElementById('fsDst').value.trim();
+      if (!src || !dst) return toast('Rellena origen y destino', 'error');
+      try {
+        await puter.fs.copy(src, dst);
+        toast('Copiado: ' + src + ' → ' + dst);
+      } catch (e) { toast(e.message, 'error'); }
+    }
+
+    async function fsDelete() {
+      const name = document.getElementById('fsFilename').value.trim();
+      if (!name) return toast('Escribe un nombre', 'error');
+      if (!confirm('¿Eliminar "' + name + '"?')) return;
+      setOutput('fsOutput', 'Eliminando...', 'loading');
+      try {
+        await puter.fs.delete(name);
+        setOutput('fsOutput', '✓ Eliminado: ' + name);
+        toast('Eliminado!');
+        listFiles();
+      } catch (e) { setOutput('fsOutput', 'Error: ' + e.message, 'error'); }
+    }
+
+    // ─── Key-Value ────────────────────────────────────────────────────────
+    async function kvSet() {
+      const key = document.getElementById('kvSetKey').value.trim();
+      const value = document.getElementById('kvSetValue').value;
+      if (!key) return toast('Escribe una clave', 'error');
+      setOutput('kvOutput', 'Guardando...', 'loading');
+      try {
+        await puter.kv.set(key, value);
+        setOutput('kvOutput', '✓ Guardado: ' + key);
+        toast('Valor guardado!');
+      } catch (e) { setOutput('kvOutput', 'Error: ' + e.message, 'error'); }
+    }
+
+    async function kvGet() {
+      const key = document.getElementById('kvGetKey').value.trim();
+      if (!key) return toast('Escribe una clave', 'error');
+      setOutput('kvOutput', 'Obteniendo...', 'loading');
+      try {
+        const val = await puter.kv.get(key);
+        setOutput('kvOutput', val !== null ? '✓ ' + key + ' =\n' + val : '(clave no encontrada)');
+      } catch (e) { setOutput('kvOutput', 'Error: ' + e.message, 'error'); }
+    }
+
+    async function kvDel() {
+      const key = document.getElementById('kvDelKey').value.trim();
+      if (!key) return toast('Escribe una clave', 'error');
+      try {
+        await puter.kv.del(key);
+        setOutput('kvOutput', '✓ Eliminada: ' + key);
+        toast('Clave eliminada!');
+        kvList();
+      } catch (e) { setOutput('kvOutput', 'Error: ' + e.message, 'error'); }
+    }
+
+    async function kvList() {
+      const listEl = document.getElementById('kvList');
+      listEl.innerHTML = '<div style="color:var(--text-dim);text-align:center;padding:20px;">Cargando...</div>';
+      try {
+        const keys = await puter.kv.list('*');
+        if (!keys || keys.length === 0) {
+          listEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);">🗄️ Sin claves almacenadas</div>';
+          return;
+        }
+        listEl.innerHTML = '';
+        keys.forEach(item => {
+          const row = document.createElement('div');
+          row.className = 'file-item';
+          const key = typeof item === 'string' ? item : item.key;
+          row.innerHTML = `
+            <span class="file-icon">🔑</span>
+            <span class="file-name">${key}</span>
+            <div class="file-actions">
+              <button class="btn btn-ghost" style="padding:4px 8px;font-size:11px;" onclick="quickKvGet('${key}')">👁</button>
+              <button class="btn btn-danger" style="padding:4px 8px;font-size:11px;" onclick="quickKvDel('${key}')">🗑</button>
+            </div>
+          `;
+          listEl.appendChild(row);
+        });
+      } catch (e) {
+        listEl.innerHTML = '<div style="color:#ff6b6b;padding:20px;font-size:12px;">Error: ' + e.message + '</div>';
+      }
+    }
+
+    async function quickKvGet(key) {
+      document.getElementById('kvGetKey').value = key;
+      switchTab('kv', 'get', document.querySelectorAll('.panel#panel-kv .tab')[1]);
+      await kvGet();
+    }
+
+    async function quickKvDel(key) {
+      if (!confirm('¿Eliminar clave "' + key + '"?')) return;
+      document.getElementById('kvDelKey').value = key;
+      await kvDel();
+    }
+
+    // ─── Auth ─────────────────────────────────────────────────────────────
+    async function checkAuthStatus() {
+      setOutput('authOutput', 'Verificando...', 'loading');
+      try {
+        const user = await puter.auth.getUser();
+        if (user) {
+          setAuthenticated(user);
+          setOutput('authOutput', '✓ Autenticado como: ' + (user.username || user.email || 'Usuario'));
+        } else {
+          setOutput('authOutput', 'No autenticado');
+        }
+      } catch (e) {
+        setOutput('authOutput', 'No autenticado: ' + e.message);
+      }
+    }
+
+    async function doSignIn() {
+      try {
+        await puter.auth.signIn();
+        await checkAuthStatus();
+      } catch (e) {
+        setOutput('authOutput', 'Error al iniciar sesión: ' + e.message, 'error');
+      }
+    }
+
+    function setAuthenticated(user) {
+      isAuthenticated = true;
+      authUsername = user.username || user.email || 'Usuario';
+      document.getElementById('authDot').classList.add('connected');
+      document.getElementById('authUsername').textContent = authUsername;
+      document.getElementById('authBtn').textContent = 'Salir';
+
+      const userInfo = document.getElementById('userInfo');
+      userInfo.innerHTML = `
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          ${renderInfoRow('👤', 'Username', user.username || '—')}
+          ${renderInfoRow('📧', 'Email', user.email || '—')}
+          ${renderInfoRow('🆔', 'UUID', user.uuid || '—')}
+          ${renderInfoRow('🏷️', 'Plan', user.is_pro ? 'Pro' : 'Free')}
+        </div>
+      `;
+      toast('Autenticado como ' + authUsername);
+    }
+
+    function renderInfoRow(icon, label, value) {
+      return `
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;">
+          <span style="font-size:18px;">${icon}</span>
+          <div>
+            <div style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;font-family:'JetBrains Mono',monospace;">${label}</div>
+            <div style="font-size:13px;font-weight:600;font-family:'JetBrains Mono',monospace;">${value}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function handleAuth() {
+      if (isAuthenticated) {
+        puter.auth.signOut().then(() => {
+          isAuthenticated = false;
+          authUsername = null;
+          document.getElementById('authDot').classList.remove('connected');
+          document.getElementById('authUsername').textContent = 'No autenticado';
+          document.getElementById('authBtn').textContent = 'Login';
+          document.getElementById('userInfo').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);"><div style="font-size:32px">👤</div><div style="margin-top:8px;font-size:13px;">Sesión cerrada</div></div>';
+          toast('Sesión cerrada');
+        }).catch(e => toast(e.message, 'error'));
+      } else {
+        doSignIn();
+      }
+    }
+
+    // ─── Init ─────────────────────────────────────────────────────────────
+    (async () => {
+      try {
+        const user = await puter.auth.getUser();
+        if (user) setAuthenticated(user);
+      } catch (e) { /* not logged in */ }
+    })();
+  </script>
+</body>
+</html>
