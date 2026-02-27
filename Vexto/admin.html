@@ -343,7 +343,7 @@
 
 <script>
 // ─── Config ────────────────────────────────────────────────────────────────
-const API = '/api'
+const API = 'http://jayrus10.atwebpages.com/public/api'
 let adminToken = null
 let _allTenants = []
 let _allUsers   = []
@@ -716,7 +716,7 @@ function roleBadge(role) {
 window.addEventListener('DOMContentLoaded', async () => {
     const saved = localStorage.getItem('vexto_admin_token')
     if (!saved) return
-    const res = await fetch(API + '/auth.php?action=me', {
+    const res = await fetch(API + '/api/auth.php?action=me', {
         headers: { 'Authorization': `Bearer ${saved}` }
     }).then(r => r.json()).catch(() => null)
     if (!res?.ok || res.data.role !== 'superadmin') {
