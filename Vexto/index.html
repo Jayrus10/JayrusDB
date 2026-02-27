@@ -53,7 +53,8 @@
         #warningModal > div { animation: scaleUp .32s cubic-bezier(0.34, 3.56, 0.64, 1); }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        #modalProduct, #modalPurchase, #modalSale, #modalAudit, #modalDiscount, #modalPurchaseInfo, #modalSetupRates, #modalConfirm, #modalCustomer, #modalVipLevel { animation: fadeIn .3s ease; }
+        #modalProduct, #modalPurchase, #modalSale, #modalAudit, #modalDiscount, #modalPurchaseInfo, #modalSetupRates, #modalConfirm, #modalCustomer, #modalVipLevel, #modalTransitInfo, #modalProductsInfo, #modalPayDebt, #modalCurrencyInfo { animation: fadeIn .3s ease; }
+        .modal-layer { position: fixed; inset: 0; }
         #modalProduct > div, #modalPurchase > div, #modalSale > div, #modalAudit > div, #modalDiscount > div, #modalPurchaseInfo > div, #modalSetupRates > div, #modalConfirm > div, #modalCustomer > div, #modalVipLevel > div { animation: scaleUp .32s cubic-bezier(0.34, 3.56, 0.64, 1); }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -80,8 +81,11 @@
                 <button onclick="showWarningModal()" class="w-full bg-zinc-800 hover:bg-zinc-700 py-2 rounded-lg text-sm text-zinc-400">ℹ️ Ver información importante</button>
             </div>
         </div>
-        <a href="https://github.com/Jayrus10/JayrusDB" class="text-blue-500 hover:underline">GitHub (c&oacutedigo fuente)</a>
-        <a href="https://t.me/mrjayrus" class="text-blue-500 hover:underline">Soporte T&eacutecnico (T&eacutelegram)</a>
+        <a href="https://github.com/Jayrus10/JayrusDB" class="text-blue-500 hover:underline mt-3">GitHub (código fuente)</a>
+        <a href="https://t.me/mrjayrus" class="text-blue-500 hover:underline">Soporte Técnico (Telegram)</a>
+        <div class="hidden">
+            </div>
+        </div>
     </div>
 
     <!-- Warning Modal -->
@@ -93,7 +97,7 @@
                 <div class="text-sm"><p class="font-semibold text-emerald-400 mb-1">💾 Exporta regularmente</p><p class="text-zinc-300">Exporta tus datos al menos una vez al día para evitar pérdidas.</p></div>
                 <div class="text-sm"><p class="font-semibold text-emerald-400 mb-1">🔄 Limpieza</p><p class="text-zinc-300">Los datos no se sincronizan entre dispositivos.</p></div>
                 <div class="text-sm"><p class="font-semibold text-emerald-400 mb-1">👤 Privado</p><p class="text-zinc-300">Cada navegador tiene su propia base de datos independiente.</p></div>
-                <div class="text-sm"><p class="font-semibold text-emerald-400 mb-1">ℹ️ Versi&oacuten de prueba</p><p class="text-zinc-300">No es recomendado empezar a usar la aplicaci&oacuten en su estado actual (beta).</p></div>
+                <div class="text-sm"><p class="font-semibold text-emerald-400 mb-1">ℹ️ Versión de prueba</p><p class="text-zinc-300">No es recomendado empezar a usar la aplicación en su estado actual (beta).</p></div>
             </div>
             <button onclick="hideWarningModal()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-medium">De acuerdo</button>
         </div>
@@ -584,6 +588,35 @@
         </div>
     </div>
 
+    <!-- Pay Debt Modal -->
+    <div id="modalPayDebt" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4">
+        <div class="bg-zinc-900 w-full max-w-sm rounded-3xl p-6">
+            <div class="flex justify-between items-center mb-5">
+                <h3 class="text-lg font-bold">💵 Registrar Pago</h3>
+                <button onclick="hideModal('modalPayDebt')" class="text-red-400 hover:text-red-300 text-xl">&times;</button>
+            </div>
+            <div id="payDebtInfo" class="bg-zinc-800 rounded-2xl p-4 mb-4 text-sm space-y-1"></div>
+            <label class="text-xs text-zinc-400 block mb-2">Monto a pagar</label>
+            <div class="flex gap-2 mb-2">
+                <input id="payDebtAmount" type="number" placeholder="0.00" min="0" step="any"
+                    class="flex-1 bg-zinc-800 border-0 rounded-2xl px-4 py-3 text-sm">
+                <select id="payDebtCurrency" class="bg-zinc-800 border-0 rounded-2xl px-3 py-2 text-sm">
+                    <option value="CUP">CUP</option>
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                </select>
+            </div>
+            <button onclick="payDebtFull()" class="w-full py-2 text-xs text-emerald-400 hover:text-emerald-300 mb-4">Pagar deuda completa →</button>
+            <input id="payDebtCustomerId" type="hidden" value="">
+            <input id="payDebtClientName" type="hidden" value="">
+            <div class="flex gap-3">
+                <button onclick="hideModal('modalPayDebt')" class="flex-1 py-3 bg-zinc-800 rounded-2xl text-sm">Cancelar</button>
+                <button onclick="saveDebtPayment()" class="flex-1 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-2xl text-sm font-semibold">Confirmar pago</button>
+            </div>
+        </div>
+    </div>
+
+
 <script>
 // ─── Estado global ────────────────────────────────────────────────────────────
 let cashRoundingStep = 1    // múltiplo mínimo de billete
@@ -612,13 +645,14 @@ function loadData(){
         ;(d.customers || []).forEach(c => { c.debt = (c.debt||0)*oldRate })
     }
     // Garantías mínimas
-    if(!d.exchangeRates.USD || d.exchangeRates.USD <= 0) d.exchangeRates.USD = 505
-    if(!d.exchangeRates.EUR || d.exchangeRates.EUR <= 0) d.exchangeRates.EUR = 570
+    if(!d.exchangeRates.USD || d.exchangeRates.USD <= 0) d.exchangeRates.USD = 500
+    if(!d.exchangeRates.EUR || d.exchangeRates.EUR <= 0) d.exchangeRates.EUR = 650
     if(!d.baseCurrency) d.baseCurrency = 'CUP'
     if(!d.audit)     d.audit     = []
     if(!d.discounts) d.discounts = []
     if(!d.customers) d.customers = []
     if(!d.vipLevels) d.vipLevels = []
+    if(!d.cashPayments) d.cashPayments = []
     data = d
     saveData()
     nextId = Math.max(1, ...[...data.products,...data.purchases,...data.sales,...data.customers,...data.discounts].map(x=>x.id||0)) + 1
@@ -687,6 +721,8 @@ function showCurrencyInfo(cup, label){
     const modal = document.getElementById('modalCurrencyInfo')
     const box   = document.getElementById('modalCurrencyInfoBox')
 
+    _modalZBase += 10
+    modal.style.zIndex = _modalZBase
     modal.classList.remove('hidden')
 
     setTimeout(() => {
@@ -723,7 +759,7 @@ function handleLogin(){
     document.getElementById('app').classList.remove('hidden')
     document.getElementById('currentUser').textContent = user
     renderAll()
-    if(isNew) document.getElementById('modalSetupRates').classList.remove('hidden')
+    if(isNew) showModal('modalSetupRates')
 }
 function logout(){
     saveData()
@@ -746,7 +782,20 @@ function saveSetupRates(){
 }
 
 // ─── Modales / Nav ────────────────────────────────────────────────────────────
-function hideModal(id){ document.getElementById(id).classList.add('hidden') }
+let _modalZBase = 50;
+function showModal(id){
+    const el = document.getElementById(id)
+    if(!el) return
+    _modalZBase += 10
+    el.style.zIndex = _modalZBase
+    el.classList.remove('hidden')
+}
+function hideModal(id){
+    const el = document.getElementById(id)
+    if(!el) return
+    el.classList.add('hidden')
+    el.style.zIndex = ''
+}
 function showWarningModal(){ document.getElementById('warningModal').classList.remove('hidden') }
 function hideWarningModal(){ document.getElementById('warningModal').classList.add('hidden') }
 function toggleMobileMenu(){ document.querySelector('.app-nav').classList.toggle('mobile-open') }
@@ -770,7 +819,7 @@ function showConfirm(title, message, onConfirm){
     document.getElementById('confirmMessage').textContent = message
     const btn = document.getElementById('confirmBtn')
     btn.onclick = () => { hideModal('modalConfirm'); onConfirm() }
-    document.getElementById('modalConfirm').classList.remove('hidden')
+    showModal('modalConfirm')
 }
 
 // ─── Clientes y VIP ──────────────────────────────────────────────────────────
@@ -799,7 +848,8 @@ function renderCustomers(){
             +'<td>'+(totalSpent > 0 ? fmtInfo(totalSpent,'Total gastado') : '<span class="text-zinc-600">—</span>')+'</td>'
             +'<td>'+fmtInfo(c.debt||0,'Deuda')+'</td>'
             +'<td class="flex gap-2 py-4">'
-            +'<button onclick="showEditCustomer('+c.id+')" class="text-emerald-400 hover:text-emerald-300 text-sm">✏️</button>'
+            +(c.debt > 0 ? '<button onclick="showPayDebt('+c.id+')" class="text-emerald-400 hover:text-emerald-300 text-xs px-1.5 py-0.5 rounded bg-emerald-900/40 mr-1" title="Registrar pago">💵 Pagar</button>' : '')
+            +'<button onclick="showEditCustomer('+c.id+')" class="text-zinc-400 hover:text-zinc-200 text-sm">✏️</button>'
             +'<button onclick="deleteCustomer('+c.id+')" class="text-red-400 hover:text-red-300 text-sm">🗑️</button>'
             +'</td>'
         tbody.appendChild(tr)
@@ -817,7 +867,7 @@ function showAddCustomer(){
     document.getElementById('customerName').value = ''
     document.getElementById('customerId').value = ''
     document.getElementById('customerVipLevel').value = ''
-    document.getElementById('modalCustomer').classList.remove('hidden')
+    showModal('modalCustomer')
 }
 function showEditCustomer(id){
     const c = data.customers.find(x=>x.id===id)
@@ -833,7 +883,7 @@ function showEditCustomer(id){
     document.getElementById('customerName').value = c.name
     document.getElementById('customerId').value = c.id
     document.getElementById('customerVipLevel').value = c.vipLevel || ''
-    document.getElementById('modalCustomer').classList.remove('hidden')
+    showModal('modalCustomer')
 }
 function saveCustomer(){
     const name  = document.getElementById('customerName').value.trim()
@@ -862,7 +912,7 @@ function showManageVipLevels(){
     renderVipLevels()
     document.getElementById('vipLevelName').value = ''
     document.getElementById('vipLevelPercent').value = ''
-    document.getElementById('modalVipLevel').classList.remove('hidden')
+    showModal('modalVipLevel')
 }
 function renderVipLevels(){
     const c = document.getElementById('vipLevelsList')
@@ -900,6 +950,93 @@ function deleteVipLevel(id){
         ;(data.customers||[]).forEach(c=>{ if(c.vipLevel===id) c.vipLevel='' })
         saveData(); renderVipLevels(); renderCustomers()
     })
+}
+
+// ─── Mark as received ────────────────────────────────────────────────────────
+function markPurchaseReceived(id){
+    const p = data.purchases.find(x=>x.id===id)
+    if(!p || p.inStock) return
+    const prod = data.products.find(x=>x.id===p.productId)
+    if(!prod) return
+    showConfirm('¿Marcar como recibido?', 'El stock se sumará al inventario ahora.', () => {
+        const unitCUP = p.unitCostCUP || 0
+        const propCUP = p.propExpCUP  || 0
+        const finalCostCUP = unitCUP + (p.qty > 0 ? propCUP/p.qty : 0)
+        prod.currentStock   = (prod.currentStock||0)   + p.qty
+        prod.totalCostValue = (prod.totalCostValue||0) + p.qty * finalCostCUP
+        prod.avgCost        = prod.totalCostValue / prod.currentStock
+        p.inStock = true
+        saveData()
+        addAudit('RECIBIDO: '+(prod?prod.name:'?')+' x'+p.qty+' de '+(p.supplier||'-'))
+        renderPurchases(); renderProducts(); renderDashboard()
+    })
+}
+function markProductReceived(productId){
+    const pending = data.purchases.filter(p=>p.productId===productId && !p.inStock)
+    if(!pending.length) return
+    const prod = data.products.find(x=>x.id===productId)
+    if(!prod) return
+    showConfirm('¿Marcar todo como recibido?', pending.length+' envío(s) pendientes de '+prod.name+' se sumarán al stock.', () => {
+        pending.forEach(p => {
+            const unitCUP = p.unitCostCUP || 0
+            const propCUP = p.propExpCUP  || 0
+            const finalCostCUP = unitCUP + (p.qty > 0 ? propCUP/p.qty : 0)
+            prod.currentStock   = (prod.currentStock||0)   + p.qty
+            prod.totalCostValue = (prod.totalCostValue||0) + p.qty * finalCostCUP
+            prod.avgCost        = prod.totalCostValue / prod.currentStock
+            p.inStock = true
+        })
+        saveData()
+        addAudit('RECIBIDO (lote): '+prod.name+' — '+pending.reduce((a,p)=>a+p.qty,0)+' unidades')
+        renderPurchases(); renderProducts(); renderDashboard()
+    })
+}
+
+// ─── Pago de deudas ──────────────────────────────────────────────────────────
+// totalCash in reports — we need to track cash payments separately
+// We'll add to data.cashPayments array
+function showPayDebt(customerId, clientName){
+    if(!data.cashPayments) data.cashPayments = []
+    let cust = null
+    if(customerId) cust = data.customers.find(c=>c.id===customerId)
+    else if(clientName) cust = data.customers.find(c=>c.name===clientName)
+    if(!cust) return alert('Cliente no encontrado')
+    const debtCUP = cust.debt || 0
+    document.getElementById('payDebtCustomerId').value = cust.id
+    document.getElementById('payDebtClientName').value = cust.name
+    document.getElementById('payDebtAmount').value = ''
+    document.getElementById('payDebtCurrency').value = 'CUP'
+    document.getElementById('payDebtInfo').innerHTML =
+        '<div class="flex justify-between"><span class="text-zinc-400">Cliente:</span><span class="font-semibold">'+cust.name+'</span></div>'
+        +'<div class="flex justify-between"><span class="text-zinc-400">Deuda total:</span><span class="text-amber-400 font-bold">'+fmtInfo(debtCUP,'Deuda')+'</span></div>'
+    showModal('modalPayDebt')
+}
+function payDebtFull(){
+    const custId = parseInt(document.getElementById('payDebtCustomerId').value)
+    const cust = data.customers.find(c=>c.id===custId)
+    if(!cust) return
+    document.getElementById('payDebtAmount').value = cust.debt.toFixed(2)
+    document.getElementById('payDebtCurrency').value = 'CUP'
+}
+function saveDebtPayment(){
+    const custId  = parseInt(document.getElementById('payDebtCustomerId').value)
+    const amount  = parseFloat(document.getElementById('payDebtAmount').value)
+    const cur     = document.getElementById('payDebtCurrency').value
+    if(!amount || amount <= 0) return alert('Monto inválido')
+    const cust = data.customers.find(c=>c.id===custId)
+    if(!cust) return
+    const amountCUP = toCUP(amount, cur)
+    const paid = Math.min(amountCUP, cust.debt)
+    cust.debt = Math.max(0, cust.debt - paid)
+    if(!data.cashPayments) data.cashPayments = []
+    data.cashPayments.push({id:nextId++, date:new Date().toISOString().slice(0,10), customerId:custId, clientName:cust.name, amountCUP:paid, currencyOriginal:cur})
+    saveData()
+    addAudit('PAGO DEUDA: '+cust.name+' pagó '+fmtCUP(paid)+(paid < amountCUP ? ' (deuda era menor, ajustado)':''))
+    hideModal('modalPayDebt')
+    renderCustomers(); renderReports(); renderDashboard()
+    showConfirm('✅ Pago registrado', cust.name+' pagó '+paid.toFixed(2)+' CUP. Deuda restante: '+cust.debt.toFixed(2)+' CUP.', ()=>{})
+    // Override confirm button to just close
+    setTimeout(()=>{ const btn = document.getElementById('confirmBtn'); if(btn){ btn.textContent='Aceptar'; btn.className='flex-1 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-2xl text-sm font-semibold' } }, 10)
 }
 
 function renderAll(){ renderDashboard(); renderProducts(); renderDiscounts(); renderCustomers(); renderPurchases(); renderSales(); renderReports(); renderSettings() }
@@ -985,6 +1122,7 @@ function renderProducts(){
                 : 'text-emerald-400'
         const truckHtml = transitQty > 0
             ? ' <button onclick="showTransitInfo('+p.id+')" class="text-amber-400 hover:text-amber-300 text-base" title="'+transitQty+' en camino">🚚</button>'
+            + ' <button onclick="markProductReceived('+p.id+')" class="text-emerald-400 hover:text-emerald-300 text-xs px-1.5 py-0.5 rounded bg-emerald-900/40 hover:bg-emerald-900/70" title="Marcar todo como recibido">✅ Recibido</button>'
             : ''
         const tr = document.createElement('tr')
         tr.className = 'border-b border-zinc-800 hover:bg-zinc-900'
@@ -1036,7 +1174,7 @@ function showProductsInfo(){
             +'<span class="text-zinc-400">💰 Valor total stock</span>'
             +'<span class="font-bold text-emerald-300 text-sm">'+fmtInfo(stockVal,'Valor stock')+'</span>'
         +'</div>'
-    document.getElementById('modalProductsInfo').classList.remove('hidden')
+    showModal('modalProductsInfo')
 }
 
 function showTransitInfo(productId){
@@ -1060,10 +1198,10 @@ function showTransitInfo(productId){
         html += '<div class="mt-2 text-center text-sm text-amber-400 font-semibold">🚚 Total en camino: '+totalQty+' unidades</div>'
     }
     document.getElementById('transitInfoContent').innerHTML = html
-    document.getElementById('modalTransitInfo').classList.remove('hidden')
+    showModal('modalTransitInfo')
 }
 
-function showAddProduct(){ document.getElementById('modalProduct').classList.remove('hidden') }
+function showAddProduct(){ showModal('modalProduct') }
 function saveProduct(){
     const name   = document.getElementById('prodName').value.trim()
     const cat    = document.getElementById('prodCat').value.trim()
@@ -1082,7 +1220,7 @@ function showAddDiscount(){
     document.getElementById('discountType').value = 'mayor'
     document.getElementById('discountPercent').value = ''
     updateDiscountFields()
-    document.getElementById('modalDiscount').classList.remove('hidden')
+    showModal('modalDiscount')
 }
 function updateDiscountFields(){
     const type = document.getElementById('discountType').value
@@ -1144,7 +1282,7 @@ function showAddPurchase(){
     updateShippingLabel()
     document.getElementById('purchaseLinesList').innerHTML = '<div class="text-zinc-500 text-sm px-1">Haz clic en “+ Agregar producto”</div>'
     document.getElementById('expensesList').innerHTML = ''
-    document.getElementById('modalPurchase').classList.remove('hidden')
+    showModal('modalPurchase')
 }
 function addPurchaseLine(){
     const list = document.getElementById('purchaseLinesList')
@@ -1260,7 +1398,8 @@ function renderPurchases(){
             +'<td>'+(p.supplier||'-')+'</td>'
             +'<td>'+statusHtml+'</td>'
             +'<td>'
-            +'<button onclick="showPurchaseInfo('+p.id+')" class="text-emerald-400 hover:text-emerald-300 text-sm mr-2">ℹ️</button>'
+            +(p.inStock ? '' : '<button onclick="markPurchaseReceived('+p.id+')" class="text-emerald-400 hover:text-emerald-300 text-xs mr-2 px-1.5 py-0.5 rounded bg-emerald-900/40" title="Marcar como recibido">✅</button>')
+            +'<button onclick="showPurchaseInfo('+p.id+')" class="text-zinc-400 hover:text-zinc-200 text-sm mr-2">ℹ️</button>'
             +'<button onclick="deletePurchase('+p.id+')" class="text-red-400 hover:text-red-300 text-sm">🗑️</button>'
             +'</td>'
         tbody.appendChild(tr)
@@ -1286,7 +1425,7 @@ function showPurchaseInfo(id){
         +'<div><span class="text-zinc-500">Gastos totales lote:</span> <span class="text-zinc-200">'+fmtInfo(totalExp,'G. totales lote')+'</span></div>'
         +'<div class="text-lg font-bold mt-2">Total: <span class="text-emerald-400">'+fmtInfo(total,'Total compra')+'</span></div>'
         +'<div class="text-sm text-zinc-500 mt-2">Proveedor: '+(p.supplier||'-')+'</div>'
-    document.getElementById('modalPurchaseInfo').classList.remove('hidden')
+    showModal('modalPurchaseInfo')
 }
 function deletePurchase(id){ showConfirm('¿Eliminar compra?', 'El stock del producto será ajustado.', () => _deletePurchase(id)) }
 function _deletePurchase(id){
@@ -1376,7 +1515,7 @@ function showQuickSale(){
     document.getElementById('saleCredit').checked = false
     document.getElementById('suggestedPriceDisplay').textContent = '-'
     document.getElementById('saleCurrency').value = data.baseCurrency
-    document.getElementById('modalSale').classList.remove('hidden')
+    showModal('modalSale')
 }
 function getApplicableDiscount(qty, clientName, productId){
     if(!data.discounts) return 0
@@ -1438,7 +1577,8 @@ function renderSales(){
             : fmtInfo(priceCUP,'Precio venta')
         const tr = document.createElement('tr')
         tr.className = 'border-b border-zinc-800 hover:bg-zinc-900'
-        tr.innerHTML = '<td class="py-4">'+s.date+'</td><td>'+(prod?prod.name:'?')+'</td><td>'+s.qty+'</td><td>'+priceHtml+'</td><td>'+(s.onCredit?'💳 ':'')+s.client+'</td><td><button onclick="deleteSale('+s.id+')" class="text-red-400 hover:text-red-300 text-sm">🗑️</button></td>'
+        const payBtn = (s.onCredit && s.client && s.client!=='-') ? '<button onclick="showPayDebt(null,\''+s.client+'\')" class="text-emerald-400 hover:text-emerald-300 text-xs mr-1 px-1.5 py-0.5 rounded bg-emerald-900/40" title="Pagar deuda">💵</button>' : ''
+        tr.innerHTML = '<td class="py-4">'+s.date+'</td><td>'+(prod?prod.name:'?')+'</td><td>'+s.qty+'</td><td>'+priceHtml+'</td><td>'+(s.onCredit?'💳 ':'')+s.client+'</td><td>'+payBtn+'<button onclick="deleteSale('+s.id+')" class="text-red-400 hover:text-red-300 text-sm">🗑️</button></td>'
         tbody.appendChild(tr)
     })
 }
@@ -1467,9 +1607,12 @@ function renderReports(){
         cost    += s.qty * (prod ? prod.avgCost : 0)
         if(!s.onCredit) cash += s.qty * priceCUP
     })
+    // Add debt payments to cash
+    const debtPaid = (data.cashPayments||[]).reduce((a,p)=>a+p.amountCUP,0)
+    cash += debtPaid
     document.getElementById('totalProfit').innerHTML = fmtInfo(revenue-cost,'Ganancia neta')
     document.getElementById('totalCOGS').innerHTML   = fmtInfo(cost,'Costo mercancía')
-    document.getElementById('totalCash').innerHTML   = fmtInfo(cash,'Total en caja')
+    document.getElementById('totalCash').innerHTML   = fmtInfo(cash,'Total en caja (incl. cobros de deuda)')
 }
 
 // ─── Ajustes ──────────────────────────────────────────────────────────────────
@@ -1510,7 +1653,7 @@ function saveCashRoundingDir(){
 // ─── Auditoría ────────────────────────────────────────────────────────────────
 function addAudit(action){
     if(!data.audit) data.audit = []
-    data.audit.push({timestamp:new Date().toLocaleString(), user:currentUser, action})
+    const _now = new Date(); data.audit.push({timestamp: _now.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'}) + ' ' + _now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',second:'2-digit'}), user:currentUser, action})
     saveData()
 }
 function showAudit(){
@@ -1523,7 +1666,7 @@ function showAudit(){
         d.innerHTML = '<div class="text-xs text-zinc-400">'+log.timestamp+' — '+log.user+'</div><div class="text-zinc-200">'+log.action+'</div>'
         div.appendChild(d)
     })
-    document.getElementById('modalAudit').classList.remove('hidden')
+    showModal('modalAudit')
 }
 
 // ─── Export / Import ──────────────────────────────────────────────────────────
