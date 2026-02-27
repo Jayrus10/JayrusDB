@@ -1690,7 +1690,8 @@
 
     function handleAuth() {
       if (isAuthenticated) {
-        puter.auth.signOut().then(() => {
+        try {
+          puter.auth.signOut();
           isAuthenticated = false;
           authUsername = null;
           document.getElementById('authDot').classList.remove('connected');
@@ -1698,7 +1699,7 @@
           document.getElementById('authBtn').textContent = 'Login';
           document.getElementById('userInfo').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);"><div style="font-size:32px">👤</div><div style="margin-top:8px;font-size:13px;">Sesión cerrada</div></div>';
           toast('Sesión cerrada');
-        }).catch(e => toast(e.message, 'error'));
+        } catch(e) { toast(e.message, 'error'); }
       } else {
         doSignIn();
       }
