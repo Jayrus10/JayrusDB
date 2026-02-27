@@ -1316,41 +1316,58 @@
     // ─── Chat ─────────────────────────────────────────────────────────────
 
 // ─── Configuración de Markdown y Copiado ──────────────────────────────
+marked.setOptions({
+    gfm: true,
+    breaks: true,
+    mangle: false,
+    headerIds: false
+});
+
 const renderer = new marked.Renderer();
 
-// Personalizar cómo se renderizan los bloques de código para incluir el botón
 renderer.code = function(code, language) {
-    const validLang = !!(language && hljs.getLanguage(language));
-    const highlighted = validLang ? hljs.highlight(code, { language }).value : code;
+    const validLang = language && hljs.getLanguage(language);
+    const highlighted = validLang
+        ? hljs.highlight(code, { language }).value
+        : hljs.highlightAuto(code).value;
+
     const langLabel = language || 'code';
-    
+
     return `
-        <pre><div class="code-header"><span class="lang-tag">${langLabel}</span><button class="copy-btn" onclick="copyToClipboard(this)">Copiar</button></div><code class="hljs ${language}">${highlighted}</code></pre>
+        <pre>
+            <div class="code-header">
+                <span class="lang-tag">${langLabel}</span>
+                <button class="copy-btn" onclick="copyToClipboard(this)">Copiar</button>
+            </div>
+            <code class="hljs language-${language || 'plaintext'}">${highlighted}</code>
+        </pre>
     `;
 };
 
-marked.setOptions({ renderer: renderer });
+marked.use({ renderer });
 
 function copyToClipboard(btn) {
     const code = btn.parentElement.nextElementSibling.innerText;
     navigator.clipboard.writeText(code).then(() => {
-        const originalText = btn.textContent;
+        const original = btn.textContent;
         btn.textContent = '¡Copiado!';
         btn.style.borderColor = 'var(--accent3)';
         btn.style.color = 'var(--accent3)';
         setTimeout(() => {
-            btn.textContent = originalText;
+            btn.textContent = original;
             btn.style.borderColor = '';
             btn.style.color = '';
         }, 2000);
     });
 }
 
-// ─── Funciones de Chat Actualizadas ───────────────────────────────────
+// ─── Funciones de Chat Corregidas ───────────────────────────────────
+
 function addMessage(role, content) {
     const hist = document.getElementById('chatHistory');
     const msg = document.createElement('div');
-    msg.className = 'markdown-body'; // Aplicar estilos markdown
+    msg.className = 'markdown-body';
+
     msg.style.cssText = `
         padding: 12px 16px;
         border-radius: 10px;
@@ -1364,13 +1381,13 @@ function addMessage(role, content) {
         msg.style.border = '1px solid rgba(124,109,255,0.2)';
         msg.style.alignSelf = 'flex-end';
         msg.style.marginLeft = 'auto';
-        msg.textContent = content; // El usuario suele ser texto plano
+        msg.textContent = content;
     } else {
         msg.style.background = 'var(--surface2)';
         msg.style.border = '1px solid var(--border)';
         msg.id = 'lastAssistant';
-        // El contenido del asistente se renderizará al final del streaming o al recibir la respuesta
     }
+
     hist.appendChild(msg);
     hist.parentElement.scrollTop = hist.parentElement.scrollHeight;
     return msg;
@@ -1383,57 +1400,55 @@ async function sendChat() {
 
     const btn = document.querySelector('[onclick="sendChat()"]');
     btn.disabled = true;
-    
+
     addMessage('user', text);
     chatHistory.push({ role: 'user', content: text });
     input.value = '';
 
     const assistantMsg = addMessage('assistant', '');
-    const cursor = document.createElement('span');
-    cursor.className = 'cursor';
-    assistantMsg.appendChild(cursor);
 
     try {
         const sysPrompt = document.getElementById('systemPrompt').value;
         const temperature = parseFloat(document.getElementById('temperature').value);
         const max_tokens = parseInt(document.getElementById('maxTokens').value);
 
-        const resp = await puter.ai.chat(chatHistory, { 
-            model: selectedModel, 
+        const resp = await puter.ai.chat(chatHistory, {
+            model: selectedModel,
             system: sysPrompt,
             temperature,
             max_tokens,
-            stream: true // Habilitamos stream para mejor experiencia
+            stream: true
         });
 
         let fullText = '';
 
-        // Iteramos sobre las partes del stream
+        // 🔹 DURANTE STREAM → SOLO TEXTO PLANO (NO MARKDOWN)
         for await (const part of resp) {
-            // Error común: 'part' es un objeto {text: "..."}. 
-            // Debemos acceder a la propiedad .text
             const content = part?.text || (typeof part === 'string' ? part : "");
-            
             if (content) {
                 fullText += content;
-                // Renderizamos el Markdown acumulado
-                assistantMsg.innerHTML = marked.parse(fullText) + '<span class="cursor"></span>';
-                
-                // Scroll automático al final
+                assistantMsg.textContent = fullText + "▌";
+
                 const chatContainer = document.getElementById('chatMessages');
                 chatContainer.scrollTop = chatContainer.scrollHeight;
             }
         }
 
-        // Renderizado final limpio
+        // 🔹 RENDER FINAL → MARKDOWN COMPLETO UNA SOLA VEZ
         assistantMsg.innerHTML = marked.parse(fullText);
+
+        // 🔹 REAPLICAR HIGHLIGHT
+        assistantMsg.querySelectorAll('pre code').forEach(block => {
+            hljs.highlightElement(block);
+        });
+
         chatHistory.push({ role: 'assistant', content: fullText });
+
     } catch (e) {
         assistantMsg.style.color = '#ff6b6b';
         assistantMsg.textContent = 'Error: ' + e.message;
     } finally {
         btn.disabled = false;
-        if (assistantMsg.querySelector('.cursor')) assistantMsg.querySelector('.cursor').remove();
     }
 }
 
