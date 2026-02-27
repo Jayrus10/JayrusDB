@@ -1431,8 +1431,6 @@ function saveEditedDatabase(){
 let currentMonthChart = null
 
 function renderCurrentMonthChart(){
-    console.log("Renderizando gráfico")
-    console.log(data.sales)
 
     const canvas = document.getElementById('currentMonthChart')
     if(!canvas) return
