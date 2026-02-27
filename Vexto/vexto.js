@@ -1347,3 +1347,81 @@ function populateProvidersDatalist(){
         list.appendChild(option)
     })
 }
+
+// ─── Reset database ───────────────────────────────────────────────────────────
+function showResetDatabaseConfirm(){
+
+    showConfirm(
+        'Eliminar base de datos',
+        'Se borrarán TODOS los datos permanentemente. Esta acción no se puede deshacer.',
+        confirmResetDatabase,
+        {
+            label:'Eliminar todo',
+            btnClass:'bg-red-600 hover:bg-red-500',
+            icon:'⚠️'
+        }
+    )
+const cancelBtn = document.querySelector('#modalConfirm .bg-zinc-800')
+if(cancelBtn) cancelBtn.style.display = ''
+}
+
+// ─── Reset database ───────────────────────────────────────────────────────────
+function confirmResetDatabase(){
+    if(!currentUser) return
+
+    localStorage.removeItem('tienda_' + currentUser)
+
+    data = {
+        products:[],
+        purchases:[],
+        sales:[],
+        customers:[],
+        providers:[],
+        discounts:[],
+        audit:[],
+        vipLevels:[],
+        exchangeRates:{USD:500,EUR:650},
+        baseCurrency:'CUP'
+    }
+
+    saveData()
+    renderAll()
+
+    showConfirm(
+        'Base de datos eliminada',
+        'Todos los datos fueron borrados correctamente.',
+        ()=>{ hideModal('modalConfirm') },
+        {
+            label:'Aceptar',
+            btnClass:'bg-emerald-600 hover:bg-emerald-500',
+            icon:'✅'
+        }
+    )
+
+// ocultar botón cancelar
+const cancelBtn = document.querySelector('#modalConfirm .bg-zinc-800')
+if(cancelBtn) cancelBtn.style.display = 'none'
+}
+
+// ─── Editar base de datos ─────────────────────────────────────────────────────
+function showEditDatabase(){
+    const editor = document.getElementById('databaseEditor')
+    editor.value = JSON.stringify(data, null, 2)
+    showModal('modalEditDatabase')
+}
+
+// Guardar cambios en la base de datos desde el editor
+function saveEditedDatabase(){
+    const editor = document.getElementById('databaseEditor')
+    try {
+        const newData = JSON.parse(editor.value)
+        if(!newData.products || !newData.purchases || !newData.sales) return alert('Archivo inválido')
+        data = newData
+        saveData()
+        renderAll()
+        hideModal('modalEditDatabase')
+        addAudit('BASE DE DATOS EDITADA MANUALMENTE')
+    } catch(err){
+        alert('Error: '+err.message)
+    }
+}

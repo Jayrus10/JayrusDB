@@ -330,8 +330,31 @@
                                 <p class="text-xs text-zinc-500 mt-2">Ejemplo con múltiplo 50: precio 1.237 → arriba: 1.250 · abajo: 1.200 · cercano: 1.250</p>
                             </div>
                         </div>
+                        <div class="border-t border-zinc-800 pt-6">
+                            <div class="text-sm font-semibold text-red-400 mb-3">
+                                Para usuarios avanzados
+                            </div>
+                            <div class="mt-4">
+                            <button onclick="showEditDatabase()"
+                                class="w-full bg-red-600 hover:bg-red-500 py-3 rounded-2xl text-sm font-semibold">
+                                ✏ Editar base de datos manualmente
+                            </button>
+                            <p class="text-xs text-zinc-500 mt-2">
+                                Esto es para usuarios avanzados. Editar la base de datos directamente puede corromperla si no se hace correctamente.
+                            </p>
+                            </div>
+                            <div class="mt-4">
+                            <button onclick="showResetDatabaseConfirm()"
+                                class="w-full bg-red-600 hover:bg-red-500 py-3 rounded-2xl text-sm font-semibold">
+                                🗑️ Eliminar toda la base de datos
+                            </button>
+                            <p class="text-xs text-zinc-500 mt-2">
+                                Esto eliminará TODOS los datos guardados (productos, ventas, clientes, proveedores, historial, etc.).
+                                No se puede deshacer.
+                            </p>
+                            </div>
+                        </div>
                     </div>
-                    
                 </div>
 
             </div>
@@ -635,6 +658,29 @@
                 </button>
                 <button onclick="saveProvider()" class="flex-1 py-3 bg-emerald-600 rounded-2xl text-sm">
                     Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EDITAR BASE DE DATOS -->
+    <div id="modalEditDatabase" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4">
+        <div class="bg-zinc-900 w-full max-w-3xl rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0">
+            <h3 class="text-lg md:text-xl font-bold mb-4">Editar base de datos (JSON)</h3>
+
+            <textarea id="databaseEditor"
+                class="w-full h-96 bg-zinc-800 rounded-2xl p-4 text-xs font-mono"
+            ></textarea>
+
+            <div class="flex gap-3 mt-6">
+                <button onclick="hideModal('modalEditDatabase')"
+                    class="flex-1 py-3 bg-zinc-800 rounded-2xl text-sm">
+                    Cancelar
+                </button>
+
+                <button onclick="saveEditedDatabase()"
+                    class="flex-1 py-3 bg-red-600 hover:bg-red-500 rounded-2xl text-sm">
+                    Guardar cambios
                 </button>
             </div>
         </div>
