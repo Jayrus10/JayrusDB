@@ -764,6 +764,7 @@ function updateShippingLabel(){
 }
 
 function showAddPurchase(){
+    populateProvidersDatalist()
     document.getElementById('purchaseDate').value = new Date().toISOString().slice(0,10)
     document.getElementById('purchaseSupp').value = ''
     document.getElementById('purchaseInStock').checked = false
@@ -860,8 +861,8 @@ function savePurchase(){
             inStock  // true = en almacen, false = en camino
         })
     })
-    if(supp && !data.customers.find(c=>c.name===supp))
-        data.customers.push({id:nextId++, name:supp, debt:0, vipLevel:''})
+//    if(supp && !data.customers.find(c=>c.name===supp))
+//        data.customers.push({id:nextId++, name:supp, debt:0, vipLevel:''})
 
     saveData()
     const status = inStock ? 'en almacén' : 'en camino'
@@ -1332,4 +1333,17 @@ function deleteProvider(id){
             addAudit('PROVEEDOR ELIMINADO: '+p.name)
         }
     )
+}
+
+function populateProvidersDatalist(){
+    const list = document.getElementById('providersList')
+    if(!list) return
+
+    list.innerHTML = ''
+
+    data.providers.forEach(p=>{
+        const option = document.createElement('option')
+        option.value = p.name
+        list.appendChild(option)
+    })
 }
