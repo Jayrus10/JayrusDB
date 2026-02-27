@@ -193,6 +193,7 @@ function showSection(sec){
     if(sec==='purchases') renderPurchases()
     if(sec==='sales')     renderSales()
     if(sec==='reports')   renderReports()
+    if(sec==='reports')   renderCurrentMonthChart()
     if(sec==='settings')  renderSettings()
     if(sec==='info')      renderInfo()
 }
@@ -1424,4 +1425,73 @@ function saveEditedDatabase(){
     } catch(err){
         alert('Error: '+err.message)
     }
+}
+
+// ─── Current Month data ─────────────────────────────────────────────────────────────
+let currentMonthChart = null
+
+function renderCurrentMonthChart(){
+    console.log("Renderizando gráfico")
+    console.log(data.sales)
+
+    const canvas = document.getElementById('currentMonthChart')
+    if(!canvas) return
+
+    const now = new Date()
+    const month = now.getMonth()
+    const year = now.getFullYear()
+
+    const daysInMonth = new Date(year, month+1, 0).getDate()
+
+    const sales = Array(daysInMonth).fill(0)
+    const purchases = Array(daysInMonth).fill(0)
+
+    data.sales.forEach(s=>{
+        const d = new Date(s.date)
+        if(d.getMonth()===month && d.getFullYear()===year){
+            sales[d.getDate()-1] += (s.qty * s.finalPriceCUP) || 0
+        }
+    })
+
+    data.purchases.forEach(p=>{
+        const d = new Date(p.date)
+        if(d.getMonth()===month && d.getFullYear()===year){
+            purchases[d.getDate()-1] += (p.qty * p.unitCostCUP) || 0
+        }
+    })
+
+    const labels = Array.from({length:daysInMonth}, (_,i)=> (i+1).toString())
+
+    if(currentMonthChart){
+        currentMonthChart.destroy()
+    }
+
+    currentMonthChart = new Chart(canvas, {
+        type:'bar',
+        data:{
+            labels:labels,
+            datasets:[
+                {
+                    label:'Ventas',
+                    data:sales
+                },
+                {
+                    label:'Compras',
+                    data:purchases
+                }
+            ]
+        },
+        options:{
+            responsive:true,
+            plugins:{
+                legend:{
+                    labels:{ color:'#fff' }
+                }
+            },
+            scales:{
+                x:{ ticks:{ color:'#aaa' } },
+                y:{ ticks:{ color:'#aaa' } }
+            }
+        }
+    })
 }
