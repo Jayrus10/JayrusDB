@@ -1407,12 +1407,21 @@ async function sendChat() {
         });
 
         let fullText = '';
+
+        // Iteramos sobre las partes del stream
         for await (const part of resp) {
-            if (part?.text) {
-                fullText += part.text;
-                // Renderizado dinámico durante el stream
+            // Error común: 'part' es un objeto {text: "..."}. 
+            // Debemos acceder a la propiedad .text
+            const content = part?.text || (typeof part === 'string' ? part : "");
+            
+            if (content) {
+                fullText += content;
+                // Renderizamos el Markdown acumulado
                 assistantMsg.innerHTML = marked.parse(fullText) + '<span class="cursor"></span>';
-                document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+                
+                // Scroll automático al final
+                const chatContainer = document.getElementById('chatMessages');
+                chatContainer.scrollTop = chatContainer.scrollHeight;
             }
         }
 
