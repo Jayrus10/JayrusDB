@@ -1246,138 +1246,596 @@
   <div class="toast" id="toast"></div>
 
   <script>
+    // ─── State ───────────────────────────────────────────────────────────
     let selectedModel = 'claude-sonnet-4-6';
     let chatHistory = [];
+    let ocrActiveTab = 'url';
+    let kvActiveTab = 'set';
+    let ttsActiveEngine = 'standard';
     let isAuthenticated = false;
+    let authUsername = null;
 
-    // --- 1. CONFIGURACIÓN DE MARKDOWN Y RESALTADO ---
-    // Personalizamos cómo se renderizan los bloques de código
-    const renderer = new marked.Renderer();
-    renderer.code = function(code, language) {
-        const lang = language || 'txt';
-        // Generamos el HTML con la cabecera, la etiqueta de lenguaje y el botón de copiar
-        return `
-            <div class="code-container" style="position: relative; margin: 15px 0;">
-                <pre style="margin:0;"><div class="code-header" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 14px; background: rgba(124,109,255,0.08); border-bottom: 1px solid var(--border); border-top-left-radius: 10px; border-top-right-radius: 10px;">
-                    <span class="lang-tag" style="background: rgba(124,109,255,0.15); color: var(--accent); padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; text-transform: uppercase;">${lang}</span>
-                    <button class="copy-btn" onclick="copyToClipboard(this)" style="background: transparent; border: 1px solid var(--border); color: var(--text-dim); padding: 3px 10px; border-radius: 5px; font-size: 10px; cursor: pointer;">Copiar</button>
-                </div><code class="hljs ${lang}" style="border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;">${code}</code></pre>
-            </div>`;
-    };
-
-    marked.setOptions({ 
-        renderer: renderer,
-        highlight: function(code, lang) {
-            const language = hljs.getLanguage(lang) ? lang : 'plaintext';
-            return hljs.highlight(code, { language }).value;
-        },
-        breaks: true // Permite saltos de línea normales
-    });
-
-    // --- 2. FUNCIÓN DE COPIADO ---
-    function copyToClipboard(btn) {
-        const codeElement = btn.closest('pre').querySelector('code');
-        const textToCopy = codeElement.innerText;
-
-        navigator.clipboard.writeText(textToCopy).then(() => {
-            const originalText = btn.textContent;
-            btn.textContent = '¡Copiado!';
-            btn.style.borderColor = 'var(--accent3)';
-            btn.style.color = 'var(--accent3)';
-            
-            setTimeout(() => {
-                btn.textContent = originalText;
-                btn.style.borderColor = 'var(--border)';
-                btn.style.color = 'var(--text-dim)';
-            }, 2000);
-        }).catch(err => {
-            console.error('Error al copiar:', err);
-        });
-    }
-
-    // --- 3. LÓGICA DEL CHAT (CORRIGE EL [object Object]) ---
-    async function sendChat() {
-        const input = document.getElementById('chatInput');
-        const text = input.value.trim();
-        if (!text) return;
-
-        const histContainer = document.getElementById('chatHistory');
-        const chatBtn = document.getElementById('chatBtn');
-
-        // Mostrar mensaje del usuario
-        const userDiv = document.createElement('div');
-        userDiv.className = 'markdown-body';
-        userDiv.style.cssText = "align-self: flex-end; background: rgba(124,109,255,0.1); padding: 12px 16px; border-radius: 12px; margin-left: auto; max-width: 85%; border: 1px solid rgba(124,109,255,0.2);";
-        userDiv.textContent = text;
-        histContainer.appendChild(userDiv);
-
-        chatHistory.push({ role: 'user', content: text });
-        input.value = '';
-        chatBtn.disabled = true;
-
-        // Preparar burbuja de la IA
-        const aiDiv = document.createElement('div');
-        aiDiv.className = 'markdown-body';
-        aiDiv.style.cssText = "background: var(--surface2); padding: 15px; border-radius: 12px; border: 1px solid var(--border); max-width: 90%; position: relative;";
-        histContainer.appendChild(aiDiv);
-
-        try {
-            const response = await puter.ai.chat(chatHistory, { model: selectedModel, stream: true });
-            
-            let fullText = "";
-            for await (const part of response) {
-                // AQUÍ ESTABA EL ERROR: 'part' es un objeto, necesitamos 'part.text'
-                const content = part?.text || (typeof part === 'string' ? part : "");
-                
-                if (content) {
-                    fullText += content;
-                    // Renderizamos el markdown y añadimos el cursor animado
-                    aiDiv.innerHTML = marked.parse(fullText) + '<span class="cursor"></span>';
-                    
-                    // Auto-scroll
-                    const msgContainer = document.getElementById('chatMessages');
-                    msgContainer.scrollTop = msgContainer.scrollHeight;
-                }
-            }
-            
-            // Finalizar: quitar cursor y guardar en historial
-            aiDiv.innerHTML = marked.parse(fullText);
-            chatHistory.push({ role: 'assistant', content: fullText });
-
-        } catch (err) {
-            aiDiv.innerHTML = `<span style="color: #ff6b6b">Error: ${err.message}</span>`;
-        } finally {
-            chatBtn.disabled = false;
-        }
-    }
-
-    // Funciones auxiliares de UI
+    // ─── UI Helpers ───────────────────────────────────────────────────────
     function showPanel(id, el) {
-        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-        document.getElementById('panel-' + id).classList.add('active');
-        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-        if(el) el.classList.add('active');
-    }
-
-    function selectModel(btn, modelId) {
-        selectedModel = modelId;
-        document.querySelectorAll('.model-chip').forEach(c => c.classList.remove('selected'));
-        btn.classList.add('selected');
-        // Actualizar el badge de la barra superior
-        document.querySelector('.model-badge').textContent = `${modelId} · default`;
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById('panel-' + id).classList.add('active');
+      if (el) el.classList.add('active');
+      if (window.innerWidth < 900) closeSidebar();
     }
 
     function toggleSidebar() {
-        document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('open');
     }
 
-    // Escuchar Enter para enviar (sin Shift)
-    document.getElementById('chatInput').addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendChat();
-        }
+    function toast(msg, type = 'success') {
+      const t = document.getElementById('toast');
+      t.textContent = (type === 'success' ? '✓ ' : '✗ ') + msg;
+      t.className = 'toast show ' + type;
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    function selectModel(chip, model) {
+      document.querySelectorAll('#modelChips .model-chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      selectedModel = model;
+    }
+
+    function selectRadio(btn, groupId) {
+      document.querySelectorAll('#' + groupId + ' .radio-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    }
+
+    function switchTab(panel, tab, btn) {
+      const prefix = panel + '-tab-';
+      document.querySelectorAll('[id^="' + prefix + '"]').forEach(p => p.classList.remove('active'));
+      document.getElementById(prefix + tab).classList.add('active');
+      btn.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      if (panel === 'ocr') ocrActiveTab = tab;
+      if (panel === 'kv') kvActiveTab = tab;
+    }
+
+    function setOutput(id, text, cls = '') {
+      const el = document.getElementById(id);
+      el.className = 'output' + (cls ? ' ' + cls : '');
+      el.textContent = text;
+    }
+
+    function toggleAdvanced() {
+      const panel = document.getElementById('advancedParams');
+      const arrow = document.getElementById('advancedArrow');
+      const open = panel.style.display === 'none';
+      panel.style.display = open ? 'block' : 'none';
+      arrow.textContent = open ? '▲' : '▼';
+    }
+
+    // ─── Chat ─────────────────────────────────────────────────────────────
+
+// ─── Configuración de Markdown y Copiado ──────────────────────────────
+const renderer = new marked.Renderer();
+
+// Personalizar cómo se renderizan los bloques de código para incluir el botón
+renderer.code = function(code, language) {
+    const validLang = !!(language && hljs.getLanguage(language));
+    const highlighted = validLang ? hljs.highlight(code, { language }).value : code;
+    const langLabel = language || 'code';
+    
+    return `
+        <pre><div class="code-header"><span class="lang-tag">${langLabel}</span><button class="copy-btn" onclick="copyToClipboard(this)">Copiar</button></div><code class="hljs ${language}">${highlighted}</code></pre>
+    `;
+};
+
+marked.setOptions({ renderer: renderer });
+
+function copyToClipboard(btn) {
+    const code = btn.parentElement.nextElementSibling.innerText;
+    navigator.clipboard.writeText(code).then(() => {
+        const originalText = btn.textContent;
+        btn.textContent = '¡Copiado!';
+        btn.style.borderColor = 'var(--accent3)';
+        btn.style.color = 'var(--accent3)';
+        setTimeout(() => {
+            btn.textContent = originalText;
+            btn.style.borderColor = '';
+            btn.style.color = '';
+        }, 2000);
     });
+}
+
+// ─── Funciones de Chat Actualizadas ───────────────────────────────────
+function addMessage(role, content) {
+    const hist = document.getElementById('chatHistory');
+    const msg = document.createElement('div');
+    msg.className = 'markdown-body'; // Aplicar estilos markdown
+    msg.style.cssText = `
+        padding: 12px 16px;
+        border-radius: 10px;
+        max-width: 90%;
+        word-break: break-word;
+        position: relative;
+    `;
+
+    if (role === 'user') {
+        msg.style.background = 'rgba(124,109,255,0.12)';
+        msg.style.border = '1px solid rgba(124,109,255,0.2)';
+        msg.style.alignSelf = 'flex-end';
+        msg.style.marginLeft = 'auto';
+        msg.textContent = content; // El usuario suele ser texto plano
+    } else {
+        msg.style.background = 'var(--surface2)';
+        msg.style.border = '1px solid var(--border)';
+        msg.id = 'lastAssistant';
+        // El contenido del asistente se renderizará al final del streaming o al recibir la respuesta
+    }
+    hist.appendChild(msg);
+    hist.parentElement.scrollTop = hist.parentElement.scrollHeight;
+    return msg;
+}
+
+async function sendChat() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
+
+    const btn = document.querySelector('[onclick="sendChat()"]');
+    btn.disabled = true;
+    
+    addMessage('user', text);
+    chatHistory.push({ role: 'user', content: text });
+    input.value = '';
+
+    const assistantMsg = addMessage('assistant', '');
+    const cursor = document.createElement('span');
+    cursor.className = 'cursor';
+    assistantMsg.appendChild(cursor);
+
+    try {
+        const sysPrompt = document.getElementById('systemPrompt').value;
+        const temperature = parseFloat(document.getElementById('temperature').value);
+        const max_tokens = parseInt(document.getElementById('maxTokens').value);
+
+        const resp = await puter.ai.chat(chatHistory, { 
+            model: selectedModel, 
+            system: sysPrompt,
+            temperature,
+            max_tokens,
+            stream: true // Habilitamos stream para mejor experiencia
+        });
+
+        let fullText = '';
+
+        // Iteramos sobre las partes del stream
+        for await (const part of resp) {
+            // Error común: 'part' es un objeto {text: "..."}. 
+            // Debemos acceder a la propiedad .text
+            const content = part?.text || (typeof part === 'string' ? part : "");
+            
+            if (content) {
+                fullText += content;
+                // Renderizamos el Markdown acumulado
+                assistantMsg.innerHTML = marked.parse(fullText) + '<span class="cursor"></span>';
+                
+                // Scroll automático al final
+                const chatContainer = document.getElementById('chatMessages');
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+        }
+
+        // Renderizado final limpio
+        assistantMsg.innerHTML = marked.parse(fullText);
+        chatHistory.push({ role: 'assistant', content: fullText });
+    } catch (e) {
+        assistantMsg.style.color = '#ff6b6b';
+        assistantMsg.textContent = 'Error: ' + e.message;
+    } finally {
+        btn.disabled = false;
+        if (assistantMsg.querySelector('.cursor')) assistantMsg.querySelector('.cursor').remove();
+    }
+}
+
+    // ─── Image Generation ─────────────────────────────────────────────────
+    async function generateImage() {
+      const prompt = document.getElementById('imgPrompt').value.trim();
+      if (!prompt) return toast('Escribe un prompt', 'error');
+      const btn = document.getElementById('imgBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ Generando...';
+      const out = document.getElementById('imgOutput');
+      out.innerHTML = '<div style="text-align:center;padding:60px 0;color:var(--text-dim);animation:pulse 1.5s infinite;">🎨 Generando imagen...</div>';
+      try {
+        const imgEl = await puter.ai.txt2img(prompt, { model: document.getElementById('imgModel').value });
+        imgEl.style.cssText = 'width:100%;border-radius:10px;display:block;';
+        out.innerHTML = '';
+        const wrap = document.createElement('div');
+        wrap.className = 'img-output';
+        wrap.appendChild(imgEl);
+        out.appendChild(wrap);
+        // Download button
+        const dl = document.createElement('button');
+        dl.className = 'btn btn-success';
+        dl.style.marginTop = '12px';
+        dl.textContent = '⬇ Descargar';
+        dl.onclick = () => {
+          const a = document.createElement('a');
+          a.href = imgEl.src;
+          a.download = 'puter-image.png';
+          a.click();
+        };
+        out.appendChild(dl);
+        toast('Imagen generada!');
+      } catch (e) {
+        out.innerHTML = '<div style="color:#ff6b6b;padding:20px;">Error: ' + e.message + '</div>';
+      }
+      btn.disabled = false;
+      btn.textContent = '🎨 Generar Imagen';
+    }
+
+    // ─── TTS ──────────────────────────────────────────────────────────────
+    async function playTTS() {
+      const text = document.getElementById('ttsText').value.trim();
+      if (!text) return toast('Escribe algún texto', 'error');
+      if (text.length > 3000) return toast('Máximo 3000 caracteres', 'error');
+
+      const btn = document.getElementById('ttsBtn');
+      const status = document.getElementById('ttsStatus');
+      btn.disabled = true;
+      status.textContent = 'Convirtiendo...';
+
+      const engine = document.querySelector('#ttsEngine .radio-btn.selected')?.textContent || 'standard';
+      const lang = document.getElementById('ttsLang').value;
+
+      try {
+        const audio = await puter.ai.txt2speech(text, { engine, language: lang });
+        const container = document.getElementById('ttsAudioContainer');
+        container.innerHTML = '';
+        audio.controls = true;
+        audio.style.cssText = 'width:100%;border-radius:8px;';
+        container.appendChild(audio);
+        audio.play();
+        status.textContent = '✓ Reproduciendo (' + engine + ')';
+        toast('Audio generado con motor ' + engine);
+      } catch (e) {
+        status.textContent = '✗ Error: ' + e.message;
+        toast(e.message, 'error');
+      }
+      btn.disabled = false;
+    }
+
+    // ─── OCR ──────────────────────────────────────────────────────────────
+    let ocrFileData = null;
+
+    function handleOcrFile(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        ocrFileData = e.target.result;
+        const preview = document.getElementById('ocrPreviewUpload');
+        preview.src = ocrFileData;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    document.getElementById('ocrUrl').addEventListener('input', function() {
+      document.getElementById('ocrPreviewUrl').src = this.value;
+    });
+
+    async function runOCR() {
+      const btn = document.getElementById('ocrBtn');
+      const output = document.getElementById('ocrOutput');
+      btn.disabled = true;
+      output.className = 'output loading';
+      output.textContent = 'Analizando imagen...';
+
+      try {
+        let result;
+        if (ocrActiveTab === 'url') {
+          const url = document.getElementById('ocrUrl').value.trim();
+          if (!url) { toast('Escribe una URL', 'error'); return; }
+          result = await puter.ai.img2txt(url);
+        } else {
+          if (!ocrFileData) { toast('Selecciona una imagen', 'error'); return; }
+          result = await puter.ai.img2txt(ocrFileData);
+        }
+        setOutput('ocrOutput', result || '(No se encontró texto en la imagen)');
+        toast('OCR completado');
+      } catch (e) {
+        setOutput('ocrOutput', 'Error: ' + e.message, 'error');
+      }
+      btn.disabled = false;
+    }
+
+    // Setup drag & drop for OCR
+    const ocrArea = document.getElementById('ocrUploadArea');
+    ocrArea.addEventListener('dragover', e => { e.preventDefault(); ocrArea.classList.add('dragover'); });
+    ocrArea.addEventListener('dragleave', () => ocrArea.classList.remove('dragover'));
+    ocrArea.addEventListener('drop', e => {
+      e.preventDefault();
+      ocrArea.classList.remove('dragover');
+      const f = e.dataTransfer.files[0];
+      if (f) {
+        const fakeInput = { files: [f] };
+        handleOcrFile(fakeInput);
+      }
+    });
+
+    // ─── Filesystem ───────────────────────────────────────────────────────
+    async function fsWrite() {
+      const name = document.getElementById('fsFilename').value.trim();
+      const content = document.getElementById('fsContent').value;
+      if (!name) return toast('Escribe un nombre', 'error');
+      setOutput('fsOutput', 'Guardando...', 'loading');
+      try {
+        await puter.fs.write(name, content);
+        setOutput('fsOutput', '✓ Archivo guardado: ' + name);
+        toast('Archivo guardado!');
+      } catch (e) {
+        setOutput('fsOutput', 'Error: ' + e.message, 'error');
+      }
+    }
+
+    async function fsRead() {
+      const name = document.getElementById('fsFilename').value.trim();
+      if (!name) return toast('Escribe un nombre', 'error');
+      setOutput('fsOutput', 'Leyendo...', 'loading');
+      try {
+        const file = await puter.fs.read(name);
+        const text = await file.text();
+        document.getElementById('fsContent').value = text;
+        setOutput('fsOutput', '✓ Archivo leído: ' + name);
+        toast('Archivo cargado!');
+      } catch (e) {
+        setOutput('fsOutput', 'Error: ' + e.message, 'error');
+      }
+    }
+
+    async function listFiles() {
+      const path = document.getElementById('fsPath').value.trim() || '/';
+      const list = document.getElementById('fileList');
+      list.innerHTML = '<div style="color:var(--text-dim);text-align:center;padding:20px;">Cargando...</div>';
+      try {
+        const items = await puter.fs.readdir(path);
+        if (!items || items.length === 0) {
+          list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);">📂 Carpeta vacía</div>';
+          return;
+        }
+        list.innerHTML = '';
+        items.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'file-item';
+          const icon = item.is_dir ? '📁' : '📄';
+          const size = item.size ? formatSize(item.size) : '—';
+          div.innerHTML = `
+            <span class="file-icon">${icon}</span>
+            <span class="file-name">${item.name}</span>
+            <span class="file-size">${size}</span>
+            <div class="file-actions">
+              ${!item.is_dir ? `<button class="btn btn-ghost" style="padding:4px 8px;font-size:11px;" onclick="quickRead('${item.name}')">👁</button>` : ''}
+              <button class="btn btn-danger" style="padding:4px 8px;font-size:11px;" onclick="quickDelete('${item.name}')">🗑</button>
+            </div>
+          `;
+          list.appendChild(div);
+        });
+      } catch (e) {
+        list.innerHTML = '<div style="color:#ff6b6b;padding:20px;font-size:12px;">Error: ' + e.message + '</div>';
+      }
+    }
+
+    function formatSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+    }
+
+    async function quickRead(name) {
+      document.getElementById('fsFilename').value = name;
+      await fsRead();
+    }
+
+    async function quickDelete(name) {
+      if (!confirm('¿Eliminar "' + name + '"?')) return;
+      try {
+        await puter.fs.delete(name);
+        toast('Eliminado: ' + name);
+        listFiles();
+      } catch (e) {
+        toast(e.message, 'error');
+      }
+    }
+
+    async function fsMove() {
+      const src = document.getElementById('fsSrc').value.trim();
+      const dst = document.getElementById('fsDst').value.trim();
+      if (!src || !dst) return toast('Rellena origen y destino', 'error');
+      try {
+        await puter.fs.move(src, dst);
+        toast('Movido: ' + src + ' → ' + dst);
+      } catch (e) { toast(e.message, 'error'); }
+    }
+
+    async function fsCopy() {
+      const src = document.getElementById('fsSrc').value.trim();
+      const dst = document.getElementById('fsDst').value.trim();
+      if (!src || !dst) return toast('Rellena origen y destino', 'error');
+      try {
+        await puter.fs.copy(src, dst);
+        toast('Copiado: ' + src + ' → ' + dst);
+      } catch (e) { toast(e.message, 'error'); }
+    }
+
+    async function fsDelete() {
+      const name = document.getElementById('fsFilename').value.trim();
+      if (!name) return toast('Escribe un nombre', 'error');
+      if (!confirm('¿Eliminar "' + name + '"?')) return;
+      setOutput('fsOutput', 'Eliminando...', 'loading');
+      try {
+        await puter.fs.delete(name);
+        setOutput('fsOutput', '✓ Eliminado: ' + name);
+        toast('Eliminado!');
+        listFiles();
+      } catch (e) { setOutput('fsOutput', 'Error: ' + e.message, 'error'); }
+    }
+
+    // ─── Key-Value ────────────────────────────────────────────────────────
+    async function kvSet() {
+      const key = document.getElementById('kvSetKey').value.trim();
+      const value = document.getElementById('kvSetValue').value;
+      if (!key) return toast('Escribe una clave', 'error');
+      setOutput('kvOutput', 'Guardando...', 'loading');
+      try {
+        await puter.kv.set(key, value);
+        setOutput('kvOutput', '✓ Guardado: ' + key);
+        toast('Valor guardado!');
+      } catch (e) { setOutput('kvOutput', 'Error: ' + e.message, 'error'); }
+    }
+
+    async function kvGet() {
+      const key = document.getElementById('kvGetKey').value.trim();
+      if (!key) return toast('Escribe una clave', 'error');
+      setOutput('kvOutput', 'Obteniendo...', 'loading');
+      try {
+        const val = await puter.kv.get(key);
+        setOutput('kvOutput', val !== null ? '✓ ' + key + ' =\n' + val : '(clave no encontrada)');
+      } catch (e) { setOutput('kvOutput', 'Error: ' + e.message, 'error'); }
+    }
+
+    async function kvDel() {
+      const key = document.getElementById('kvDelKey').value.trim();
+      if (!key) return toast('Escribe una clave', 'error');
+      try {
+        await puter.kv.del(key);
+        setOutput('kvOutput', '✓ Eliminada: ' + key);
+        toast('Clave eliminada!');
+        kvList();
+      } catch (e) { setOutput('kvOutput', 'Error: ' + e.message, 'error'); }
+    }
+
+    async function kvList() {
+      const listEl = document.getElementById('kvList');
+      listEl.innerHTML = '<div style="color:var(--text-dim);text-align:center;padding:20px;">Cargando...</div>';
+      try {
+        const keys = await puter.kv.list('*');
+        if (!keys || keys.length === 0) {
+          listEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);">🗄️ Sin claves almacenadas</div>';
+          return;
+        }
+        listEl.innerHTML = '';
+        keys.forEach(item => {
+          const row = document.createElement('div');
+          row.className = 'file-item';
+          const key = typeof item === 'string' ? item : item.key;
+          row.innerHTML = `
+            <span class="file-icon">🔑</span>
+            <span class="file-name">${key}</span>
+            <div class="file-actions">
+              <button class="btn btn-ghost" style="padding:4px 8px;font-size:11px;" onclick="quickKvGet('${key}')">👁</button>
+              <button class="btn btn-danger" style="padding:4px 8px;font-size:11px;" onclick="quickKvDel('${key}')">🗑</button>
+            </div>
+          `;
+          listEl.appendChild(row);
+        });
+      } catch (e) {
+        listEl.innerHTML = '<div style="color:#ff6b6b;padding:20px;font-size:12px;">Error: ' + e.message + '</div>';
+      }
+    }
+
+    async function quickKvGet(key) {
+      document.getElementById('kvGetKey').value = key;
+      switchTab('kv', 'get', document.querySelectorAll('.panel#panel-kv .tab')[1]);
+      await kvGet();
+    }
+
+    async function quickKvDel(key) {
+      if (!confirm('¿Eliminar clave "' + key + '"?')) return;
+      document.getElementById('kvDelKey').value = key;
+      await kvDel();
+    }
+
+    // ─── Auth ─────────────────────────────────────────────────────────────
+    async function checkAuthStatus() {
+      setOutput('authOutput', 'Verificando...', 'loading');
+      try {
+        const user = await puter.auth.getUser();
+        if (user) {
+          setAuthenticated(user);
+          setOutput('authOutput', '✓ Autenticado como: ' + (user.username || user.email || 'Usuario'));
+        } else {
+          setOutput('authOutput', 'No autenticado');
+        }
+      } catch (e) {
+        setOutput('authOutput', 'No autenticado: ' + e.message);
+      }
+    }
+
+    async function doSignIn() {
+      try {
+        await puter.auth.signIn();
+        await checkAuthStatus();
+      } catch (e) {
+        setOutput('authOutput', 'Error al iniciar sesión: ' + e.message, 'error');
+      }
+    }
+
+    function setAuthenticated(user) {
+      isAuthenticated = true;
+      authUsername = user.username || user.email || 'Usuario';
+      document.getElementById('authDot').classList.add('connected');
+      document.getElementById('authUsername').textContent = authUsername;
+      document.getElementById('authBtn').textContent = 'Salir';
+
+      const userInfo = document.getElementById('userInfo');
+      userInfo.innerHTML = `
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          ${renderInfoRow('👤', 'Username', user.username || '—')}
+          ${renderInfoRow('📧', 'Email', user.email || '—')}
+          ${renderInfoRow('🆔', 'UUID', user.uuid || '—')}
+          ${renderInfoRow('🏷️', 'Plan', user.is_pro ? 'Pro' : 'Free')}
+        </div>
+      `;
+      toast('Autenticado como ' + authUsername);
+    }
+
+    function renderInfoRow(icon, label, value) {
+      return `
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;">
+          <span style="font-size:18px;">${icon}</span>
+          <div>
+            <div style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;font-family:'JetBrains Mono',monospace;">${label}</div>
+            <div style="font-size:13px;font-weight:600;font-family:'JetBrains Mono',monospace;">${value}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function handleAuth() {
+      if (isAuthenticated) {
+        try {
+          puter.auth.signOut();
+          isAuthenticated = false;
+          authUsername = null;
+          document.getElementById('authDot').classList.remove('connected');
+          document.getElementById('authUsername').textContent = 'No autenticado';
+          document.getElementById('authBtn').textContent = 'Login';
+          document.getElementById('userInfo').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);"><div style="font-size:32px">👤</div><div style="margin-top:8px;font-size:13px;">Sesión cerrada</div></div>';
+          toast('Sesión cerrada');
+        } catch(e) { toast(e.message, 'error'); }
+      } else {
+        doSignIn();
+      }
+    }
+
+    // ─── Init ─────────────────────────────────────────────────────────────
+    (async () => {
+      try {
+        const user = await puter.auth.getUser();
+        if (user) setAuthenticated(user);
+      } catch (e) { /* not logged in */ }
+    })();
   </script>
 </body>
 </html>
