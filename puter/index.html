@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PuterLab — AI & Cloud Studio</title>
+  <title>JayrusLab — AI & Cloud Studio</title>
   <script src="https://js.puter.com/v2/"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
@@ -136,6 +136,50 @@
       padding: 16px;
       border-top: 1px solid var(--border);
     }
+
+    .dev-credit {
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, rgba(124,109,255,0.07), rgba(255,107,157,0.05));
+      border: 1px solid rgba(124,109,255,0.15);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .dev-credit:hover {
+      border-color: rgba(124,109,255,0.35);
+      background: linear-gradient(135deg, rgba(124,109,255,0.12), rgba(255,107,157,0.08));
+      transform: translateY(-1px);
+    }
+    .dev-avatar {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .dev-info { flex: 1; min-width: 0; }
+    .dev-label {
+      font-size: 9px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .dev-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .dev-gh { font-size: 16px; }
     .auth-status {
       display: flex;
       align-items: center;
@@ -603,7 +647,7 @@
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
-      <div class="logo-mark">PuterLab</div>
+      <div class="logo-mark">JayrusLab</div>
       <div class="logo-sub">AI & Cloud Studio</div>
     </div>
 
@@ -642,6 +686,14 @@
     </nav>
 
     <div class="sidebar-footer">
+      <a class="dev-credit" href="https://github.com/Jayrus10" target="_blank" rel="noopener">
+        <div class="dev-avatar">J</div>
+        <div class="dev-info">
+          <div class="dev-label">Desarrollado por</div>
+          <div class="dev-name">Jayrus10</div>
+        </div>
+        <span class="dev-gh">⬡</span>
+      </a>
       <div class="auth-status">
         <div class="auth-dot" id="authDot"></div>
         <div class="auth-info">
@@ -664,7 +716,7 @@
     <div class="panel active" id="panel-dashboard">
       <div class="dashboard-hero">
         <h1>AI & Cloud<br><em>sin backend.</em></h1>
-        <p>Explora todas las capacidades de Puter.js — inteligencia artificial, almacenamiento en la nube, y más, directamente desde tu navegador.</p>
+        <p>Explora todas las capacidades de Puter.js — inteligencia artificial, almacenamiento en la nube, y más, directamente desde tu navegador. Cortes&iacutea de Jayrus10.</p>
         <div style="margin-top:24px; display:flex; gap:12px; flex-wrap:wrap;">
           <button class="btn btn-primary" onclick="showPanel('chat', document.querySelector('[onclick*=chat]'))">
             💬 Probar Chat
@@ -751,11 +803,41 @@
       <div class="card">
         <label>Mensaje</label>
         <textarea id="chatInput" rows="3" placeholder="Escribe tu mensaje... (Enter para enviar, Shift+Enter para nueva línea)"></textarea>
-        <div class="row mt-12">
-          <div>
-            <label>System prompt</label>
-            <input type="text" id="systemPrompt" value="Eres un asistente útil y conciso." style="width:300px;" />
+        <div class="mt-12">
+          <label>System prompt</label>
+          <input type="text" id="systemPrompt" value="Eres un asistente útil y conciso." />
+        </div>
+
+        <!-- Advanced params -->
+        <div style="margin-top:12px;">
+          <button class="btn btn-ghost" onclick="toggleAdvanced()" id="advancedToggleBtn" style="font-size:11px;padding:5px 12px;">
+            ⚙ Parámetros avanzados <span id="advancedArrow">▼</span>
+          </button>
+        </div>
+        <div id="advancedParams" style="display:none;margin-top:12px;padding:16px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;">
+          <div class="grid-2">
+            <div>
+              <label>Temperatura <span id="tempVal" style="color:var(--accent);font-family:'JetBrains Mono',monospace;">0.7</span></label>
+              <input type="range" id="temperature" min="0" max="2" step="0.05" value="0.7"
+                oninput="document.getElementById('tempVal').textContent = parseFloat(this.value).toFixed(2)"
+                style="width:100%;accent-color:var(--accent);background:transparent;border:none;padding:6px 0;" />
+              <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;margin-top:2px;">
+                <span>0 — preciso</span><span>1 — balanceado</span><span>2 — creativo</span>
+              </div>
+            </div>
+            <div>
+              <label>Max tokens <span id="tokensVal" style="color:var(--accent);font-family:'JetBrains Mono',monospace;">1024</span></label>
+              <input type="range" id="maxTokens" min="64" max="8192" step="64" value="1024"
+                oninput="document.getElementById('tokensVal').textContent = parseInt(this.value).toLocaleString()"
+                style="width:100%;accent-color:var(--accent);background:transparent;border:none;padding:6px 0;" />
+              <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;margin-top:2px;">
+                <span>64</span><span>4096</span><span>8192</span>
+              </div>
+            </div>
           </div>
+        </div>
+
+        <div class="row mt-12">
           <button class="btn btn-primary" onclick="sendChat()" id="chatBtn">
             ✦ Enviar
           </button>
@@ -809,7 +891,7 @@
       <div class="card">
         <div class="card-title"><span class="dot"></span>Text-to-Speech</div>
         <label>Texto a convertir</label>
-        <textarea id="ttsText" rows="5" placeholder="Escribe el texto que quieres convertir a voz...">Hola, soy PuterLab. Esta es una demostración de síntesis de voz usando Puter.js con motores de alta calidad.</textarea>
+        <textarea id="ttsText" rows="5" placeholder="Escribe el texto que quieres convertir a voz...">Hola, soy JayrusLab. Esta es una demostración de síntesis de voz usando Puter.js con motores de alta calidad.</textarea>
 
         <div class="grid-2 mt-12">
           <div>
@@ -890,7 +972,7 @@
             <input type="text" id="fsFilename" value="mi-archivo.txt" placeholder="nombre.txt" />
             <div class="mt-12">
               <label>Contenido</label>
-              <textarea id="fsContent" rows="6" placeholder="Contenido del archivo...">¡Hola desde PuterLab! Este archivo fue creado con puter.fs.</textarea>
+              <textarea id="fsContent" rows="6" placeholder="Contenido del archivo...">¡Hola desde JayrusLab! Este archivo fue creado con puter.fs.</textarea>
             </div>
             <div class="row mt-12">
               <button class="btn btn-primary" onclick="fsWrite()">💾 Guardar</button>
@@ -1123,6 +1205,14 @@
       el.textContent = text;
     }
 
+    function toggleAdvanced() {
+      const panel = document.getElementById('advancedParams');
+      const arrow = document.getElementById('advancedArrow');
+      const open = panel.style.display === 'none';
+      panel.style.display = open ? 'block' : 'none';
+      arrow.textContent = open ? '▲' : '▼';
+    }
+
     // ─── Chat ─────────────────────────────────────────────────────────────
     function addMessage(role, content) {
       const hist = document.getElementById('chatHistory');
@@ -1167,6 +1257,8 @@
 
       const streaming = document.getElementById('streamToggle').checked;
       const sysPrompt = document.getElementById('systemPrompt').value;
+      const temperature = parseFloat(document.getElementById('temperature').value);
+      const max_tokens = parseInt(document.getElementById('maxTokens').value);
 
       const assistantEl = addMessage('assistant', '');
       const cursor = document.createElement('span');
@@ -1179,7 +1271,9 @@
           const resp = await puter.ai.chat(chatHistory, {
             model: selectedModel,
             stream: true,
-            system: sysPrompt
+            system: sysPrompt,
+            temperature,
+            max_tokens
           });
           for await (const chunk of resp) {
             if (chunk?.text) {
@@ -1192,7 +1286,9 @@
           assistantEl.textContent = '...';
           const resp = await puter.ai.chat(chatHistory, {
             model: selectedModel,
-            system: sysPrompt
+            system: sysPrompt,
+            temperature,
+            max_tokens
           });
           fullText = resp?.message?.content?.[0]?.text || resp?.toString() || 'Sin respuesta';
           assistantEl.textContent = fullText;
