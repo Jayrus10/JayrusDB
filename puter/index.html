@@ -1,218 +1,120 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Chat Puter</title>
-<script src="https://js.puter.com/v2/"></script>
-
-<style>
-:root{
-  --bg:#0f172a;
-  --panel:#1e293b;
-  --accent:#3b82f6;
-  --text:#e2e8f0;
-  --border:#334155;
-}
-body{
-  margin:0;
-  font-family:system-ui;
-  background:var(--bg);
-  color:var(--text);
-  display:flex;
-  flex-direction:column;
-  height:100vh;
-}
-header{
-  padding:10px;
-  background:var(--panel);
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  border-bottom:1px solid var(--border);
-}
-select,input,button{
-  background:#0f172a;
-  color:var(--text);
-  border:1px solid var(--border);
-  padding:6px 8px;
-  border-radius:6px;
-}
-button{ cursor:pointer; }
-button:hover{ background:var(--accent); }
-
-#chat{
-  flex:1;
-  overflow-y:auto;
-  padding:15px;
-  display:flex;
-  flex-direction:column;
-}
-
-.msg{
-  margin-bottom:12px;
-  padding:10px;
-  border-radius:8px;
-  max-width:75%;
-  white-space:pre-wrap;
-}
-
-.user{ background:var(--accent); align-self:flex-end; }
-.ai{ background:var(--panel); }
-
-footer{
-  display:flex;
-  padding:10px;
-  gap:8px;
-  border-top:1px solid var(--border);
-}
-
-textarea{
-  flex:1;
-  resize:none;
-  height:60px;
-  border-radius:6px;
-  border:1px solid var(--border);
-  background:#0f172a;
-  color:white;
-  padding:8px;
-}
-.status{
-  font-size:12px;
-  opacity:.7;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat Puter Pro</title>
+    <script src="https://js.puter.com/v2/"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root{ --bg:#0f172a; --panel:#1e293b; --accent:#3b82f6; --text:#e2e8f0; --border:#334155; }
+        body{ margin:0; font-family:system-ui; background:var(--bg); color:var(--text); display:flex; flex-direction:column; height:100vh; }
+        header{ padding:10px; background:var(--panel); display:flex; gap:8px; align-items:center; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+        select, input, button{ background:#0f172a; color:var(--text); border:1px solid var(--border); padding:6px 8px; border-radius:6px; }
+        button{ cursor:pointer; background:var(--accent); border:none; font-weight:bold; }
+        #chat{ flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:12px; }
+        .msg{ padding:12px; border-radius:8px; max-width:85%; line-height:1.5; }
+        .user{ background:var(--border); align-self:flex-end; }
+        .ai{ background:var(--panel); align-self:flex-start; border:1px solid var(--border); }
+        footer{ display:flex; padding:15px; gap:8px; background:var(--panel); }
+        textarea{ flex:1; resize:none; height:50px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:white; padding:10px; }
+        .status{ font-size:11px; opacity: 0.7; }
+    </style>
 </head>
-
 <body>
 
 <header>
-<select id="model">
-  <option value="claude-sonnet-4-6">Claude Sonnet 4.6</option>
-  <option value="claude-opus-4-6">Claude Opus 4.6</option>
-  <option value="claude-haiku-4-5">Claude Haiku 4.5</option>
-</select>
-
-<input type="number" id="temp" step="0.1" min="0" max="2" value="0.7">
-
-<input type="file" id="file">
-
-<button onclick="clearChat()">Limpiar</button>
-<span class="status" id="status">Verificando sesión...</span>
+    <select id="model">
+        <option value="claude-3-7-sonnet">Claude 3.7 Sonnet</option>
+        <option value="claude-3-5-sonnet">Claude 3.5 Sonnet</option>
+        <option value="claude-3-haiku">Claude 3 Haiku</option>
+        <option value="claude-sonnet-4-6">Claude Sonnet 4.6 (Erróneo?)</option>
+        <option value="claude-opus-4-6">Claude Opus 4.6</option>
+    </select>
+    <input type="number" id="temp" step="0.1" min="0" max="2" value="0.7">
+    <button onclick="clearChat()" style="background:#ef4444">Limpiar</button>
+    <span class="status" id="status">Verificando sesión...</span>
 </header>
 
 <div id="chat"></div>
 
 <footer>
-<textarea id="input" placeholder="Escribe tu mensaje..."></textarea>
-<button onclick="send()">Enviar</button>
+    <textarea id="input" placeholder="Escribe aquí... (Enter para enviar)"></textarea>
+    <button onclick="send()">Enviar</button>
 </footer>
 
 <script>
-let messages = JSON.parse(localStorage.getItem("chat")) || [
-  { role:"system", content:"Eres un asistente útil." }
-];
+let messages = JSON.parse(localStorage.getItem("chat_history")) || [];
 
-const chatDiv = document.getElementById("chat");
-const statusEl = document.getElementById("status");
-
-function saveChat(){
-  localStorage.setItem("chat", JSON.stringify(messages));
-}
-
-function addMessage(role,text){
-  const div=document.createElement("div");
-  div.className="msg "+(role==="user"?"user":"ai");
-  div.textContent=text;
-  chatDiv.appendChild(div);
-  chatDiv.scrollTop=chatDiv.scrollHeight;
-}
-
-function renderHistory(){
-  chatDiv.innerHTML="";
-  messages.forEach(m=>{
-    if(m.role!=="system") addMessage(m.role,m.content);
-  });
-}
-
-async function ensureAuth(){
-  try{
-    let user = await puter.auth.getUser();
-    if(!user){
-      await puter.auth.signIn();
-      user = await puter.auth.getUser();
+async function init() {
+    try {
+        await puter.auth.getUser() || await puter.auth.signIn();
+        document.getElementById("status").textContent = "Sesión activa";
+        renderHistory();
+    } catch (e) {
+        document.getElementById("status").textContent = "Error de sesión";
     }
-    if(!user) throw new Error("401 sesión no válida");
-    statusEl.textContent="Sesión activa";
-  }catch(e){
-    statusEl.textContent="Error autenticación";
-    console.error(e);
-  }
 }
 
-async function send(){
-
-  const input = document.getElementById("input");
-  const text = input.value.trim();
-  if(!text) return;
-
-  addMessage("user", text);
-  messages.push({role:"user",content:text});
-  input.value = "";
-
-  const model = document.getElementById("model").value;
-  const temperature = parseFloat(document.getElementById("temp").value);
-
-  const aiDiv = document.createElement("div");
-  aiDiv.className = "msg ai";
-  chatDiv.appendChild(aiDiv);
-
-  try{
-
-    const response = await puter.ai.chat(messages,{
-      model:model,
-      temperature:temperature
-    });
-
-    const reply = response.message.content[0].text;
-
-    aiDiv.textContent = reply;
-
-    messages.push({role:"assistant",content:reply});
-    saveChat();
-
-  }catch(e){
-    aiDiv.textContent = "Error API: " + (e?.message || "Fallo desconocido");
-    console.error(e);
-  }
+function addMessage(role, text) {
+    const div = document.createElement("div");
+    div.className = `msg ${role === 'user' ? 'user' : 'ai'}`;
+    div.innerHTML = role === 'ai' ? marked.parse(text) : text;
+    document.getElementById("chat").appendChild(div);
+    document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
+    return div;
 }
 
-document.getElementById("file").addEventListener("change", e=>{
-  const file=e.target.files[0];
-  if(!file) return;
+async function send() {
+    const input = document.getElementById("input");
+    const text = input.value.trim();
+    if (!text) return;
 
-  const reader=new FileReader();
-  reader.onload=function(){
-    const content=reader.result.substring(0,15000);
-    messages.push({
-      role:"system",
-      content:"Contexto adicional del archivo:\n"+content
-    });
-    saveChat();
-    alert("Archivo añadido al contexto.");
-  };
-  reader.readAsText(file);
+    addMessage("user", text);
+    messages.push({ role: "user", content: text });
+    input.value = "";
+
+    const aiDiv = addMessage("ai", "...");
+    let fullText = "";
+
+    try {
+        const response = await puter.ai.chat(messages, {
+            model: document.getElementById("model").value,
+            temperature: parseFloat(document.getElementById("temp").value),
+            stream: true 
+        });
+
+        aiDiv.innerHTML = "";
+        for await (const part of response) {
+            if (part.text) {
+                fullText += part.text;
+                aiDiv.innerHTML = marked.parse(fullText);
+                document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
+            }
+        }
+        messages.push({ role: "assistant", content: fullText });
+        localStorage.setItem("chat_history", JSON.stringify(messages));
+    } catch (e) {
+        aiDiv.textContent = "Error: " + e.message;
+    }
+}
+
+function renderHistory() {
+    document.getElementById("chat").innerHTML = "";
+    messages.forEach(m => addMessage(m.role, m.content));
+}
+
+function clearChat() {
+    messages = [];
+    localStorage.removeItem("chat_history");
+    renderHistory();
+}
+
+document.getElementById("input").addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
 });
 
-function clearChat(){
-  messages=[{role:"system",content:"Eres un asistente útil."}];
-  localStorage.removeItem("chat");
-  renderHistory();
-}
-
-renderHistory();
-ensureAuth();
+init();
 </script>
-
 </body>
 </html>
