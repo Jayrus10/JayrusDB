@@ -1,0 +1,54 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; overflow: hidden; }
+        body { font-family: system-ui, sans-serif; }
+        .section { display: none; opacity: 0; transition: opacity .32s ease; visibility: hidden; pointer-events: none; }
+        .active { display: block; opacity: 1; visibility: visible; pointer-events: auto; }
+        @media (min-width: 1024px) {
+            #app { display: flex; flex-direction: column; height: 100vh; }
+            .app-container { display: flex; flex: 1; overflow: hidden; }
+            .app-nav { width: 240px; overflow-y: auto; flex-shrink: 0; }
+            .app-content { flex: 1; overflow: hidden; }
+            .section { padding: 32px; overflow-y: auto; height: 100%; }
+        }
+        @media (max-width: 1023px) {
+            #app { display: flex; flex-direction: column; height: 100vh; }
+            .app-container { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+            .app-nav { display: none; width: 100%; border-right: none; border-bottom: 1px solid #27272a; padding: 0 8px; max-height: 40vh; overflow-y: auto; position: absolute; top: 73px; left: 0; right: 0; background: #09090b; z-index: 50; }
+            .app-nav.mobile-open { display: block; }
+            .app-content { flex: 1; overflow: hidden; }
+            .section { padding: 16px; overflow-y: auto; height: 100%; }
+            .mobile-menu-btn { display: flex !important; }
+            .px-6 { padding-left: 16px !important; padding-right: 16px !important; }
+            .py-4 { padding-top: 12px !important; padding-bottom: 12px !important; }
+            .px-4 { padding-left: 12px !important; padding-right: 12px !important; }
+            .py-3 { padding-top: 10px !important; padding-bottom: 10px !important; }
+            .py-8 { padding-top: 20px !important; padding-bottom: 20px !important; }
+            .p-8 { padding: 16px !important; }
+            .p-6 { padding: 12px !important; }
+            .p-5 { padding: 12px !important; }
+            .p-4 { padding: 12px !important; }
+            .gap-6 { gap: 12px !important; }
+            .gap-4 { gap: 8px !important; }
+            .mb-8 { margin-bottom: 16px !important; }
+            .mb-6 { margin-bottom: 12px !important; }
+            .mt-8 { margin-top: 16px !important; }
+            .mt-12 { margin-top: 20px !important; }
+            .text-2xl { font-size: 18px !important; }
+            .text-3xl { font-size: 24px !important; }
+            .text-4xl { font-size: 28px !important; }
+            .text-5xl { font-size: 32px !important; }
+            .grid-cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+            .grid-cols-2 { grid-template-columns: 1fr !important; }
+        }
+        @media (min-width: 1024px) { .mobile-menu-btn { display: none !important; } }
+        #warningModal { animation: fadeIn .3s ease; }
+        #warningModal > div { animation: scaleUp .32s cubic-bezier(0.34, 3.56, 0.64, 1); }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        #modalProduct, #modalPurchase, #modalSale, #modalAudit, #modalDiscount, #modalPurchaseInfo, #modalSetupRates, #modalConfirm, #modalCustomer, #modalVipLevel, #modalTransitInfo, #modalProductsInfo, #modalPayDebt, #modalCurrencyInfo { animation: fadeIn .3s ease; }
+        .modal-layer { position: fixed; inset: 0; }
+        #modalProduct > div, #modalPurchase > div, #modalSale > div, #modalAudit > div, #modalDiscount > div, #modalPurchaseInfo > div, #modalSetupRates > div, #modalConfirm > div, #modalCustomer > div, #modalVipLevel > div { animation: scaleUp .32s cubic-bezier(0.34, 3.56, 0.64, 1); }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #52525b; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #71717a; }
