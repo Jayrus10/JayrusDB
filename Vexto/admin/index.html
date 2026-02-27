@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vexto Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family: system-ui, sans-serif; background:#09090b; color:#f4f4f5; }
+        ::-webkit-scrollbar { width:5px; }
+        ::-webkit-scrollbar-track { background:transparent; }
+        ::-webkit-scrollbar-thumb { background:#3f3f46; border-radius:3px; }
+        .fade-in { animation: fadeIn .25s ease; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+        .tab-active { background:#18181b; color:#fff; }
+        .tab-inactive { color:#71717a; }
+        .tab-inactive:hover { color:#d4d4d8; }
+        .badge-trial    { background:#1c1917; color:#d97706; border:1px solid #92400e; }
+        .badge-basic    { background:#172554; color:#60a5fa; border:1px solid #1d4ed8; }
+        .badge-pro      { background:#14532d; color:#4ade80; border:1px solid #15803d; }
+        .badge-enterprise { background:#3b0764; color:#c084fc; border:1px solid #7e22ce; }
+        .badge-expired  { background:#450a0a; color:#f87171; border:1px solid #991b1b; }
+        .badge-inactive { background:#27272a; color:#71717a; border:1px solid #3f3f46; }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     LOGIN ADMIN
+═══════════════════════════════════════════════════════════════════════ -->
+<div id="loginPage" class="min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-sm">
+        <div class="text-center mb-8">
+            <div class="w-16 h-16 bg-violet-600 rounded-2xl flex items-center justify-center font-bold text-2xl text-white mx-auto mb-4">VX</div>
+            <h1 class="text-2xl font-bold">Vexto Admin</h1>
+            <p class="text-zinc-500 text-sm mt-1">Panel de administración</p>
+        </div>
+        <div class="bg-zinc-900 rounded-2xl p-6">
+            <div class="space-y-3 mb-4">
+                <input id="adminEmail" type="email" placeholder="Correo electrónico"
+                    class="w-full bg-zinc-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    onkeypress="if(event.key==='Enter') document.getElementById('adminPass').focus()">
+                <input id="adminPass" type="password" placeholder="Contraseña"
+                    class="w-full bg-zinc-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    onkeypress="if(event.key==='Enter') doLogin()">
+            </div>
+            <button onclick="doLogin()" id="loginBtn"
+                class="w-full bg-violet-600 hover:bg-violet-500 py-3 rounded-xl font-semibold text-sm transition">
+                Ingresar
+            </button>
+            <div id="loginError" class="hidden mt-3 text-red-400 text-xs text-center"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     APP ADMIN
+═══════════════════════════════════════════════════════════════════════ -->
+<div id="adminApp" class="hidden min-h-screen flex flex-col">
+
+    <!-- HEADER -->
+    <div class="bg-zinc-900 border-b border-zinc-800 px-6 py-3 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-violet-600 rounded-lg flex items-center justify-center font-bold text-sm">VX</div>
+            <div>
+                <span class="font-semibold text-sm">Vexto Admin</span>
+                <span class="ml-2 text-xs text-violet-400 bg-violet-950 px-2 py-0.5 rounded-full">superadmin</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <span id="adminName" class="text-sm text-zinc-400"></span>
+            <button onclick="doLogout()" class="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs transition">Salir</button>
+        </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="bg-zinc-900 border-b border-zinc-800 px-6 flex gap-1">
+        <button onclick="showTab('stats')"   class="tab-btn tab-active   px-4 py-3 text-sm font-medium border-b-2 border-violet-500 transition" data-tab="stats">📊 Estadísticas</button>
+        <button onclick="showTab('tenants')" class="tab-btn tab-inactive  px-4 py-3 text-sm font-medium border-b-2 border-transparent transition" data-tab="tenants">🏢 Negocios</button>
+        <button onclick="showTab('users')"   class="tab-btn tab-inactive  px-4 py-3 text-sm font-medium border-b-2 border-transparent transition" data-tab="users">👥 Usuarios</button>
+        <button onclick="showTab('create')"  class="tab-btn tab-inactive  px-4 py-3 text-sm font-medium border-b-2 border-transparent transition" data-tab="create">➕ Nuevo negocio</button>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="flex-1 overflow-auto p-6">
+
+        <!-- ── ESTADÍSTICAS ──────────────────────────────────────────── -->
+        <div id="tabStats" class="tab-panel fade-in">
+            <h2 class="text-xl font-bold mb-6">Resumen global</h2>
+            <div id="statsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+                <div class="bg-zinc-900 rounded-2xl p-4 text-center">
+                    <div class="text-zinc-500 text-xs mb-1">Negocios</div>
+                    <div id="stTotalTenants" class="text-3xl font-bold text-white">—</div>
+                </div>
+                <div class="bg-zinc-900 rounded-2xl p-4 text-center">
+                    <div class="text-zinc-500 text-xs mb-1">Activos</div>
+                    <div id="stActiveTenants" class="text-3xl font-bold text-emerald-400">—</div>
+                </div>
+                <div class="bg-zinc-900 rounded-2xl p-4 text-center">
+                    <div class="text-zinc-500 text-xs mb-1">Licencias vigentes</div>
+                    <div id="stActiveLicenses" class="text-3xl font-bold text-sky-400">—</div>
+                </div>
+                <div class="bg-zinc-900 rounded-2xl p-4 text-center">
+                    <div class="text-zinc-500 text-xs mb-1">Licencias expiradas</div>
+                    <div id="stExpiredLicenses" class="text-3xl font-bold text-red-400">—</div>
+                </div>
+                <div class="bg-zinc-900 rounded-2xl p-4 text-center">
+                    <div class="text-zinc-500 text-xs mb-1">Usuarios totales</div>
+                    <div id="stTotalUsers" class="text-3xl font-bold text-amber-400">—</div>
+                </div>
+                <div class="bg-zinc-900 rounded-2xl p-4 text-center">
+                    <div class="text-zinc-500 text-xs mb-1">Ventas (30d)</div>
+                    <div id="stSalesLast30" class="text-3xl font-bold text-violet-400">—</div>
+                </div>
+            </div>
+
+            <!-- Tabla rápida de negocios por estado de licencia -->
+            <div class="bg-zinc-900 rounded-2xl p-4">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-sm font-semibold text-zinc-300">Negocios — resumen de licencias</h3>
+                    <button onclick="loadStats(); loadTenants()" class="text-xs text-zinc-500 hover:text-zinc-300 transition">🔄 Actualizar</button>
+                </div>
+                <div id="quickTenantsTable" class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="text-left text-zinc-500 text-xs border-b border-zinc-800">
+                                <th class="pb-2">Negocio</th>
+                                <th>Plan</th>
+                                <th>Vence</th>
+                                <th>Días</th>
+                                <th>Usuarios</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="quickTenantsBody" class="text-xs"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── NEGOCIOS ──────────────────────────────────────────────── -->
+        <div id="tabTenants" class="tab-panel hidden fade-in">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold">Todos los negocios</h2>
+                <div class="flex gap-2">
+                    <input id="tenantSearch" type="text" placeholder="🔍 Buscar..." oninput="filterTenants(this.value)"
+                        class="bg-zinc-800 rounded-xl px-4 py-2 text-sm w-56 focus:outline-none focus:ring-2 focus:ring-violet-500">
+                </div>
+            </div>
+            <div id="tenantsList" class="space-y-3"></div>
+        </div>
+
+        <!-- ── USUARIOS ──────────────────────────────────────────────── -->
+        <div id="tabUsers" class="tab-panel hidden fade-in">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold">Todos los usuarios</h2>
+                <input id="userSearch" type="text" placeholder="🔍 Buscar..." oninput="filterUsers(this.value)"
+                    class="bg-zinc-800 rounded-xl px-4 py-2 text-sm w-56 focus:outline-none focus:ring-2 focus:ring-violet-500">
+            </div>
+            <div class="bg-zinc-900 rounded-2xl overflow-hidden">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="text-left text-zinc-500 text-xs border-b border-zinc-800 bg-zinc-900">
+                            <th class="px-4 py-3">Usuario</th>
+                            <th class="px-4 py-3">Email</th>
+                            <th class="px-4 py-3">Negocio</th>
+                            <th class="px-4 py-3">Rol</th>
+                            <th class="px-4 py-3">Último acceso</th>
+                            <th class="px-4 py-3">Estado</th>
+                            <th class="px-4 py-3">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody" class="text-xs divide-y divide-zinc-800"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ── NUEVO NEGOCIO ─────────────────────────────────────────── -->
+        <div id="tabCreate" class="tab-panel hidden fade-in">
+            <div class="max-w-lg">
+                <h2 class="text-xl font-bold mb-2">Crear nuevo negocio</h2>
+                <p class="text-zinc-500 text-sm mb-6">Crea el negocio y su cuenta de propietario manualmente.</p>
+
+                <div class="bg-zinc-900 rounded-2xl p-6 space-y-4">
+                    <div>
+                        <label class="text-xs text-zinc-400 block mb-2">Nombre del negocio *</label>
+                        <input id="cnBusiness" type="text" placeholder="Ej: Tienda El Sol"
+                            class="w-full bg-zinc-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-xs text-zinc-400 block mb-2">Nombre del propietario *</label>
+                            <input id="cnOwnerName" type="text" placeholder="Nombre completo"
+                                class="w-full bg-zinc-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500">
+                        </div>
+                        <div>
+                            <label class="text-xs text-zinc-400 block mb-2">Email del propietario *</label>
+                            <input id="cnOwnerEmail" type="email" placeholder="correo@ejemplo.com"
+                                class="w-full bg-zinc-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-xs text-zinc-400 block mb-2">Contraseña inicial *</label>
+                        <input id="cnOwnerPass" type="text" placeholder="Mínimo 8 caracteres"
+                            class="w-full bg-zinc-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500">
+                        <p class="text-xs text-zinc-600 mt-1">Compártela con el cliente. Recomendado que la cambie al ingresar.</p>
+                    </div>
+
+                    <div class="border-t border-zinc-800 pt-4">
+                        <div class="text-xs text-zinc-400 font-semibold mb-3">Licencia</div>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div>
+                                <label class="text-xs text-zinc-400 block mb-2">Plan</label>
+                                <select id="cnPlan" class="w-full bg-zinc-800 rounded-xl px-3 py-2.5 text-sm">
+                                    <option value="trial">Trial</option>
+                                    <option value="basic" selected>Basic</option>
+                                    <option value="pro">Pro</option>
+                                    <option value="enterprise">Enterprise</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs text-zinc-400 block mb-2">Días de vigencia</label>
+                                <input id="cnDays" type="number" value="30" min="1"
+                                    class="w-full bg-zinc-800 rounded-xl px-3 py-2.5 text-sm">
+                            </div>
+                            <div>
+                                <label class="text-xs text-zinc-400 block mb-2">Máx. usuarios</label>
+                                <input id="cnMaxUsers" type="number" value="3" min="1"
+                                    class="w-full bg-zinc-800 rounded-xl px-3 py-2.5 text-sm">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-xs text-zinc-400 block mb-2">Notas internas</label>
+                        <textarea id="cnNotes" placeholder="Pago recibido, método de contacto, etc." rows="2"
+                            class="w-full bg-zinc-800 rounded-xl px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-violet-500"></textarea>
+                    </div>
+
+                    <button onclick="createTenant()" id="createBtn"
+                        class="w-full bg-violet-600 hover:bg-violet-500 py-3 rounded-xl font-semibold text-sm transition mt-2">
+                        Crear negocio
+                    </button>
+                    <div id="createResult" class="hidden text-sm text-center py-2 rounded-xl"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ══ MODAL: Detalle negocio ═════════════════════════════════════════ -->
+<div id="modalTenant" class="hidden fixed inset-0 bg-black/80 flex items-start justify-center overflow-auto p-4 z-50">
+    <div class="bg-zinc-900 w-full max-w-2xl rounded-2xl p-6 my-8 fade-in">
+        <div class="flex justify-between items-center mb-6">
+            <h3 id="tenantModalTitle" class="text-lg font-bold">Negocio</h3>
+            <button onclick="closeModal('modalTenant')" class="text-zinc-500 hover:text-zinc-300 text-2xl leading-none">&times;</button>
+        </div>
+        <div id="tenantModalContent"></div>
+    </div>
+</div>
+
+<!-- ══ MODAL: Editar licencia ════════════════════════════════════════ -->
+<div id="modalLicense" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+    <div class="bg-zinc-900 w-full max-w-md rounded-2xl p-6 fade-in">
+        <div class="flex justify-between items-center mb-5">
+            <h3 class="text-lg font-bold">Editar licencia</h3>
+            <button onclick="closeModal('modalLicense')" class="text-zinc-500 hover:text-zinc-300 text-2xl leading-none">&times;</button>
+        </div>
+        <input type="hidden" id="licTenantId">
+        <div class="space-y-4">
+            <div>
+                <label class="text-xs text-zinc-400 block mb-2">Plan</label>
+                <select id="licPlan" class="w-full bg-zinc-800 rounded-xl px-4 py-3 text-sm">
+                    <option value="trial">Trial</option>
+                    <option value="basic">Basic</option>
+                    <option value="pro">Pro</option>
+                    <option value="enterprise">Enterprise</option>
+                </select>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="text-xs text-zinc-400 block mb-2">Fecha de vencimiento</label>
+                    <input id="licExpires" type="date" class="w-full bg-zinc-800 rounded-xl px-4 py-3 text-sm">
+                </div>
+                <div>
+                    <label class="text-xs text-zinc-400 block mb-2">Máx. usuarios</label>
+                    <input id="licMaxUsers" type="number" min="1" class="w-full bg-zinc-800 rounded-xl px-4 py-3 text-sm">
+                </div>
+            </div>
+            <div>
+                <label class="text-xs text-zinc-400 block mb-2">Notas</label>
+                <textarea id="licNotes" rows="2" placeholder="Pagos, observaciones..." class="w-full bg-zinc-800 rounded-xl px-4 py-3 text-sm resize-none"></textarea>
+            </div>
+        </div>
+        <div class="flex gap-3 mt-6">
+            <button onclick="closeModal('modalLicense')" class="flex-1 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-sm transition">Cancelar</button>
+            <button onclick="saveLicense()" class="flex-1 py-3 bg-violet-600 hover:bg-violet-500 rounded-xl text-sm font-semibold transition">Guardar licencia</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══ MODAL: Reset contraseña usuario ══════════════════════════════ -->
+<div id="modalResetPass" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+    <div class="bg-zinc-900 w-full max-w-sm rounded-2xl p-6 fade-in">
+        <div class="flex justify-between items-center mb-5">
+            <h3 class="text-lg font-bold">Resetear contraseña</h3>
+            <button onclick="closeModal('modalResetPass')" class="text-zinc-500 hover:text-zinc-300 text-2xl leading-none">&times;</button>
+        </div>
+        <input type="hidden" id="rpUserId">
+        <p id="rpUserName" class="text-sm text-zinc-400 mb-4"></p>
+        <div>
+            <label class="text-xs text-zinc-400 block mb-2">Nueva contraseña</label>
+            <input id="rpNewPass" type="text" placeholder="Mínimo 8 caracteres" class="w-full bg-zinc-800 rounded-xl px-4 py-3 text-sm">
+        </div>
+        <div class="flex gap-3 mt-5">
+            <button onclick="closeModal('modalResetPass')" class="flex-1 py-3 bg-zinc-800 rounded-xl text-sm">Cancelar</button>
+            <button onclick="saveResetPass()" class="flex-1 py-3 bg-amber-600 hover:bg-amber-500 rounded-xl text-sm font-semibold transition">Resetear</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══ MODAL: Confirmar ══════════════════════════════════════════════ -->
+<div id="modalConfirmAdmin" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-[60]">
+    <div class="bg-zinc-900 w-full max-w-sm rounded-2xl p-6 fade-in">
+        <div class="text-center mb-5">
+            <div id="confirmAdminIcon" class="text-4xl mb-3">⚠️</div>
+            <h3 id="confirmAdminTitle" class="text-lg font-bold mb-2"></h3>
+            <p id="confirmAdminMsg" class="text-sm text-zinc-400"></p>
+        </div>
+        <div class="flex gap-3">
+            <button onclick="closeModal('modalConfirmAdmin')" class="flex-1 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-sm">Cancelar</button>
+            <button id="confirmAdminBtn" class="flex-1 py-3 bg-red-600 hover:bg-red-500 rounded-xl text-sm font-semibold">Confirmar</button>
+        </div>
+    </div>
+</div>
+
+<!-- ══ TOAST ══════════════════════════════════════════════════════════ -->
+<div id="toasts" class="fixed bottom-4 right-4 z-[9999] space-y-2 max-w-xs"></div>
+
+<script>
+// ─── Config ────────────────────────────────────────────────────────────────
+const API = '/api'
+let adminToken = null
+let _allTenants = []
+let _allUsers   = []
+
+// ─── API helper ────────────────────────────────────────────────────────────
+async function req(endpoint, method='GET', body=null) {
+    const opts = {
+        method,
+        headers: {
+            'Content-Type': 'application/json',
+            ...(adminToken ? {'Authorization': `Bearer ${adminToken}`} : {})
+        }
+    }
+    if (body) opts.body = JSON.stringify(body)
+    const res = await fetch(API + endpoint, opts)
+    return await res.json()
+}
+
+// ─── Toast ─────────────────────────────────────────────────────────────────
+function toast(msg, type='info') {
+    const colors = { info:'bg-zinc-800', success:'bg-emerald-700', error:'bg-red-700', warn:'bg-amber-700' }
+    const icons  = { info:'ℹ️', success:'✅', error:'❌', warn:'⚠️' }
+    const el = document.createElement('div')
+    el.className = `${colors[type]} text-white text-xs px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 opacity-0 transition-all duration-300`
+    el.innerHTML = `<span>${icons[type]}</span><span>${msg}</span>`
+    document.getElementById('toasts').appendChild(el)
+    requestAnimationFrame(() => el.classList.remove('opacity-0'))
+    setTimeout(() => { el.classList.add('opacity-0'); setTimeout(() => el.remove(), 300) }, 3500)
+}
+
+function closeModal(id) { document.getElementById(id).classList.add('hidden') }
+function openModal(id)  { document.getElementById(id).classList.remove('hidden') }
+
+function confirm(icon, title, msg, onConfirm, btnClass='bg-red-600 hover:bg-red-500') {
+    document.getElementById('confirmAdminIcon').textContent = icon
+    document.getElementById('confirmAdminTitle').textContent = title
+    document.getElementById('confirmAdminMsg').textContent = msg
+    const btn = document.getElementById('confirmAdminBtn')
+    btn.className = `flex-1 py-3 ${btnClass} rounded-xl text-sm font-semibold`
+    btn.onclick = () => { closeModal('modalConfirmAdmin'); onConfirm() }
+    openModal('modalConfirmAdmin')
+}
+
+// ─── Tabs ──────────────────────────────────────────────────────────────────
+function showTab(tab) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'))
+    document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.toggle('tab-active', b.dataset.tab === tab)
+        b.classList.toggle('tab-inactive', b.dataset.tab !== tab)
+        b.className = b.className.replace(/border-b-2 border-(violet-500|transparent)/g, '')
+        b.classList.add('border-b-2')
+        b.classList.add(b.dataset.tab === tab ? 'border-violet-500' : 'border-transparent')
+    })
+    document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.remove('hidden')
+    if (tab === 'stats')   loadStats()
+    if (tab === 'tenants') loadTenants()
+    if (tab === 'users')   loadUsers()
+}
+
+// ─── Login ─────────────────────────────────────────────────────────────────
+async function doLogin() {
+    const email = document.getElementById('adminEmail').value.trim()
+    const pass  = document.getElementById('adminPass').value
+    const btn   = document.getElementById('loginBtn')
+    const err   = document.getElementById('loginError')
+    btn.disabled = true; btn.textContent = 'Ingresando...'
+    err.classList.add('hidden')
+
+    const res = await req('/auth.php?action=login', 'POST', { email, password: pass })
+    btn.disabled = false; btn.textContent = 'Ingresar'
+
+    if (!res.ok) { err.textContent = res.error; err.classList.remove('hidden'); return }
+    if (res.data.role !== 'superadmin') { err.textContent = 'Acceso restringido a superadmins'; err.classList.remove('hidden'); return }
+
+    adminToken = res.data.token
+    localStorage.setItem('vexto_admin_token', adminToken)
+    document.getElementById('adminName').textContent = res.data.display_name
+    document.getElementById('loginPage').classList.add('hidden')
+    document.getElementById('adminApp').classList.remove('hidden')
+    loadStats()
+}
+
+function doLogout() {
+    adminToken = null
+    localStorage.removeItem('vexto_admin_token')
+    location.reload()
+}
+
+// ─── Stats ─────────────────────────────────────────────────────────────────
+async function loadStats() {
+    const res = await req('/admin.php?action=stats')
+    if (!res.ok) return
+    const d = res.data
+    document.getElementById('stTotalTenants').textContent   = d.tenants
+    document.getElementById('stActiveTenants').textContent  = d.active_tenants
+    document.getElementById('stActiveLicenses').textContent = d.active_licenses
+    document.getElementById('stExpiredLicenses').textContent= d.expired_licenses
+    document.getElementById('stTotalUsers').textContent     = d.total_users
+    document.getElementById('stSalesLast30').textContent    = d.sales_last_30d
+
+    // Quick table
+    const tenantsRes = await req('/admin.php?action=tenants')
+    if (!tenantsRes.ok) return
+    _allTenants = tenantsRes.data
+    renderQuickTable(_allTenants)
+}
+
+function renderQuickTable(list) {
+    const tbody = document.getElementById('quickTenantsBody')
+    tbody.innerHTML = ''
+    list.forEach(t => {
+        const days    = parseInt(t.days_left)
+        const expired = days < 0 || !t.plan
+        const badge   = badgeHtml(t.plan, t.is_active, days)
+        const daysText = !t.plan ? '—' : expired ? '<span class="text-red-400">Expirado</span>' : days <= 7 ? `<span class="text-amber-400">${days}d</span>` : `<span class="text-zinc-400">${days}d</span>`
+        const tr = document.createElement('tr')
+        tr.className = 'border-b border-zinc-800 hover:bg-zinc-900/50'
+        tr.innerHTML = `
+            <td class="py-2 px-1 font-medium text-zinc-200">${t.name}</td>
+            <td class="px-1">${badge}</td>
+            <td class="px-1 text-zinc-400">${t.expires_at || '—'}</td>
+            <td class="px-1">${daysText}</td>
+            <td class="px-1 text-zinc-400">${t.user_count || 0}</td>
+            <td class="px-1">${t.is_active ? '<span class="text-emerald-400">Activo</span>' : '<span class="text-zinc-500">Inactivo</span>'}</td>
+            <td class="px-1 flex gap-1 py-2">
+                <button onclick='showEditLicense(${JSON.stringify(t)})' class="text-xs px-2 py-1 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition">🔑 Licencia</button>
+                <button onclick="toggleTenant(${t.id},'${t.name}',${t.is_active})" class="text-xs px-2 py-1 ${t.is_active ? 'bg-red-950 hover:bg-red-900 text-red-400' : 'bg-emerald-950 hover:bg-emerald-900 text-emerald-400'} rounded-lg transition">${t.is_active ? 'Bloquear' : 'Activar'}</button>
+            </td>`
+        tbody.appendChild(tr)
+    })
+}
+
+// ─── Tenants ───────────────────────────────────────────────────────────────
+async function loadTenants() {
+    const res = await req('/admin.php?action=tenants')
+    if (!res.ok) return
+    _allTenants = res.data
+    renderTenantCards(_allTenants)
+}
+
+function filterTenants(q) {
+    const filtered = q ? _allTenants.filter(t => t.name.toLowerCase().includes(q.toLowerCase()) || (t.owner_email||'').toLowerCase().includes(q.toLowerCase())) : _allTenants
+    renderTenantCards(filtered)
+}
+
+function renderTenantCards(list) {
+    const container = document.getElementById('tenantsList')
+    container.innerHTML = ''
+    if (!list.length) { container.innerHTML = '<div class="text-zinc-500 text-center py-8">No hay negocios registrados</div>'; return }
+    list.forEach(t => {
+        const days    = parseInt(t.days_left)
+        const expired = days < 0 || !t.plan
+        const badge   = badgeHtml(t.plan, t.is_active, days)
+        const card = document.createElement('div')
+        card.className = 'bg-zinc-900 rounded-2xl p-4 flex flex-col md:flex-row md:items-center gap-4'
+        card.innerHTML = `
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="font-semibold text-zinc-100">${t.name}</span>
+                    ${badge}
+                    ${!t.is_active ? '<span class="text-xs badge-inactive px-2 py-0.5 rounded-full">Bloqueado</span>' : ''}
+                </div>
+                <div class="text-xs text-zinc-500 flex flex-wrap gap-3">
+                    <span>👤 ${t.owner_email || '—'}</span>
+                    <span>👥 ${t.user_count || 0} usuarios</span>
+                    <span>💰 ${t.sale_count || 0} ventas</span>
+                    ${t.expires_at ? `<span>📅 Vence: ${t.expires_at} (${expired ? '<span class="text-red-400">expirado</span>' : days+'d'})</span>` : '<span class="text-zinc-600">Sin licencia</span>'}
+                </div>
+            </div>
+            <div class="flex gap-2 flex-wrap">
+                <button onclick="showTenantDetail(${t.id})" class="text-xs px-3 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-xl transition">🔍 Detalle</button>
+                <button onclick='showEditLicense(${JSON.stringify(t)})' class="text-xs px-3 py-2 bg-violet-900 hover:bg-violet-800 text-violet-300 rounded-xl transition">🔑 Licencia</button>
+                <button onclick="toggleTenant(${t.id},'${t.name}',${t.is_active})" class="text-xs px-3 py-2 ${t.is_active ? 'bg-red-950 hover:bg-red-900 text-red-400' : 'bg-emerald-950 hover:bg-emerald-900 text-emerald-400'} rounded-xl transition">${t.is_active ? '🚫 Bloquear' : '✅ Activar'}</button>
+                <button onclick="confirmDeleteTenant(${t.id},'${t.name}')" class="text-xs px-3 py-2 bg-zinc-800 hover:bg-red-950 text-zinc-500 hover:text-red-400 rounded-xl transition">🗑️</button>
+            </div>`
+        container.appendChild(card)
+    })
+}
+
+async function showTenantDetail(id) {
+    const res = await req(`/admin.php?action=tenant&id=${id}`)
+    if (!res.ok) return toast(res.error, 'error')
+    const t = res.data
+    document.getElementById('tenantModalTitle').textContent = t.name
+    document.getElementById('tenantModalContent').innerHTML = `
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <div class="bg-zinc-800 rounded-xl p-3"><div class="text-xs text-zinc-500 mb-1">Productos</div><div class="text-xl font-bold">${t.product_count}</div></div>
+            <div class="bg-zinc-800 rounded-xl p-3"><div class="text-xs text-zinc-500 mb-1">Ventas</div><div class="text-xl font-bold">${t.sale_count}</div></div>
+        </div>
+        <div class="mb-5">
+            <div class="text-xs text-zinc-500 font-semibold mb-2">USUARIOS</div>
+            <div class="space-y-2">
+                ${(t.users||[]).map(u => `
+                    <div class="bg-zinc-800 rounded-xl px-4 py-3 flex justify-between items-center text-sm">
+                        <div>
+                            <span class="font-medium text-zinc-200">${u.display_name}</span>
+                            <span class="text-zinc-500 text-xs ml-2">${u.email}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            ${roleBadge(u.role)}
+                            ${!u.is_active ? '<span class="text-xs text-zinc-500">inactivo</span>' : ''}
+                            <button onclick="showResetPass(${u.id},'${u.display_name}')" class="text-xs px-2 py-1 bg-zinc-700 hover:bg-zinc-600 rounded-lg transition">🔑</button>
+                        </div>
+                    </div>`).join('')}
+            </div>
+        </div>
+        <div>
+            <div class="text-xs text-zinc-500 font-semibold mb-2">HISTORIAL DE LICENCIAS</div>
+            <div class="space-y-2">
+                ${(t.licenses||[]).map(l => `
+                    <div class="bg-zinc-800 rounded-xl px-4 py-3 text-xs text-zinc-400 flex justify-between">
+                        <span>${badgeHtml(l.plan, true, 0)} ${l.starts_at} → ${l.expires_at}</span>
+                        <span>Max ${l.max_users} usuarios</span>
+                    </div>`).join('')}
+            </div>
+        </div>`
+    openModal('modalTenant')
+}
+
+async function toggleTenant(id, name, isActive) {
+    const action = isActive ? 'bloquear' : 'activar'
+    confirm(isActive ? '🚫' : '✅', `¿${action.charAt(0).toUpperCase()+action.slice(1)} "${name}"?`,
+        isActive ? 'Los usuarios no podrán acceder hasta que lo reactives.' : 'El negocio volverá a tener acceso.',
+        async () => {
+            const res = await req(`/admin.php?action=toggle_tenant&id=${id}`, 'POST')
+            if (!res.ok) return toast(res.error, 'error')
+            toast(`Negocio ${res.data.is_active ? 'activado' : 'bloqueado'}`, 'success')
+            loadStats(); loadTenants()
+        },
+        isActive ? 'bg-red-600 hover:bg-red-500' : 'bg-emerald-600 hover:bg-emerald-500'
+    )
+}
+
+function confirmDeleteTenant(id, name) {
+    confirm('💣', `¿Eliminar "${name}" permanentemente?`,
+        'Se borrarán TODOS sus datos: productos, ventas, clientes, usuarios. Esto no se puede deshacer.',
+        async () => {
+            const res = await req(`/admin.php?action=delete_tenant&id=${id}`, 'DELETE')
+            if (!res.ok) return toast(res.error, 'error')
+            toast('Negocio eliminado', 'success')
+            loadStats(); loadTenants()
+        }
+    )
+}
+
+// ─── Licencia ──────────────────────────────────────────────────────────────
+function showEditLicense(t) {
+    document.getElementById('licTenantId').value  = t.id
+    document.getElementById('licPlan').value      = t.plan || 'basic'
+    document.getElementById('licExpires').value   = t.expires_at || ''
+    document.getElementById('licMaxUsers').value  = t.max_users || 3
+    document.getElementById('licNotes').value     = ''
+    openModal('modalLicense')
+}
+async function saveLicense() {
+    const tenantId  = document.getElementById('licTenantId').value
+    const plan      = document.getElementById('licPlan').value
+    const expiresAt = document.getElementById('licExpires').value
+    const maxUsers  = document.getElementById('licMaxUsers').value
+    const notes     = document.getElementById('licNotes').value
+    if (!expiresAt) return toast('Selecciona una fecha de vencimiento', 'warn')
+    const res = await req('/admin.php?action=set_license', 'POST', { tenant_id: parseInt(tenantId), plan, expires_at: expiresAt, max_users: parseInt(maxUsers), notes })
+    if (!res.ok) return toast(res.error, 'error')
+    toast('Licencia actualizada', 'success')
+    closeModal('modalLicense')
+    loadStats(); loadTenants()
+}
+
+// ─── Usuarios ──────────────────────────────────────────────────────────────
+async function loadUsers() {
+    const res = await req('/admin.php?action=users')
+    if (!res.ok) return
+    _allUsers = res.data
+    renderUsersTable(_allUsers)
+}
+function filterUsers(q) {
+    const filtered = q ? _allUsers.filter(u =>
+        u.display_name.toLowerCase().includes(q.toLowerCase()) ||
+        u.email.toLowerCase().includes(q.toLowerCase()) ||
+        (u.tenant_name||'').toLowerCase().includes(q.toLowerCase())
+    ) : _allUsers
+    renderUsersTable(filtered)
+}
+function renderUsersTable(list) {
+    const tbody = document.getElementById('usersTableBody')
+    tbody.innerHTML = ''
+    list.forEach(u => {
+        const tr = document.createElement('tr')
+        tr.className = 'hover:bg-zinc-900/50'
+        tr.innerHTML = `
+            <td class="px-4 py-3 font-medium text-zinc-200">${u.display_name}</td>
+            <td class="px-4 py-3 text-zinc-400">${u.email}</td>
+            <td class="px-4 py-3 text-zinc-400">${u.tenant_name || '—'}</td>
+            <td class="px-4 py-3">${roleBadge(u.role)}</td>
+            <td class="px-4 py-3 text-zinc-500">${u.last_login ? u.last_login.slice(0,16) : 'Nunca'}</td>
+            <td class="px-4 py-3">${u.is_active ? '<span class="text-emerald-400">Activo</span>' : '<span class="text-zinc-500">Inactivo</span>'}</td>
+            <td class="px-4 py-3">
+                <button onclick="showResetPass(${u.id},'${u.display_name}')" class="text-xs px-2 py-1 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition">🔑 Reset pass</button>
+            </td>`
+        tbody.appendChild(tr)
+    })
+}
+
+function showResetPass(id, name) {
+    document.getElementById('rpUserId').value     = id
+    document.getElementById('rpUserName').textContent = `Usuario: ${name}`
+    document.getElementById('rpNewPass').value    = ''
+    closeModal('modalTenant')
+    openModal('modalResetPass')
+}
+async function saveResetPass() {
+    const userId  = document.getElementById('rpUserId').value
+    const newPass = document.getElementById('rpNewPass').value
+    if (!newPass || newPass.length < 8) return toast('Mínimo 8 caracteres', 'warn')
+    const res = await req('/admin.php?action=reset_user_password', 'POST', { user_id: parseInt(userId), new_password: newPass })
+    if (!res.ok) return toast(res.error, 'error')
+    toast('Contraseña reseteada', 'success')
+    closeModal('modalResetPass')
+}
+
+// ─── Crear negocio ─────────────────────────────────────────────────────────
+async function createTenant() {
+    const business   = document.getElementById('cnBusiness').value.trim()
+    const ownerName  = document.getElementById('cnOwnerName').value.trim()
+    const ownerEmail = document.getElementById('cnOwnerEmail').value.trim()
+    const ownerPass  = document.getElementById('cnOwnerPass').value.trim()
+    const plan       = document.getElementById('cnPlan').value
+    const days       = parseInt(document.getElementById('cnDays').value)
+    const maxUsers   = parseInt(document.getElementById('cnMaxUsers').value)
+    const notes      = document.getElementById('cnNotes').value.trim()
+    const resultEl   = document.getElementById('createResult')
+    const btn        = document.getElementById('createBtn')
+
+    if (!business || !ownerName || !ownerEmail || !ownerPass) return toast('Completa todos los campos obligatorios', 'warn')
+
+    btn.disabled = true; btn.textContent = 'Creando...'
+    const res = await req('/admin.php?action=create_tenant', 'POST', {
+        business_name: business, owner_name: ownerName, owner_email: ownerEmail,
+        owner_password: ownerPass, plan, days, max_users: maxUsers, notes
+    })
+    btn.disabled = false; btn.textContent = 'Crear negocio'
+
+    resultEl.classList.remove('hidden')
+    if (!res.ok) {
+        resultEl.className = 'text-sm text-center py-2 px-4 rounded-xl bg-red-950 text-red-400'
+        resultEl.textContent = '❌ ' + res.error
+        return
+    }
+    resultEl.className = 'text-sm text-center py-2 px-4 rounded-xl bg-emerald-950 text-emerald-400'
+    resultEl.textContent = `✅ ${res.message} (ID: ${res.data.tenant_id})`
+    ;['cnBusiness','cnOwnerName','cnOwnerEmail','cnOwnerPass','cnNotes'].forEach(id => { document.getElementById(id).value = '' })
+    loadStats()
+}
+
+// ─── Helpers visuales ──────────────────────────────────────────────────────
+function badgeHtml(plan, isActive, days) {
+    if (!isActive) return '<span class="text-xs badge-inactive px-2 py-0.5 rounded-full">Inactivo</span>'
+    if (!plan)     return '<span class="text-xs badge-expired px-2 py-0.5 rounded-full">Sin licencia</span>'
+    if (days < 0)  return '<span class="text-xs badge-expired px-2 py-0.5 rounded-full">Expirado</span>'
+    const cls = { trial:'badge-trial', basic:'badge-basic', pro:'badge-pro', enterprise:'badge-enterprise' }[plan] || 'badge-basic'
+    return `<span class="text-xs ${cls} px-2 py-0.5 rounded-full">${plan}</span>`
+}
+function roleBadge(role) {
+    const cls = { owner:'text-emerald-400 bg-emerald-950', manager:'text-sky-400 bg-sky-950', employee:'text-zinc-400 bg-zinc-800', superadmin:'text-violet-400 bg-violet-950' }[role] || 'text-zinc-400 bg-zinc-800'
+    const label = { owner:'Propietario', manager:'Gerente', employee:'Empleado', superadmin:'Super Admin' }[role] || role
+    return `<span class="text-xs ${cls} px-2 py-0.5 rounded-full">${label}</span>`
+}
+
+// ─── Auto-login con token guardado ─────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', async () => {
+    const saved = localStorage.getItem('vexto_admin_token')
+    if (!saved) return
+    const res = await fetch(API + '/auth.php?action=me', {
+        headers: { 'Authorization': `Bearer ${saved}` }
+    }).then(r => r.json()).catch(() => null)
+    if (!res?.ok || res.data.role !== 'superadmin') {
+        localStorage.removeItem('vexto_admin_token'); return
+    }
+    adminToken = saved
+    document.getElementById('adminName').textContent = res.data.display_name
+    document.getElementById('loginPage').classList.add('hidden')
+    document.getElementById('adminApp').classList.remove('hidden')
+    loadStats()
+})
+</script>
+</body>
+</html>

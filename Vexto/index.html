@@ -6,285 +6,330 @@
     <title>Vexto</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <link rel="stylesheet" href="vexto.css">
+    <link rel="stylesheet" href="vexto.css">
 </head>
 <body class="bg-zinc-950 text-zinc-100">
 
-    <!-- LOGIN -->
-    <div id="loginPage" class="min-h-screen flex flex-col items-center justify-center bg-zinc-950 p-4">
-        <div class="mb-12 text-center">
-            <div class="flex items-center justify-center gap-3 mb-3">
-                <div class="w-14 h-14 bg-emerald-600 rounded-2xl flex items-center justify-center font-bold text-xl text-white">VX</div>
-            </div>
-            <h1 class="text-4xl font-bold text-emerald-500">Vexto</h1>
-            <p class="text-zinc-400 text-sm mt-1">Gestor de inventario, compras y ventas</p>
+<!-- ═══════════════════════════════════════════════════════════
+     LOGIN / REGISTRO
+═══════════════════════════════════════════════════════════ -->
+<div id="loginPage" class="min-h-screen flex flex-col items-center justify-center bg-zinc-950 p-4">
+
+    <!-- Logo -->
+    <div class="mb-10 text-center">
+        <div class="flex items-center justify-center gap-3 mb-3">
+            <div class="w-14 h-14 bg-emerald-600 rounded-2xl flex items-center justify-center font-bold text-xl text-white">VX</div>
         </div>
-        <div class="w-full max-w-md">
-            <div class="bg-zinc-900 p-8 rounded-2xl">
-                <h2 class="text-3xl font-bold mb-8 text-center">🚧GRAN ACTUALIZACION EN CAMINO🚧</h2>
-                <input id="loginUser" placeholder="Tu nombre" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 mb-6" onkeypress="if(event.key==='Enter') handleLogin()">
-                <button onclick="handleLogin()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-lg font-medium mb-3">Ingresar</button>
-                <button onclick="showWarningModal()" class="w-full bg-zinc-800 hover:bg-zinc-700 py-2 rounded-lg text-sm text-zinc-400">ℹ️ Ver información importante</button>
-            </div>
-        </div>
-        <a href="https://github.com/Jayrus10/JayrusDB" class="text-blue-500 hover:underline mt-3">GitHub (código fuente, Licencias y otros)</a>
-        <a href="https://t.me/mrjayrus" class="text-blue-500 hover:underline">Soporte Técnico (Telegram)</a>
-        <div class="hidden">
-            </div>
-        </div>
+        <h1 class="text-4xl font-bold text-emerald-500">Vexto</h1>
+        <p class="text-zinc-400 text-sm mt-1">Gestor de inventario para negocios</p>
     </div>
 
-    <!-- Warning Modal -->
-    <div id="warningModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-        <div class="bg-zinc-900 w-full max-w-md rounded-2xl p-6">
-            <h3 class="text-xl font-bold mb-4 text-red-400 flex items-center gap-2">⚠️ Aviso Importante</h3>
-            <div class="space-y-3 mb-6">
-                <div class="text-sm"><p class="font-semibold text-emerald-400 mb-1">📱 Datos temporales</p><p class="text-zinc-300">Los datos se almacenan localmente en este navegador. Si borras el caché, se perderán.</p></div>
-                <div class="text-sm"><p class="font-semibold text-emerald-400 mb-1">💾 Seguridad de los datos</p><p class="text-zinc-300">Exporta tus datos al menos una vez al día para evitar pérdidas.</p></div>
-                <div class="text-sm"><p class="font-semibold text-emerald-400 mb-1">🔄 Acceso</p><p class="text-zinc-300">Los datos no se sincronizan entre dispositivos.</p></div>
-                <div class="text-sm"><p class="font-semibold text-emerald-400 mb-1">👤 Privacidad</p><p class="text-zinc-300">Cada navegador tiene su propia base de datos independiente.</p></div>
-                <div class="text-sm"><p class="font-semibold text-emerald-400 mb-1">ℹ️ Versión de prueba</p><p class="text-zinc-300">No es recomendado empezar a usar la aplicación en su estado actual (beta).</p></div>
-            </div>
-            <button onclick="hideWarningModal()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-medium">De acuerdo</button>
-        </div>
-    </div>
-
-    <!-- Currency Info Modal -->
-    <div id="modalCurrencyInfo" 
-         class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4 transition-opacity duration-300 opacity-0">
-
-        <div id="modalCurrencyInfoBox"
-             class="bg-zinc-900 w-full max-w-md rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0
-                transform scale-95 transition-transform duration-300">
-        
-            <div class="flex justify-between items-center mb-4">
-                <h3 id="currencyInfoTitle" class="text-lg md:text-xl font-bold">Detalle</h3>
-                <button onclick="hideCurrencyInfo()" class="text-red-400 hover:text-red-300 text-xl">&times;</button>
-            </div>
-
-        <div id="currencyInfoContent" class="space-y-2 text-sm"></div>
-
-        <div class="mt-6">
-            <button onclick="hideCurrencyInfo()" 
-                    class="w-full py-3 bg-emerald-600 rounded-2xl text-sm">
-                Cerrar
+    <!-- Tabs -->
+    <div class="w-full max-w-md">
+        <div class="flex bg-zinc-900 rounded-2xl p-1 mb-4">
+            <button id="tabLogin" onclick="switchTab('login')"
+                class="flex-1 py-2 rounded-xl text-sm font-medium transition bg-zinc-800 text-white">
+                Iniciar sesión
+            </button>
+            <button id="tabRegister" onclick="switchTab('register')"
+                class="flex-1 py-2 rounded-xl text-sm font-medium transition text-zinc-400">
+                Nuevo negocio
             </button>
         </div>
+
+        <!-- LOGIN -->
+        <div id="loginForm" class="bg-zinc-900 p-8 rounded-2xl">
+            <h2 class="text-2xl font-bold mb-6 text-center">Bienvenido</h2>
+            <label class="text-xs text-zinc-400 block mb-1">Email</label>
+            <input id="loginUser" type="email" placeholder="tu@correo.com"
+                class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-4 text-sm"
+                onkeypress="if(event.key==='Enter') handleLogin()">
+            <label class="text-xs text-zinc-400 block mb-1">Contraseña</label>
+            <input id="loginPass" type="password" placeholder="••••••••"
+                class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-6 text-sm"
+                onkeypress="if(event.key==='Enter') handleLogin()">
+            <button onclick="handleLogin()"
+                class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl font-semibold mb-3 transition">
+                Ingresar →
+            </button>
+            <button onclick="showWarningModal()"
+                class="w-full bg-zinc-800 hover:bg-zinc-700 py-2 rounded-xl text-sm text-zinc-400 transition">
+                ℹ️ Información importante
+            </button>
+        </div>
+
+        <!-- REGISTRO -->
+        <div id="registerForm" class="hidden bg-zinc-900 p-8 rounded-2xl">
+            <h2 class="text-2xl font-bold mb-2 text-center">Crear negocio</h2>
+            <p class="text-zinc-500 text-xs text-center mb-6">14 días de prueba gratuita. Sin tarjeta.</p>
+            <label class="text-xs text-zinc-400 block mb-1">Nombre del negocio</label>
+            <input id="regBusiness" placeholder="Ej: Tienda El Sol"
+                class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-3 text-sm">
+            <label class="text-xs text-zinc-400 block mb-1">Tu nombre</label>
+            <input id="regName" placeholder="Tu nombre completo"
+                class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-3 text-sm">
+            <label class="text-xs text-zinc-400 block mb-1">Email</label>
+            <input id="regEmail" type="email" placeholder="tu@correo.com"
+                class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-3 text-sm">
+            <label class="text-xs text-zinc-400 block mb-1">Contraseña (mín. 8 caracteres)</label>
+            <input id="regPass" type="password" placeholder="••••••••"
+                class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-6 text-sm">
+            <button onclick="handleRegister()"
+                class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl font-semibold transition">
+                Crear mi negocio →
+            </button>
         </div>
     </div>
 
-    <!-- APP -->
-    <div id="app" class="hidden min-h-screen bg-zinc-950">
-        <div class="bg-zinc-900 border-b border-zinc-800 px-4 md:px-6 py-3 md:py-4 flex justify-between items-center gap-3">
-            <button class="mobile-menu-btn hidden text-2xl" onclick="toggleMobileMenu()">☰</button>
-            <div class="flex items-center gap-2 md:gap-3">
-                <div class="w-8 h-8 bg-emerald-600 rounded-xl flex items-center justify-center font-bold text-sm">VX</div>
-                <div><div class="font-semibold text-sm" id="currentUser"></div><div class="text-xs text-zinc-500">v1.0.7 beta preOnline</div></div>
-            </div>
-            <div class="flex gap-1 md:gap-2 flex-wrap justify-end">
-                <button onclick="importData()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">📥 <span class="hidden md:inline">Importar</span></button>
-                <button onclick="exportData()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">📤 <span class="hidden md:inline">Exportar</span></button>
-                <button onclick="location.reload()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">🔄 <span class="hidden md:inline">Recargar</span></button>
-                <button onclick="showAudit()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">📋 <span class="hidden md:inline">Auditoría</span></button>
-                <button onclick="logout()" class="px-2 py-1 md:px-3 md:py-2 bg-red-600 hover:bg-red-500 rounded-lg text-xs md:text-sm">Salir</button>
+    <div class="mt-6 text-center space-y-1">
+        <a href="https://github.com/Jayrus10/JayrusDB" class="text-blue-500 hover:underline text-xs block">GitHub (código fuente)</a>
+        <a href="https://t.me/mrjayrus" class="text-blue-500 hover:underline text-xs block">Soporte Técnico (Telegram)</a>
+    </div>
+</div>
+
+<!-- Warning Modal -->
+<div id="warningModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+    <div class="bg-zinc-900 w-full max-w-md rounded-2xl p-6">
+        <h3 class="text-xl font-bold mb-4 text-emerald-400">ℹ️ Sobre Vexto</h3>
+        <div class="space-y-3 mb-6">
+            <div class="text-sm"><p class="font-semibold text-emerald-400 mb-1">☁️ Datos en la nube</p><p class="text-zinc-300">Tus datos se guardan en servidor. Accede desde cualquier dispositivo con tu email y contraseña.</p></div>
+            <div class="text-sm"><p class="font-semibold text-emerald-400 mb-1">👥 Multi-usuario</p><p class="text-zinc-300">Puedes agregar empleados desde ⚙️ Ajustes. Cada uno tiene su propio acceso y rol.</p></div>
+            <div class="text-sm"><p class="font-semibold text-emerald-400 mb-1">🔐 Roles de acceso</p><p class="text-zinc-300">Propietario ve todo. Gerente gestiona operaciones. Empleado solo realiza ventas.</p></div>
+            <div class="text-sm"><p class="font-semibold text-emerald-400 mb-1">📄 Licencias</p><p class="text-zinc-300">El acceso requiere licencia activa. Al vencer, contacta al administrador de Vexto.</p></div>
+        </div>
+        <button onclick="hideWarningModal()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 rounded-xl font-medium">De acuerdo</button>
+    </div>
+</div>
+
+<!-- Currency Info Modal -->
+<div id="modalCurrencyInfo" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4 transition-opacity duration-300 opacity-0">
+    <div id="modalCurrencyInfoBox" class="bg-zinc-900 w-full max-w-md rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0 transform scale-95 transition-transform duration-300">
+        <div class="flex justify-between items-center mb-4">
+            <h3 id="currencyInfoTitle" class="text-lg md:text-xl font-bold">Detalle</h3>
+            <button onclick="hideCurrencyInfo()" class="text-red-400 hover:text-red-300 text-xl">&times;</button>
+        </div>
+        <div id="currencyInfoContent" class="space-y-2 text-sm"></div>
+        <div class="mt-6"><button onclick="hideCurrencyInfo()" class="w-full py-3 bg-emerald-600 rounded-2xl text-sm">Cerrar</button></div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     APP
+═══════════════════════════════════════════════════════════ -->
+<div id="app" class="hidden min-h-screen bg-zinc-950">
+
+    <!-- TOPBAR -->
+    <div class="bg-zinc-900 border-b border-zinc-800 px-4 md:px-6 py-3 flex justify-between items-center gap-3">
+        <button class="mobile-menu-btn hidden text-2xl" onclick="toggleMobileMenu()">☰</button>
+        <div class="flex items-center gap-2 md:gap-3">
+            <div class="w-8 h-8 bg-emerald-600 rounded-xl flex items-center justify-center font-bold text-sm">VX</div>
+            <div>
+                <div class="font-semibold text-sm flex items-center gap-2">
+                    <span id="currentUser"></span>
+                    <span id="currentRoleBadge" class="text-xs bg-zinc-700 text-zinc-300 px-2 py-0.5 rounded-full"></span>
+                </div>
+                <div class="text-xs text-zinc-500" id="tenantNameBadge"></div>
             </div>
         </div>
+        <div class="flex gap-1 md:gap-2 flex-wrap justify-end">
+            <button onclick="exportData()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">📤 <span class="hidden md:inline">Exportar</span></button>
+            <button onclick="loadAllData().then(renderAll)" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">🔄 <span class="hidden md:inline">Recargar</span></button>
+            <button onclick="showAudit()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">📋 <span class="hidden md:inline">Auditoría</span></button>
+            <button onclick="logout()" class="px-2 py-1 md:px-3 md:py-2 bg-red-600 hover:bg-red-500 rounded-lg text-xs md:text-sm">Salir</button>
+        </div>
+    </div>
 
-        <div class="app-container">
-            <!-- NAV -->
-            <div class="app-nav bg-zinc-900 border-r border-zinc-800 min-h-[calc(100vh-73px)] p-3">
-                <div onclick="showSection('dashboard')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">📊 Dashboard</div>
-                <div onclick="showSection('products')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">📦 Productos</div>
-                <div onclick="showSection('discounts')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">🏷️ Descuentos</div>
-                <div onclick="showSection('customers')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">👥 Clientes</div>
-                <div onclick="showSection('providers')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">🏭 Proveedores</div>
-                <div onclick="showSection('purchases')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">🛒 Compras</div>
-                <div onclick="showSection('sales')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">💰 Ventas</div>
-                <div onclick="showSection('reports')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">📈 Reportes</div>
-                <div onclick="showSection('settings')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">⚙️ Ajustes</div>
-                <div onclick="showSection('info')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">ℹ️ Información</div>
+    <div class="app-container">
+        <!-- NAV -->
+        <div class="app-nav bg-zinc-900 border-r border-zinc-800 min-h-[calc(100vh-73px)] p-3">
+            <div onclick="showSection('dashboard')" data-section="dashboard" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">📊 Dashboard</div>
+            <div onclick="showSection('products')"  data-section="products"  class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">📦 Productos</div>
+            <div onclick="showSection('discounts')" data-section="discounts" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">🏷️ Descuentos</div>
+            <div onclick="showSection('customers')" data-section="customers" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">👥 Clientes</div>
+            <div onclick="showSection('providers')" data-section="providers" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">🏭 Proveedores</div>
+            <div onclick="showSection('purchases')" data-section="purchases" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">🛒 Compras</div>
+            <div onclick="showSection('sales')"     data-section="sales"     class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">💰 Ventas</div>
+            <div onclick="showSection('reports')"   data-section="reports"   class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">📈 Reportes</div>
+            <div onclick="showSection('settings')"  data-section="settings"  class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">⚙️ Ajustes</div>
+            <div onclick="showSection('info')"      data-section="info"      class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">ℹ️ Información</div>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="app-content">
+
+            <!-- DASHBOARD -->
+            <div id="dashboard" class="section active">
+                <h2 class="text-2xl font-bold mb-6">Dashboard</h2>
+                <div class="grid grid-cols-4 gap-6">
+                    <div class="bg-zinc-900 p-6 rounded-3xl">
+                        <div class="text-zinc-400 text-sm">Valor stock</div>
+                        <div id="dashStockValue" class="text-4xl font-bold text-emerald-400 mt-2"></div>
+                    </div>
+                    <div class="bg-zinc-900 p-6 rounded-3xl">
+                        <div class="text-zinc-400 text-sm">Deudores</div>
+                        <div id="dashDebt" class="text-4xl font-bold text-amber-400 mt-2"></div>
+                    </div>
+                    <div class="bg-zinc-900 p-6 rounded-3xl">
+                        <div class="text-zinc-400 text-sm">Ganancia hoy</div>
+                        <div id="dashTodayProfit" class="text-4xl font-bold text-emerald-400 mt-2"></div>
+                    </div>
+                    <div class="bg-zinc-900 p-6 rounded-3xl">
+                        <div class="text-zinc-400 text-sm">Ventas totales</div>
+                        <div id="dashMonthSales" class="text-4xl font-bold text-sky-400 mt-2"></div>
+                    </div>
+                </div>
+                <button onclick="showQuickSale()" class="mt-12 mx-auto block bg-emerald-600 hover:bg-emerald-500 text-2xl font-bold px-16 py-8 rounded-3xl transition">+ VENTA RÁPIDA</button>
             </div>
 
-            <!-- CONTENT -->
-            <div class="app-content">
-
-                <!-- DASHBOARD -->
-                <div id="dashboard" class="section active">
-                    <h2 class="text-2xl font-bold mb-6">Dashboard</h2>
-                    <div class="grid grid-cols-4 gap-6">
-                        <div class="bg-zinc-900 p-6 rounded-3xl">
-                            <div class="text-zinc-400 text-sm">Valor stock</div>
-                            <div id="dashStockValue" class="text-4xl font-bold text-emerald-400 mt-2"></div>
-                        </div>
-                        <div class="bg-zinc-900 p-6 rounded-3xl">
-                            <div class="text-zinc-400 text-sm">Deudores</div>
-                            <div id="dashDebt" class="text-4xl font-bold text-amber-400 mt-2"></div>
-                        </div>
-                        <div class="bg-zinc-900 p-6 rounded-3xl">
-                            <div class="text-zinc-400 text-sm">Ganancia hoy</div>
-                            <div id="dashTodayProfit" class="text-4xl font-bold text-emerald-400 mt-2"></div>
-                        </div>
-                        <div class="bg-zinc-900 p-6 rounded-3xl">
-                            <div class="text-zinc-400 text-sm">Ventas totales</div>
-                            <div id="dashMonthSales" class="text-4xl font-bold text-sky-400 mt-2"></div>
-                        </div>
+            <!-- PRODUCTOS -->
+            <div id="products" class="section">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-2xl font-bold">Productos</h2>
+                        <button onclick="showProductsInfo()" class="w-7 h-7 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-400 text-sm flex items-center justify-center">ℹ️</button>
                     </div>
-                    <button onclick="showQuickSale()" class="mt-12 mx-auto block bg-emerald-600 hover:bg-emerald-500 text-2xl font-bold px-16 py-8 rounded-3xl">+ VENTA RÁPIDA</button>
+                    <button onclick="showAddProduct()" class="bg-emerald-600 hover:bg-emerald-500 px-6 py-2 rounded-xl transition">+ Nuevo</button>
                 </div>
-
-                <!-- PRODUCTOS -->
-                <div id="products" class="section">
-                    <!-- Header row -->
-                    <div class="flex justify-between items-center mb-4">
-                        <div class="flex items-center gap-2">
-                            <h2 class="text-2xl font-bold">Productos</h2>
-                            <button onclick="showProductsInfo()" class="w-7 h-7 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-200 text-sm flex items-center justify-center" title="Resumen de stock">ℹ️</button>
-                        </div>
-                        <button onclick="showAddProduct()" class="bg-emerald-600 px-6 py-2 rounded-xl">+ Nuevo</button>
-                    </div>
-                    <!-- Search bar -->
-                    <div class="mb-4">
-                        <input id="productSearch" type="text" placeholder="🔍 Buscar por nombre..." oninput="renderProducts()"
-                            class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-emerald-600">
-                    </div>
-                    <!-- Table -->
-                    <div class="overflow-x-auto">
+                <div class="mb-4">
+                    <input id="productSearch" type="text" placeholder="🔍 Buscar por nombre..." oninput="renderProducts()"
+                        class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-emerald-600">
+                </div>
+                <div class="overflow-x-auto">
                     <table class="w-full">
                         <thead>
                             <tr class="text-left text-zinc-400 text-sm select-none">
-                                <th class="pb-3 cursor-pointer hover:text-zinc-200" onclick="sortProducts('name')">
-                                    Nombre <span id="sort-name" class="text-zinc-600 text-xs"></span>
-                                </th>
-                                <th class="cursor-pointer hover:text-zinc-200" onclick="sortProducts('category')">
-                                    Categoría <span id="sort-category" class="text-zinc-600 text-xs"></span>
-                                </th>
-                                <th class="cursor-pointer hover:text-zinc-200" onclick="sortProducts('currentStock')">
-                                    Stock <span id="sort-currentStock" class="text-zinc-600 text-xs"></span>
-                                </th>
-                                <th class="cursor-pointer hover:text-zinc-200" onclick="sortProducts('avgCost')">
-                                    Costo prom. <span id="sort-avgCost" class="text-zinc-600 text-xs"></span>
-                                </th>
+                                <th class="pb-3 cursor-pointer hover:text-zinc-200" onclick="sortProducts('name')">Nombre <span id="sort-name" class="text-zinc-600 text-xs"></span></th>
+                                <th class="cursor-pointer hover:text-zinc-200" onclick="sortProducts('category')">Categoría <span id="sort-category" class="text-zinc-600 text-xs"></span></th>
+                                <th class="cursor-pointer hover:text-zinc-200" onclick="sortProducts('currentStock')">Stock <span id="sort-currentStock" class="text-zinc-600 text-xs"></span></th>
+                                <th class="cursor-pointer hover:text-zinc-200" onclick="sortProducts('avgCost')">Costo prom. <span id="sort-avgCost" class="text-zinc-600 text-xs"></span></th>
                                 <th>Mínimo</th>
                                 <th>Acción</th>
                             </tr>
                         </thead>
                         <tbody id="productsTable" class="text-sm"></tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- DESCUENTOS -->
+            <div id="discounts" class="section">
+                <div class="flex justify-between mb-6">
+                    <h2 class="text-2xl font-bold">Descuentos</h2>
+                    <button onclick="showAddDiscount()" class="bg-emerald-600 hover:bg-emerald-500 px-6 py-2 rounded-xl transition">+ Nuevo descuento</button>
+                </div>
+                <div id="discountsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            </div>
+
+            <!-- CLIENTES -->
+            <div id="customers" class="section">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold">Clientes</h2>
+                    <div class="flex gap-2">
+                        <button onclick="showManageVipLevels()" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-xl text-sm transition">⚙️ Niveles VIP</button>
+                        <button onclick="showAddCustomer()" class="bg-emerald-600 hover:bg-emerald-500 px-6 py-2 rounded-xl transition">+ Nuevo</button>
                     </div>
                 </div>
-
-                <!-- DESCUENTOS -->
-                <div id="discounts" class="section">
-                    <div class="flex justify-between mb-6"><h2 class="text-2xl font-bold">Descuentos</h2><button onclick="showAddDiscount()" class="bg-emerald-600 px-6 py-2 rounded-xl">+ Nuevo descuento</button></div>
-                    <div id="discountsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-                </div>
-
-                <!-- CLIENTES -->
-                <div id="customers" class="section">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-2xl font-bold">Clientes</h2>
-                        <div class="flex gap-2">
-                            <button onclick="showManageVipLevels()" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-xl text-sm">⚙️ Niveles VIP</button>
-                            <button onclick="showAddCustomer()" class="bg-emerald-600 px-6 py-2 rounded-xl">+ Nuevo</button>
-                        </div>
-                    </div>
-                    <div class="overflow-x-auto">
+                <div class="overflow-x-auto">
                     <table class="w-full">
                         <thead><tr class="text-left text-zinc-400 text-sm"><th class="pb-3">Nombre</th><th>Nivel VIP</th><th>Compras</th><th>Total gastado</th><th>Deuda</th><th>Acción</th></tr></thead>
                         <tbody id="customersTable" class="text-sm"></tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- PROVEEDORES -->
+            <div id="providers" class="section">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold">Proveedores</h2>
+                    <button onclick="showAddProvider()" class="bg-emerald-600 hover:bg-emerald-500 px-6 py-2 rounded-xl transition">+ Nuevo</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead><tr class="text-left text-zinc-400 text-sm"><th class="pb-3">Nombre</th><th>Contacto</th><th>Teléfono</th><th>Email</th><th>Ubicación</th><th>Acción</th></tr></thead>
+                        <tbody id="providersTable" class="text-sm"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- COMPRAS -->
+            <div id="purchases" class="section">
+                <div class="flex justify-between mb-6">
+                    <h2 class="text-2xl font-bold">Compras / Lotes</h2>
+                    <button onclick="showAddPurchase()" class="bg-emerald-600 hover:bg-emerald-500 px-6 py-2 rounded-xl transition">+ Nueva compra</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead><tr class="text-left text-zinc-400 text-sm"><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Costo unitario</th><th>Proveedor</th><th>Estado</th><th>Acción</th></tr></thead>
+                        <tbody id="purchasesTable" class="text-sm"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- VENTAS -->
+            <div id="sales" class="section">
+                <div class="flex justify-between mb-6">
+                    <h2 class="text-2xl font-bold">Ventas</h2>
+                    <button onclick="showQuickSale()" class="bg-emerald-600 hover:bg-emerald-500 px-6 py-2 rounded-xl transition">+ Venta rápida</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead><tr class="text-left text-zinc-400 text-sm"><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Precio venta</th><th>Cliente</th><th>Acción</th></tr></thead>
+                        <tbody id="salesTable" class="text-sm"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- REPORTES -->
+            <div id="reports" class="section">
+                <h2 class="text-2xl font-bold mb-6">Reportes</h2>
+                <div class="bg-zinc-900 p-6 rounded-3xl mb-4">
+                    <div class="grid grid-cols-2 gap-8">
+                        <div><div class="text-sm text-zinc-400">Ganancia neta total</div><div id="totalProfit" class="text-5xl font-bold text-emerald-400"></div></div>
+                        <div><div class="text-sm text-zinc-400">Costo mercancía vendida</div><div id="totalCOGS" class="text-5xl font-bold text-zinc-400"></div></div>
                     </div>
-                </div>
-
-                <!-- PROVEEDORES -->
-                <div id="providers" class="section">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-2xl font-bold">Proveedores</h2>
-                        <button onclick="showAddProvider()" class="bg-emerald-600 px-6 py-2 rounded-xl">
-                            + Nuevo
-                        </button>
-                    </div>
-
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead>
-                                <tr class="text-left text-zinc-400 text-sm">
-                                    <th class="pb-3">Nombre</th>
-                                    <th>Contacto</th>
-                                    <th>Teléfono</th>
-                                    <th>Email</th>
-                                    <th>Ubicación</th>
-                                    <th>Acción</th>
-                                </tr>
-                            </thead>
-                            <tbody id="providersTable" class="text-sm"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- COMPRAS -->
-                <div id="purchases" class="section">
-                    <div class="flex justify-between mb-6"><h2 class="text-2xl font-bold">Compras / Lotes</h2><button onclick="showAddPurchase()" class="bg-emerald-600 px-6 py-2 rounded-xl">+ Nueva compra</button></div>
-                    <div class="overflow-x-auto"><table class="w-full"><thead><tr class="text-left text-zinc-400 text-sm"><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Costo unitario</th><th>Proveedor</th><th>Estado</th><th>Acción</th></tr></thead>
-                    <tbody id="purchasesTable" class="text-sm"></tbody></table></div>
-                </div>
-
-                <!-- VENTAS -->
-                <div id="sales" class="section">
-                    <div class="flex justify-between mb-6"><h2 class="text-2xl font-bold">Ventas</h2><button onclick="showQuickSale()" class="bg-emerald-600 px-6 py-2 rounded-xl">+ Venta rápida</button></div>
-                    <div class="overflow-x-auto"><table class="w-full"><thead><tr class="text-left text-zinc-400 text-sm"><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Precio venta</th><th>Cliente</th><th>Acción</th></tr></thead>
-                    <tbody id="salesTable" class="text-sm"></tbody></table></div>
-                </div>
-
-                <!-- REPORTES -->
-                <div id="reports" class="section">
-                    <h2 class="text-2xl font-bold mb-6">Reportes</h2>
-                    <div class="bg-zinc-900 p-6 rounded-3xl mb-4">
-                        <div class="grid grid-cols-2 gap-8">
-                            <div><div class="text-sm text-zinc-400">Ganancia neta total</div><div id="totalProfit" class="text-5xl font-bold text-emerald-400"></div></div>
-                            <div><div class="text-sm text-zinc-400">Costo mercancía vendida</div><div id="totalCOGS" class="text-5xl font-bold text-zinc-400"></div></div>
+                    <div class="mt-6 border-t border-zinc-800 pt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <div class="text-xs text-zinc-500 mb-1">💵 Cobrado en efectivo</div>
+                            <div id="totalCash" class="text-2xl font-bold text-emerald-300">-</div>
+                            <div class="text-xs text-zinc-600 mt-1">Ventas al contado + cobros de deuda</div>
                         </div>
-                        <div class="mt-6 border-t border-zinc-800 pt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <div class="text-xs text-zinc-500 mb-1">💵 Cobrado en efectivo</div>
-                                <div id="totalCash" class="text-2xl font-bold text-emerald-300">-</div>
-                                <div class="text-xs text-zinc-600 mt-1">Ventas al contado + cobros de deuda</div>
-                            </div>
-                            <div>
-                                <div class="text-xs text-zinc-500 mb-1">💳 Deuda pendiente (fiado)</div>
-                                <div id="totalPendingDebt" class="text-2xl font-bold text-amber-400">-</div>
-                                <div class="text-xs text-zinc-600 mt-1">Dinero vendido aún no cobrado</div>
-                            </div>
-                            <div>
-                                <div class="text-xs text-zinc-500 mb-1">🏦 Total si todo se cobra</div>
-                                <div id="totalIfAllPaid" class="text-2xl font-bold text-sky-400">-</div>
-                                <div class="text-xs text-zinc-600 mt-1">Efectivo + deuda pendiente</div>
-                            </div>
+                        <div>
+                            <div class="text-xs text-zinc-500 mb-1">💳 Deuda pendiente (fiado)</div>
+                            <div id="totalPendingDebt" class="text-2xl font-bold text-amber-400">-</div>
+                            <div class="text-xs text-zinc-600 mt-1">Dinero vendido aún no cobrado</div>
                         </div>
-                        <div id="debtBreakdown" class="mt-4 border-t border-zinc-800 pt-4 hidden">
-                            <div class="text-xs text-zinc-500 mb-2">Detalle de deudas por cliente</div>
-                            <div id="debtBreakdownList" class="space-y-1"></div>
+                        <div>
+                            <div class="text-xs text-zinc-500 mb-1">🏦 Total si todo se cobra</div>
+                            <div id="totalIfAllPaid" class="text-2xl font-bold text-sky-400">-</div>
+                            <div class="text-xs text-zinc-600 mt-1">Efectivo + deuda pendiente</div>
                         </div>
-                        <button onclick="toggleDebtBreakdown()" class="mt-3 text-xs text-zinc-500 hover:text-zinc-300">Ver detalle por cliente ▾</button>
                     </div>
-                    <div class="bg-zinc-900 p-6 rounded-3xl mt-6">
-                        <h3 class="text-lg font-semibold mb-4">Resumen del mes (CUP)</h3>
-                        <canvas id="currentMonthChart"></canvas>
+                    <div id="debtBreakdown" class="mt-4 border-t border-zinc-800 pt-4 hidden">
+                        <div class="text-xs text-zinc-500 mb-2">Detalle por cliente</div>
+                        <div id="debtBreakdownList" class="space-y-1"></div>
                     </div>
+                    <button onclick="toggleDebtBreakdown()" class="mt-3 text-xs text-zinc-500 hover:text-zinc-300">Ver detalle por cliente ▾</button>
                 </div>
-
-
-                <!-- INFORMACIÓN -->
-                <div id="info" class="section">
-                    <h2 class="text-2xl font-bold mb-2">Información</h2>
-                    <p class="text-zinc-500 text-sm mb-6">Cómo funciona la lógica económica de Vexto — con ejemplos reales.</p>
-                    <div class="space-y-6 max-w-3xl" id="infoContent"></div>
+                <div class="bg-zinc-900 p-6 rounded-3xl mt-6">
+                    <h3 class="text-lg font-semibold mb-4">Resumen del mes (CUP)</h3>
+                    <canvas id="currentMonthChart"></canvas>
                 </div>
+            </div>
 
-                <!-- AJUSTES -->
-                <div id="settings" class="section">
-                    <h2 class="text-2xl font-bold mb-6">Ajustes</h2>
-                    <div class="bg-zinc-900 p-6 rounded-3xl space-y-8 max-w-xl">
+            <!-- INFORMACIÓN -->
+            <div id="info" class="section">
+                <h2 class="text-2xl font-bold mb-2">Información</h2>
+                <p class="text-zinc-500 text-sm mb-6">Cómo funciona Vexto — lógica económica, roles y más.</p>
+                <div class="space-y-6 max-w-3xl" id="infoContent"></div>
+            </div>
+
+            <!-- AJUSTES -->
+            <div id="settings" class="section">
+                <h2 class="text-2xl font-bold mb-6">Ajustes</h2>
+                <div class="space-y-6 max-w-xl">
+
+                    <!-- Moneda y tasas -->
+                    <div class="bg-zinc-900 p-6 rounded-3xl space-y-6">
                         <div>
                             <div class="text-sm font-semibold text-zinc-300 mb-3">Moneda principal</div>
                             <select id="baseCurrencySelect" class="bg-zinc-800 rounded-xl px-4 py-3 w-48 text-sm" onchange="updateBaseCurrency()">
@@ -292,10 +337,9 @@
                                 <option value="USD">USD — Dólar</option>
                                 <option value="EUR">EUR — Euro</option>
                             </select>
-                            <p class="text-xs text-zinc-500 mt-2">Todos los valores se mostrarán en esta moneda.</p>
                         </div>
                         <div class="border-t border-zinc-800 pt-6">
-                            <div class="text-sm font-semibold text-zinc-300 mb-4">Tasas de cambio informales</div>
+                            <div class="text-sm font-semibold text-zinc-300 mb-4">Tasas de cambio</div>
                             <div class="flex items-center gap-3 mb-4">
                                 <span class="text-sm w-10 text-zinc-400">USD</span>
                                 <span class="text-zinc-500 text-sm">1 USD =</span>
@@ -313,8 +357,7 @@
                             <div class="text-sm font-semibold text-zinc-300 mb-4">Redondeo de precios</div>
                             <div>
                                 <label class="block text-sm mb-2">Múltiplo mínimo de billete</label>
-                                <select id="cashRoundingStepInput" 
-                                    class="w-full bg-zinc-800 rounded-xl p-3 text-sm" onchange="saveCashRoundingStep()">
+                                <select id="cashRoundingStepInput" class="w-full bg-zinc-800 rounded-xl p-3 text-sm" onchange="saveCashRoundingStep()">
                                     <option value="1">Sin redondeo</option>
                                     <option value="5">5</option>
                                     <option value="10">10</option>
@@ -322,376 +365,534 @@
                                     <option value="50">50</option>
                                     <option value="100">100</option>
                                 </select>
-                                <p class="text-xs text-zinc-500 mt-2">El precio sugerido se ajustará para evitar vueltos en billetes pequeños.</p>
                             </div>
                             <div class="mt-4">
                                 <label class="block text-sm mb-2">Dirección del redondeo</label>
-                                <select id="cashRoundingDirInput"
-                                    class="w-full bg-zinc-800 rounded-xl p-3 text-sm" onchange="saveCashRoundingDir()">
+                                <select id="cashRoundingDirInput" class="w-full bg-zinc-800 rounded-xl p-3 text-sm" onchange="saveCashRoundingDir()">
                                     <option value="round">Al más cercano</option>
                                     <option value="ceil">Siempre hacia arriba ↑</option>
                                     <option value="floor">Siempre hacia abajo ↓</option>
                                 </select>
-                                <p class="text-xs text-zinc-500 mt-2">Ejemplo con múltiplo 50: precio 1.237 → arriba: 1.250 · abajo: 1.200 · cercano: 1.250</p>
-                            </div>
-                        </div>
-                        <div class="border-t border-zinc-800 pt-6">
-                            <div class="text-sm font-semibold text-red-400 mb-3">
-                                Para usuarios avanzados
-                            </div>
-                            <div class="mt-4">
-                            <button onclick="showEditDatabase()"
-                                class="w-full bg-red-600 hover:bg-red-500 py-3 rounded-2xl text-sm font-semibold">
-                                ✏ Editar base de datos manualmente
-                            </button>
-                            <p class="text-xs text-zinc-500 mt-2">
-                                Esto es para usuarios avanzados. Editar la base de datos directamente puede corromperla si no se hace correctamente.
-                            </p>
-                            </div>
-                            <div class="mt-4">
-                            <button onclick="showResetDatabaseConfirm()"
-                                class="w-full bg-red-600 hover:bg-red-500 py-3 rounded-2xl text-sm font-semibold">
-                                🗑️ Eliminar toda la base de datos
-                            </button>
-                            <p class="text-xs text-zinc-500 mt-2">
-                                Esto eliminará TODOS los datos guardados (productos, ventas, clientes, proveedores, historial, etc.).
-                                No se puede deshacer.
-                            </p>
+                                <p class="text-xs text-zinc-500 mt-2">Ejemplo con múltiplo 50: 163 → arriba: 200 · abajo: 150 · cercano: 150</p>
                             </div>
                         </div>
                     </div>
-                </div>
 
-            </div>
-        </div>
-    </div>
+                    <!-- Equipo -->
+                    <div class="bg-zinc-900 p-6 rounded-3xl" id="settingsTeamSection">
+                        <div class="flex justify-between items-center mb-4">
+                            <div>
+                                <div class="text-sm font-semibold text-zinc-300">👥 Equipo</div>
+                                <div class="text-xs text-zinc-500 mt-0.5">Empleados con acceso a tu negocio</div>
+                            </div>
+                            <button onclick="showAddEmployee()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-xl text-sm transition">+ Agregar</button>
+                        </div>
+                        <div id="employeesList" class="space-y-2 text-sm">
+                            <div class="text-zinc-500 text-xs">Cargando...</div>
+                        </div>
+                        <div id="licenseInfo" class="mt-4 pt-4 border-t border-zinc-800 text-xs text-zinc-500"></div>
+                    </div>
 
-    <!-- MODALES -->
+                    <!-- Seguridad -->
+                    <div class="bg-zinc-900 p-6 rounded-3xl">
+                        <div class="text-sm font-semibold text-zinc-300 mb-4">🔐 Seguridad</div>
+                        <button onclick="showChangePassword()" class="w-full bg-zinc-800 hover:bg-zinc-700 py-3 rounded-2xl text-sm transition">Cambiar contraseña</button>
+                    </div>
 
-    <!-- Products Info Modal -->
-    <div id="modalProductsInfo" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-        <div class="bg-zinc-900 w-full max-w-sm rounded-3xl p-6" style="animation: scaleUp .32s cubic-bezier(0.34,3.56,0.64,1)">
-            <div class="flex justify-between items-center mb-5">
-                <h3 class="text-lg font-bold">Resumen de productos</h3>
-                <button onclick="hideModal('modalProductsInfo')" class="text-red-400 hover:text-red-300 text-xl">&times;</button>
-            </div>
-            <div id="productsInfoContent" class="space-y-3 text-sm"></div>
-            <button onclick="hideModal('modalProductsInfo')" class="w-full mt-6 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-2xl text-sm font-medium">Cerrar</button>
-        </div>
-    </div>
-    <!-- Add Product -->
-    <div id="modalProduct" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4">
-        <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0">
-            <h3 class="text-lg md:text-xl font-bold mb-4 md:mb-6">Nuevo Producto</h3>
-            <input id="prodName" placeholder="Nombre" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 mb-3 md:mb-4 text-sm">
-            <input id="prodCat" placeholder="Categoría" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 mb-3 md:mb-4 text-sm">
-            <input id="prodMin" type="number" placeholder="Stock mínimo" value="10" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 mb-3 md:mb-4 text-sm">
-            <div class="mb-3 md:mb-4"><label class="text-xs md:text-sm text-zinc-400 block mb-2">Margen ganancia (%)</label><input id="prodMarkup" type="number" placeholder="Porcentaje" value="50" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 text-sm"></div>
-            <div class="flex gap-2 md:gap-3 mt-6 md:mt-8">
-                <button onclick="hideModal('modalProduct')" class="flex-1 py-2 md:py-4 bg-zinc-800 rounded-2xl text-sm">Cancelar</button>
-                <button onclick="saveProduct()" class="flex-1 py-2 md:py-4 bg-emerald-600 rounded-2xl text-sm">Guardar</button>
-            </div>
-        </div>
-    </div>
+                    <!-- Exportar -->
+                    <div class="bg-zinc-900 p-6 rounded-3xl">
+                        <div class="text-sm font-semibold text-zinc-300 mb-3">📤 Exportar datos</div>
+                        <p class="text-xs text-zinc-500 mb-4">Descarga una copia de todos tus datos en formato JSON.</p>
+                        <button onclick="exportData()" class="w-full bg-zinc-800 hover:bg-zinc-700 py-3 rounded-2xl text-sm transition">Descargar backup JSON</button>
+                    </div>
 
-    <!-- Add Purchase -->
-    <div id="modalPurchase" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4">
-        <div class="bg-zinc-900 w-full max-w-2xl rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0">
-            <div class="flex justify-between items-center mb-4 md:mb-6">
-                <h3 class="text-lg md:text-xl font-bold">Nueva Compra por Lote</h3>
-                <button onclick="hideModal('modalPurchase')" class="text-red-400 hover:text-red-300 text-2xl leading-none">&times;</button>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 mb-4 md:mb-6">
-                <div><label class="text-xs md:text-sm text-zinc-400 block mb-1 md:mb-2">Fecha</label><input id="purchaseDate" type="date" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-3 text-sm"></div>
-                <div><label class="text-xs md:text-sm text-zinc-400 block mb-1 md:mb-2">Proveedor</label><input id="purchaseSupp" list="providersList" placeholder="Proveedor" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-3 text-sm"><datalist id="providersList"></datalist></div>
-            </div>
-            <!-- Envío toggle -->
-            <div class="bg-zinc-800 rounded-2xl px-4 py-3 mb-4 flex items-center justify-between">
-                <div>
-                    <div class="text-sm font-medium text-zinc-200">Estado de envío</div>
-                    <div id="purchaseShippingLabel" class="text-xs text-zinc-500 mt-0.5">🚚 En camino — aún no llegó al almacén</div>
-                </div>
-                <label class="relative inline-flex items-center cursor-pointer ml-4">
-                    <input type="checkbox" id="purchaseInStock" class="sr-only peer" onchange="updateShippingLabel()">
-                    <div class="w-11 h-6 bg-zinc-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
-                </label>
-            </div>
-            <div class="text-xs md:text-sm text-zinc-400 mb-2 md:mb-3">Productos del lote</div>
-            <div id="purchaseLinesList" class="space-y-2 md:space-y-3 mb-2 md:mb-3 bg-zinc-800 p-3 md:p-4 rounded-2xl min-h-[60px]"></div>
-            <button onclick="addPurchaseLine()" class="text-emerald-400 text-xs md:text-sm mb-4 md:mb-6 block">+ Agregar producto</button>
-            <div class="text-xs md:text-sm text-zinc-400 mb-2 md:mb-3">Gastos generales del lote</div>
-            <div id="expensesList" class="space-y-1 md:space-y-2 mb-3 md:mb-4"></div>
-            <button onclick="addExpenseLine()" class="text-emerald-400 text-xs md:text-sm mb-4 md:mb-6 block">+ Agregar gasto</button>
-            <div class="flex gap-2 md:gap-3 mt-6 md:mt-10">
-                <button onclick="hideModal('modalPurchase')" class="flex-1 py-2 md:py-4 bg-zinc-800 rounded-2xl text-sm">Cancelar</button>
-                <button onclick="savePurchase()" class="flex-1 py-2 md:py-4 bg-emerald-600 rounded-2xl text-sm">Guardar lote</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Quick Sale -->
-    <div id="modalSale" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4">
-        <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0">
-            <h3 class="text-lg md:text-xl font-bold mb-4 md:mb-6">Venta Rápida</h3>
-            <select id="saleProd" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 mb-3 md:mb-4 text-sm" onchange="updateSuggestedPrice()"></select>
-            <input id="saleQty" type="number" placeholder="Cantidad" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 mb-3 md:mb-4 text-sm">
-            <div class="mb-2 text-xs text-zinc-500">Precio sugerido: <span id="suggestedPriceDisplay">-</span></div>
-            <div class="flex gap-2 mb-3 md:mb-4">
-                <input id="salePrice" type="number" placeholder="Precio unitario" class="flex-1 bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 text-sm">
-                <select id="saleCurrency" class="bg-zinc-800 border-0 rounded-2xl px-3 py-2 text-sm" onchange="updateSuggestedPrice()">
-                    <option value="CUP">CUP</option>
-                    <option value="USD">USD</option>
-                    <option value="EUR">EUR</option>
-                </select>
-            </div>
-            <div class="relative mb-3 md:mb-4">
-                <input id="saleClient" placeholder="Cliente (opcional)" autocomplete="off"
-                    class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 text-sm"
-                    oninput="filterClientSuggestions(this.value)"
-                    onkeydown="handleClientKey(event)"
-                    onfocus="filterClientSuggestions(this.value)"
-                    onblur="setTimeout(hideSuggestions,150)">
-                <ul id="clientSuggestions" class="hidden absolute z-10 w-full bg-zinc-800 border border-zinc-700 rounded-2xl mt-1 overflow-hidden shadow-xl max-h-48 overflow-y-auto"></ul>
-            </div>
-            <label class="flex items-center gap-2 mb-6 md:mb-8 text-sm"><input id="saleCredit" type="checkbox"> Fiado</label>
-            <div class="flex gap-2 md:gap-3">
-                <button onclick="hideModal('modalSale')" class="flex-1 py-2 md:py-4 bg-zinc-800 rounded-2xl text-sm">Cancelar</button>
-                <button onclick="saveSale()" class="flex-1 py-2 md:py-4 bg-emerald-600 rounded-2xl text-sm">Registrar venta</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Audit Log Modal -->
-    <div id="modalAudit" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4">
-        <div class="bg-zinc-900 w-full max-w-2xl rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0">
-            <div class="flex justify-between items-center mb-4 md:mb-6">
-                <h3 class="text-lg md:text-xl font-bold">Historial de Auditoria</h3>
-                <button onclick="hideModal('modalAudit')" class="text-red-400 hover:text-red-300 text-xl md:text-2xl">&times;</button>
-            </div>
-            <div id="auditLog" class="space-y-2 md:space-y-3 text-xs md:text-sm"></div>
-        </div>
-    </div>
-
-    <!-- Add Discount Modal -->
-    <div id="modalDiscount" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4">
-        <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0">
-            <h3 class="text-lg md:text-xl font-bold mb-4 md:mb-6">Nuevo Descuento</h3>
-            <div class="mb-3 md:mb-4">
-                <label class="text-xs md:text-sm text-zinc-400 block mb-1 md:mb-2">Aplica a:</label>
-                <select id="discountProduct" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-3 mb-3 md:mb-4 text-sm"><option value="">Todos los productos</option></select>
-            </div>
-            <div class="mb-3 md:mb-4">
-                <label class="text-xs md:text-sm text-zinc-400 block mb-1 md:mb-2">Tipo de descuento</label>
-                <select id="discountType" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-3 mb-3 md:mb-4 text-sm" onchange="updateDiscountFields()">
-                    <option value="mayor">Al por mayor (cantidad minima)</option>
-                    <option value="especial">Dia especial</option>
-                    <option value="cliente">Cliente especifico</option>
-                    <option value="general">General</option>
-                </select>
-            </div>
-            <div id="discountFields"></div>
-            <div class="mb-3 md:mb-4">
-                <label class="text-xs md:text-sm text-zinc-400 block mb-1 md:mb-2">Porcentaje de descuento (%)</label>
-                <input id="discountPercent" type="number" placeholder="ej: 10" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-3 text-sm" min="0" max="100">
-            </div>
-            <div class="flex gap-2 md:gap-3 mt-6 md:mt-8">
-                <button onclick="hideModal('modalDiscount')" class="flex-1 py-2 md:py-4 bg-zinc-800 rounded-2xl text-sm">Cancelar</button>
-                <button onclick="saveDiscount()" class="flex-1 py-2 md:py-4 bg-emerald-600 rounded-2xl text-sm">Guardar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Purchase Info Modal -->
-    <div id="modalPurchaseInfo" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4">
-        <div class="bg-zinc-900 w-full max-w-lg rounded-3xl p-4 md:p-6 max-h-[95vh] overflow-y-auto my-4 md:my-0">
-            <div class="flex justify-between items-center mb-3 md:mb-4">
-                <h3 class="text-lg md:text-xl font-bold">Detalle de Compra</h3>
-                <button onclick="hideModal('modalPurchaseInfo')" class="text-red-400 hover:text-red-300 text-xl md:text-2xl">&times;</button>
-            </div>
-            <div id="purchaseInfoContent" class="text-xs md:text-sm space-y-2 md:space-y-3"></div>
-        </div>
-    </div>
-
-    <!-- Setup Rates Modal — solo primer login -->
-    <div id="modalSetupRates" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-        <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-8">
-            <div class="bg-red-950 border border-red-700 rounded-2xl px-5 py-4 mb-6 flex gap-3 items-start">
-                <span class="text-red-400 text-lg mt-0.5">⚠️</span>
-                <div>
-                    <div class="text-red-400 font-semibold text-sm mb-1">Paso obligatorio</div>
-                    <div class="text-red-300 text-xs leading-relaxed">Debes configurar las tasas antes de usar la app. Sin ellas los cálculos serán incorrectos. Podrás actualizarlas cuando quieras en <strong>⚙️ Ajustes</strong>.</div>
                 </div>
             </div>
-            <div class="text-center mb-6">
-                <div class="text-3xl mb-2">💱</div>
-                <h3 class="text-xl font-bold">Tasas de cambio informales</h3>
-                <p class="text-sm text-zinc-400 mt-1">¿Cuántos CUP vale 1 unidad de cada moneda hoy?</p>
-            </div>
-            <div class="space-y-4 mb-8">
-                <div class="bg-zinc-800 rounded-2xl px-5 py-4 flex items-center gap-4">
-                    <span class="text-sm font-semibold w-10 text-zinc-300">USD</span>
-                    <span class="text-zinc-500 text-sm flex-1">1 USD =</span>
-                    <input id="setupRateUSD" type="number" step="any" min="1" placeholder="ej: 380" class="bg-zinc-700 rounded-xl px-4 py-2 w-32 text-right font-bold text-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                    <span class="text-sm text-zinc-400">CUP</span>
-                </div>
-                <div class="bg-zinc-800 rounded-2xl px-5 py-4 flex items-center gap-4">
-                    <span class="text-sm font-semibold w-10 text-zinc-300">EUR</span>
-                    <span class="text-zinc-500 text-sm flex-1">1 EUR =</span>
-                    <input id="setupRateEUR" type="number" step="any" min="1" placeholder="ej: 410" class="bg-zinc-700 rounded-xl px-4 py-2 w-32 text-right font-bold text-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                    <span class="text-sm text-zinc-400">CUP</span>
-                </div>
-            </div>
-            <button onclick="saveSetupRates()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-4 rounded-2xl font-semibold text-base">Guardar y comenzar →</button>
+
+        </div><!-- /app-content -->
+    </div><!-- /app-container -->
+</div><!-- /app -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODALES
+═══════════════════════════════════════════════════════════ -->
+
+<!-- Products Info -->
+<div id="modalProductsInfo" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+    <div class="bg-zinc-900 w-full max-w-sm rounded-3xl p-6">
+        <div class="flex justify-between items-center mb-5">
+            <h3 class="text-lg font-bold">Resumen de productos</h3>
+            <button onclick="hideModal('modalProductsInfo')" class="text-red-400 hover:text-red-300 text-xl">&times;</button>
+        </div>
+        <div id="productsInfoContent" class="space-y-3 text-sm"></div>
+        <button onclick="hideModal('modalProductsInfo')" class="w-full mt-6 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-2xl text-sm font-medium">Cerrar</button>
+    </div>
+</div>
+
+<!-- Add Product -->
+<div id="modalProduct" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4">
+    <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0">
+        <h3 class="text-lg md:text-xl font-bold mb-6">Nuevo Producto</h3>
+        <input id="prodName" placeholder="Nombre" class="block w-full bg-zinc-800 border-0 rounded-2xl px-5 py-4 mb-4 text-sm">
+        <input id="prodCat" placeholder="Categoría" class="block w-full bg-zinc-800 border-0 rounded-2xl px-5 py-4 mb-4 text-sm">
+        <input id="prodMin" type="number" placeholder="Stock mínimo" value="10" class="block w-full bg-zinc-800 border-0 rounded-2xl px-5 py-4 mb-4 text-sm">
+        <div class="mb-4"><label class="text-xs text-zinc-400 block mb-2">Margen ganancia (%)</label><input id="prodMarkup" type="number" placeholder="50" value="50" class="block w-full bg-zinc-800 border-0 rounded-2xl px-5 py-4 text-sm"></div>
+        <div class="flex gap-3 mt-8">
+            <button onclick="hideModal('modalProduct')" class="flex-1 py-4 bg-zinc-800 rounded-2xl text-sm">Cancelar</button>
+            <button onclick="saveProduct()" class="flex-1 py-4 bg-emerald-600 rounded-2xl text-sm">Guardar</button>
         </div>
     </div>
+</div>
 
-
-    <!-- Confirm Modal (replaces all alert confirmations) -->
-    <div id="modalConfirm" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-[60]">
-        <div class="bg-zinc-900 w-full max-w-sm rounded-3xl p-6">
-            <div class="text-center mb-5">
-                <div id="confirmIcon" class="text-4xl mb-3">🗑️</div>
-                <h3 id="confirmTitle" class="text-lg font-bold mb-2">¿Eliminar?</h3>
-                <p id="confirmMessage" class="text-sm text-zinc-400"></p>
+<!-- Add Purchase -->
+<div id="modalPurchase" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4">
+    <div class="bg-zinc-900 w-full max-w-2xl rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg md:text-xl font-bold">Nueva Compra por Lote</h3>
+            <button onclick="hideModal('modalPurchase')" class="text-red-400 hover:text-red-300 text-2xl leading-none">&times;</button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div><label class="text-xs text-zinc-400 block mb-2">Fecha</label><input id="purchaseDate" type="date" class="block w-full bg-zinc-800 border-0 rounded-2xl px-5 py-3 text-sm"></div>
+            <div><label class="text-xs text-zinc-400 block mb-2">Proveedor</label><input id="purchaseSupp" list="providersList" placeholder="Proveedor" class="block w-full bg-zinc-800 border-0 rounded-2xl px-5 py-3 text-sm"><datalist id="providersList"></datalist></div>
+        </div>
+        <div class="bg-zinc-800 rounded-2xl px-4 py-3 mb-4 flex items-center justify-between">
+            <div>
+                <div class="text-sm font-medium text-zinc-200">Estado de envío</div>
+                <div id="purchaseShippingLabel" class="text-xs text-zinc-500 mt-0.5">🚚 En camino — aún no llegó al almacén</div>
             </div>
-            <div class="flex gap-3">
-                <button onclick="hideModal('modalConfirm')" class="flex-1 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm">Cancelar</button>
-                <button id="confirmBtn" class="flex-1 py-3 bg-red-600 hover:bg-red-500 rounded-2xl text-sm font-semibold">Eliminar</button>
-            </div>
+            <label class="relative inline-flex items-center cursor-pointer ml-4">
+                <input type="checkbox" id="purchaseInStock" class="sr-only peer" onchange="updateShippingLabel()">
+                <div class="w-11 h-6 bg-zinc-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+            </label>
+        </div>
+        <div class="text-sm text-zinc-400 mb-3">Productos del lote</div>
+        <div id="purchaseLinesList" class="space-y-3 mb-3 bg-zinc-800 p-4 rounded-2xl min-h-[60px]"></div>
+        <button onclick="addPurchaseLine()" class="text-emerald-400 text-sm mb-6 block">+ Agregar producto</button>
+        <div class="text-sm text-zinc-400 mb-3">Gastos generales del lote</div>
+        <div id="expensesList" class="space-y-2 mb-4"></div>
+        <button onclick="addExpenseLine()" class="text-emerald-400 text-sm mb-6 block">+ Agregar gasto</button>
+        <div class="flex gap-3 mt-10">
+            <button onclick="hideModal('modalPurchase')" class="flex-1 py-4 bg-zinc-800 rounded-2xl text-sm">Cancelar</button>
+            <button onclick="savePurchase()" class="flex-1 py-4 bg-emerald-600 rounded-2xl text-sm">Guardar lote</button>
         </div>
     </div>
+</div>
 
-    <!-- Add/Edit Customer Modal -->
-    <div id="modalCustomer" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4 z-50">
-        <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0">
-            <div class="flex justify-between items-center mb-5">
-                <h3 class="text-lg font-bold">Cliente</h3>
-                <button onclick="hideModal('modalCustomer')" class="text-red-400 hover:text-red-300 text-xl">&times;</button>
-            </div>
-            <input id="customerName" placeholder="Nombre del cliente" class="block w-full bg-zinc-800 border-0 rounded-2xl px-4 py-3 mb-4 text-sm">
-            <div class="mb-4">
-                <label class="text-xs text-zinc-400 block mb-2">Nivel VIP</label>
-                <select id="customerVipLevel" class="block w-full bg-zinc-800 border-0 rounded-2xl px-4 py-3 text-sm">
-                    <option value="">Sin nivel VIP</option>
-                </select>
-            </div>
-            <input id="customerId" type="hidden" value="">
-            <div class="flex gap-3 mt-6">
-                <button onclick="hideModal('modalCustomer')" class="flex-1 py-3 bg-zinc-800 rounded-2xl text-sm">Cancelar</button>
-                <button onclick="saveCustomer()" class="flex-1 py-3 bg-emerald-600 rounded-2xl text-sm">Guardar</button>
-            </div>
+<!-- Quick Sale -->
+<div id="modalSale" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4">
+    <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0">
+        <h3 class="text-lg md:text-xl font-bold mb-6">Venta Rápida</h3>
+        <select id="saleProd" class="block w-full bg-zinc-800 border-0 rounded-2xl px-5 py-4 mb-4 text-sm" onchange="updateSuggestedPrice()"></select>
+        <input id="saleQty" type="number" placeholder="Cantidad" class="block w-full bg-zinc-800 border-0 rounded-2xl px-5 py-4 mb-4 text-sm">
+        <div class="mb-2 text-xs text-zinc-500">Precio sugerido: <span id="suggestedPriceDisplay">-</span></div>
+        <div class="flex gap-2 mb-4">
+            <input id="salePrice" type="number" placeholder="Precio unitario" class="flex-1 bg-zinc-800 border-0 rounded-2xl px-5 py-4 text-sm">
+            <select id="saleCurrency" class="bg-zinc-800 border-0 rounded-2xl px-3 py-2 text-sm" onchange="updateSuggestedPrice()">
+                <option value="CUP">CUP</option>
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+            </select>
+        </div>
+        <div class="relative mb-4">
+            <input id="saleClient" placeholder="Cliente (opcional)" autocomplete="off"
+                class="block w-full bg-zinc-800 border-0 rounded-2xl px-5 py-4 text-sm"
+                oninput="filterClientSuggestions(this.value)"
+                onkeydown="handleClientKey(event)"
+                onfocus="filterClientSuggestions(this.value)"
+                onblur="setTimeout(hideSuggestions,150)">
+            <ul id="clientSuggestions" class="hidden absolute z-10 w-full bg-zinc-800 border border-zinc-700 rounded-2xl mt-1 overflow-hidden shadow-xl max-h-48 overflow-y-auto"></ul>
+        </div>
+        <label class="flex items-center gap-2 mb-8 text-sm"><input id="saleCredit" type="checkbox"> Fiado</label>
+        <div class="flex gap-3">
+            <button onclick="hideModal('modalSale')" class="flex-1 py-4 bg-zinc-800 rounded-2xl text-sm">Cancelar</button>
+            <button onclick="saveSale()" class="flex-1 py-4 bg-emerald-600 rounded-2xl text-sm">Registrar venta</button>
         </div>
     </div>
+</div>
 
-    <!-- VIP Levels Manager Modal -->
-    <div id="modalVipLevel" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4 z-50">
-        <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0">
-            <div class="flex justify-between items-center mb-5">
-                <h3 class="text-lg font-bold">⭐ Niveles VIP</h3>
-                <button onclick="hideModal('modalVipLevel')" class="text-red-400 hover:text-red-300 text-xl">&times;</button>
-            </div>
-            <div id="vipLevelsList" class="space-y-2 mb-4"></div>
-            <div class="bg-zinc-800 rounded-2xl p-4 space-y-3">
-                <div class="text-xs text-zinc-400 font-semibold">Nuevo nivel</div>
-                <input id="vipLevelName" placeholder="Nombre (ej: Oro, Premium...)" class="block w-full bg-zinc-700 border-0 rounded-xl px-4 py-2 text-sm">
-                <div class="flex gap-2 items-center">
-                    <input id="vipLevelPercent" type="number" placeholder="% descuento" min="1" max="99" class="flex-1 bg-zinc-700 border-0 rounded-xl px-4 py-2 text-sm">
-                    <button onclick="addVipLevel()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-xl text-sm">Agregar</button>
-                </div>
-            </div>
-            <button onclick="hideModal('modalVipLevel')" class="w-full mt-5 py-3 bg-zinc-800 rounded-2xl text-sm">Cerrar</button>
+<!-- Audit Log -->
+<div id="modalAudit" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4">
+    <div class="bg-zinc-900 w-full max-w-2xl rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg md:text-xl font-bold">Historial de Auditoría</h3>
+            <button onclick="hideModal('modalAudit')" class="text-red-400 hover:text-red-300 text-2xl">&times;</button>
+        </div>
+        <div id="auditLog" class="space-y-2 text-xs md:text-sm"></div>
+    </div>
+</div>
+
+<!-- Add Discount -->
+<div id="modalDiscount" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4">
+    <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0">
+        <h3 class="text-lg md:text-xl font-bold mb-6">Nuevo Descuento</h3>
+        <div class="mb-4">
+            <label class="text-sm text-zinc-400 block mb-2">Aplica a:</label>
+            <select id="discountProduct" class="block w-full bg-zinc-800 border-0 rounded-2xl px-5 py-3 mb-4 text-sm"><option value="">Todos los productos</option></select>
+        </div>
+        <div class="mb-4">
+            <label class="text-sm text-zinc-400 block mb-2">Tipo de descuento</label>
+            <select id="discountType" class="block w-full bg-zinc-800 border-0 rounded-2xl px-5 py-3 mb-4 text-sm" onchange="updateDiscountFields()">
+                <option value="mayor">Al por mayor (cantidad mínima)</option>
+                <option value="especial">Día especial</option>
+                <option value="cliente">Cliente específico</option>
+                <option value="general">General</option>
+            </select>
+        </div>
+        <div id="discountFields"></div>
+        <div class="mb-4">
+            <label class="text-sm text-zinc-400 block mb-2">Porcentaje de descuento (%)</label>
+            <input id="discountPercent" type="number" placeholder="ej: 10" class="block w-full bg-zinc-800 border-0 rounded-2xl px-5 py-3 text-sm" min="0" max="100">
+        </div>
+        <div class="flex gap-3 mt-8">
+            <button onclick="hideModal('modalDiscount')" class="flex-1 py-4 bg-zinc-800 rounded-2xl text-sm">Cancelar</button>
+            <button onclick="saveDiscount()" class="flex-1 py-4 bg-emerald-600 rounded-2xl text-sm">Guardar</button>
         </div>
     </div>
+</div>
 
-    <!-- In-transit purchase info (from product table truck icon) -->
-    <div id="modalTransitInfo" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50" style="animation: fadeIn .3s ease">
-        <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-6" style="animation: scaleUp .32s cubic-bezier(0.34,3.56,0.64,1)">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold">🚚 Stock en camino</h3>
-                <button onclick="hideModal('modalTransitInfo')" class="text-red-400 hover:text-red-300 text-xl">&times;</button>
-            </div>
-            <div id="transitInfoContent" class="space-y-2 text-sm"></div>
-            <button onclick="hideModal('modalTransitInfo')" class="w-full mt-5 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-2xl text-sm">Cerrar</button>
+<!-- Purchase Info -->
+<div id="modalPurchaseInfo" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4">
+    <div class="bg-zinc-900 w-full max-w-lg rounded-3xl p-6 max-h-[95vh] overflow-y-auto my-4 md:my-0">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg md:text-xl font-bold">Detalle de Compra</h3>
+            <button onclick="hideModal('modalPurchaseInfo')" class="text-red-400 hover:text-red-300 text-xl">&times;</button>
         </div>
+        <div id="purchaseInfoContent" class="text-sm space-y-3"></div>
     </div>
+</div>
 
-    <!-- Pay Debt Modal -->
-    <div id="modalPayDebt" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4">
-        <div class="bg-zinc-900 w-full max-w-sm rounded-3xl p-6">
-            <div class="flex justify-between items-center mb-5">
-                <h3 class="text-lg font-bold">💵 Registrar Pago</h3>
-                <button onclick="hideModal('modalPayDebt')" class="text-red-400 hover:text-red-300 text-xl">&times;</button>
-            </div>
-            <div id="payDebtInfo" class="bg-zinc-800 rounded-2xl p-4 mb-4 text-sm space-y-1"></div>
-            <label class="text-xs text-zinc-400 block mb-2">Monto a pagar</label>
-            <div class="flex gap-2 mb-2">
-                <input id="payDebtAmount" type="number" placeholder="0.00" min="0" step="any"
-                    class="flex-1 bg-zinc-800 border-0 rounded-2xl px-4 py-3 text-sm">
-                <select id="payDebtCurrency" class="bg-zinc-800 border-0 rounded-2xl px-3 py-2 text-sm">
-                    <option value="CUP">CUP</option>
-                    <option value="USD">USD</option>
-                    <option value="EUR">EUR</option>
-                </select>
-            </div>
-            <button onclick="payDebtFull()" class="w-full py-2 text-xs text-emerald-400 hover:text-emerald-300 mb-4">Pagar deuda completa →</button>
-            <input id="payDebtCustomerId" type="hidden" value="">
-            <input id="payDebtClientName" type="hidden" value="">
-            <div class="flex gap-3">
-                <button onclick="hideModal('modalPayDebt')" class="flex-1 py-3 bg-zinc-800 rounded-2xl text-sm">Cancelar</button>
-                <button onclick="saveDebtPayment()" class="flex-1 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-2xl text-sm font-semibold">Confirmar pago</button>
+<!-- Setup Rates -->
+<div id="modalSetupRates" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+    <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-8">
+        <div class="bg-red-950 border border-red-700 rounded-2xl px-5 py-4 mb-6 flex gap-3 items-start">
+            <span class="text-red-400 text-lg mt-0.5">⚠️</span>
+            <div>
+                <div class="text-red-400 font-semibold text-sm mb-1">Paso obligatorio</div>
+                <div class="text-red-300 text-xs leading-relaxed">Configura las tasas antes de usar la app. Podrás actualizarlas en ⚙️ Ajustes.</div>
             </div>
         </div>
-    </div>
-
-    <!-- MODAL PROVEEDOR -->
-    <div id="modalProvider" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4">
-        <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0">
-            <h3 class="text-lg md:text-xl font-bold mb-4 md:mb-6">Proveedor</h3>
-
-            <input id="providerName" placeholder="Nombre comercial" class="block w-full bg-zinc-800 rounded-2xl px-4 py-3 mb-3 text-sm">
-            <input id="providerContact" placeholder="Persona de contacto" class="block w-full bg-zinc-800 rounded-2xl px-4 py-3 mb-3 text-sm">
-            <input id="providerPhone" placeholder="Teléfono" class="block w-full bg-zinc-800 rounded-2xl px-4 py-3 mb-3 text-sm">
-            <input id="providerEmail" placeholder="Email" class="block w-full bg-zinc-800 rounded-2xl px-4 py-3 mb-3 text-sm">
-            <input id="providerLocation" placeholder="Ubicación / Dirección" class="block w-full bg-zinc-800 rounded-2xl px-4 py-3 mb-3 text-sm">
-            <textarea id="providerNotes" placeholder="Productos, precios, condiciones..." class="block w-full bg-zinc-800 rounded-2xl px-4 py-3 mb-3 text-sm"></textarea>
-
-            <input type="hidden" id="providerId">
-
-            <div class="flex gap-3 mt-6">
-                <button onclick="hideModal('modalProvider')" class="flex-1 py-3 bg-zinc-800 rounded-2xl text-sm">
-                    Cancelar
-                </button>
-                <button onclick="saveProvider()" class="flex-1 py-3 bg-emerald-600 rounded-2xl text-sm">
-                    Guardar
-                </button>
+        <div class="text-center mb-6">
+            <div class="text-3xl mb-2">💱</div>
+            <h3 class="text-xl font-bold">Tasas de cambio</h3>
+            <p class="text-sm text-zinc-400 mt-1">¿Cuántos CUP vale 1 unidad de cada moneda hoy?</p>
+        </div>
+        <div class="space-y-4 mb-8">
+            <div class="bg-zinc-800 rounded-2xl px-5 py-4 flex items-center gap-4">
+                <span class="text-sm font-semibold w-10 text-zinc-300">USD</span>
+                <span class="text-zinc-500 text-sm flex-1">1 USD =</span>
+                <input id="setupRateUSD" type="number" step="any" min="1" placeholder="ej: 380" class="bg-zinc-700 rounded-xl px-4 py-2 w-32 text-right font-bold text-emerald-400 focus:outline-none">
+                <span class="text-sm text-zinc-400">CUP</span>
+            </div>
+            <div class="bg-zinc-800 rounded-2xl px-5 py-4 flex items-center gap-4">
+                <span class="text-sm font-semibold w-10 text-zinc-300">EUR</span>
+                <span class="text-zinc-500 text-sm flex-1">1 EUR =</span>
+                <input id="setupRateEUR" type="number" step="any" min="1" placeholder="ej: 410" class="bg-zinc-700 rounded-xl px-4 py-2 w-32 text-right font-bold text-emerald-400 focus:outline-none">
+                <span class="text-sm text-zinc-400">CUP</span>
             </div>
         </div>
+        <button onclick="saveSetupRates()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-4 rounded-2xl font-semibold text-base transition">Guardar y comenzar →</button>
     </div>
+</div>
 
-    <!-- MODAL EDITAR BASE DE DATOS -->
-    <div id="modalEditDatabase" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4">
-        <div class="bg-zinc-900 w-full max-w-3xl rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0">
-            <h3 class="text-lg md:text-xl font-bold mb-4">Editar base de datos (JSON)</h3>
-
-            <textarea id="databaseEditor"
-                class="w-full h-96 bg-zinc-800 rounded-2xl p-4 text-xs font-mono"
-            ></textarea>
-
-            <div class="flex gap-3 mt-6">
-                <button onclick="hideModal('modalEditDatabase')"
-                    class="flex-1 py-3 bg-zinc-800 rounded-2xl text-sm">
-                    Cancelar
-                </button>
-
-                <button onclick="saveEditedDatabase()"
-                    class="flex-1 py-3 bg-red-600 hover:bg-red-500 rounded-2xl text-sm">
-                    Guardar cambios
-                </button>
-            </div>
+<!-- Confirm -->
+<div id="modalConfirm" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-[60]">
+    <div class="bg-zinc-900 w-full max-w-sm rounded-3xl p-6">
+        <div class="text-center mb-5">
+            <div id="confirmIcon" class="text-4xl mb-3">🗑️</div>
+            <h3 id="confirmTitle" class="text-lg font-bold mb-2">¿Eliminar?</h3>
+            <p id="confirmMessage" class="text-sm text-zinc-400"></p>
+        </div>
+        <div class="flex gap-3">
+            <button onclick="hideModal('modalConfirm')" class="flex-1 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm">Cancelar</button>
+            <button id="confirmBtn" class="flex-1 py-3 bg-red-600 hover:bg-red-500 rounded-2xl text-sm font-semibold">Eliminar</button>
         </div>
     </div>
+</div>
+
+<!-- Add/Edit Customer -->
+<div id="modalCustomer" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4 z-50">
+    <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0">
+        <div class="flex justify-between items-center mb-5">
+            <h3 class="text-lg font-bold">Cliente</h3>
+            <button onclick="hideModal('modalCustomer')" class="text-red-400 hover:text-red-300 text-xl">&times;</button>
+        </div>
+        <input id="customerName" placeholder="Nombre del cliente" class="block w-full bg-zinc-800 border-0 rounded-2xl px-4 py-3 mb-4 text-sm">
+        <div class="mb-4">
+            <label class="text-xs text-zinc-400 block mb-2">Nivel VIP</label>
+            <select id="customerVipLevel" class="block w-full bg-zinc-800 border-0 rounded-2xl px-4 py-3 text-sm">
+                <option value="">Sin nivel VIP</option>
+            </select>
+        </div>
+        <input id="customerId" type="hidden" value="">
+        <div class="flex gap-3 mt-6">
+            <button onclick="hideModal('modalCustomer')" class="flex-1 py-3 bg-zinc-800 rounded-2xl text-sm">Cancelar</button>
+            <button onclick="saveCustomer()" class="flex-1 py-3 bg-emerald-600 rounded-2xl text-sm">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<!-- VIP Levels -->
+<div id="modalVipLevel" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4 z-50">
+    <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0">
+        <div class="flex justify-between items-center mb-5">
+            <h3 class="text-lg font-bold">⭐ Niveles VIP</h3>
+            <button onclick="hideModal('modalVipLevel')" class="text-red-400 hover:text-red-300 text-xl">&times;</button>
+        </div>
+        <div id="vipLevelsList" class="space-y-2 mb-4"></div>
+        <div class="bg-zinc-800 rounded-2xl p-4 space-y-3">
+            <div class="text-xs text-zinc-400 font-semibold">Nuevo nivel</div>
+            <input id="vipLevelName" placeholder="Nombre (ej: Oro, Premium...)" class="block w-full bg-zinc-700 border-0 rounded-xl px-4 py-2 text-sm">
+            <div class="flex gap-2 items-center">
+                <input id="vipLevelPercent" type="number" placeholder="% descuento" min="1" max="99" class="flex-1 bg-zinc-700 border-0 rounded-xl px-4 py-2 text-sm">
+                <button onclick="addVipLevel()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-xl text-sm transition">Agregar</button>
+            </div>
+        </div>
+        <button onclick="hideModal('modalVipLevel')" class="w-full mt-5 py-3 bg-zinc-800 rounded-2xl text-sm">Cerrar</button>
+    </div>
+</div>
+
+<!-- Transit Info -->
+<div id="modalTransitInfo" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+    <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold">🚚 Stock en camino</h3>
+            <button onclick="hideModal('modalTransitInfo')" class="text-red-400 hover:text-red-300 text-xl">&times;</button>
+        </div>
+        <div id="transitInfoContent" class="space-y-2 text-sm"></div>
+        <button onclick="hideModal('modalTransitInfo')" class="w-full mt-5 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-2xl text-sm">Cerrar</button>
+    </div>
+</div>
+
+<!-- Pay Debt -->
+<div id="modalPayDebt" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4">
+    <div class="bg-zinc-900 w-full max-w-sm rounded-3xl p-6">
+        <div class="flex justify-between items-center mb-5">
+            <h3 class="text-lg font-bold">💵 Registrar Pago</h3>
+            <button onclick="hideModal('modalPayDebt')" class="text-red-400 hover:text-red-300 text-xl">&times;</button>
+        </div>
+        <div id="payDebtInfo" class="bg-zinc-800 rounded-2xl p-4 mb-4 text-sm space-y-1"></div>
+        <label class="text-xs text-zinc-400 block mb-2">Monto a pagar</label>
+        <div class="flex gap-2 mb-2">
+            <input id="payDebtAmount" type="number" placeholder="0.00" min="0" step="any" class="flex-1 bg-zinc-800 border-0 rounded-2xl px-4 py-3 text-sm">
+            <select id="payDebtCurrency" class="bg-zinc-800 border-0 rounded-2xl px-3 py-2 text-sm">
+                <option value="CUP">CUP</option>
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+            </select>
+        </div>
+        <button onclick="payDebtFull()" class="w-full py-2 text-xs text-emerald-400 hover:text-emerald-300 mb-4">Pagar deuda completa →</button>
+        <input id="payDebtCustomerId" type="hidden" value="">
+        <input id="payDebtClientName" type="hidden" value="">
+        <div class="flex gap-3">
+            <button onclick="hideModal('modalPayDebt')" class="flex-1 py-3 bg-zinc-800 rounded-2xl text-sm">Cancelar</button>
+            <button onclick="saveDebtPayment()" class="flex-1 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-2xl text-sm font-semibold">Confirmar pago</button>
+        </div>
+    </div>
+</div>
+
+<!-- Proveedor -->
+<div id="modalProvider" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4">
+    <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0">
+        <h3 class="text-lg md:text-xl font-bold mb-6">Proveedor</h3>
+        <input id="providerName"     placeholder="Nombre comercial"      class="block w-full bg-zinc-800 rounded-2xl px-4 py-3 mb-3 text-sm">
+        <input id="providerContact"  placeholder="Persona de contacto"   class="block w-full bg-zinc-800 rounded-2xl px-4 py-3 mb-3 text-sm">
+        <input id="providerPhone"    placeholder="Teléfono"              class="block w-full bg-zinc-800 rounded-2xl px-4 py-3 mb-3 text-sm">
+        <input id="providerEmail"    placeholder="Email"                 class="block w-full bg-zinc-800 rounded-2xl px-4 py-3 mb-3 text-sm">
+        <input id="providerLocation" placeholder="Ubicación / Dirección" class="block w-full bg-zinc-800 rounded-2xl px-4 py-3 mb-3 text-sm">
+        <textarea id="providerNotes" placeholder="Notas..." class="block w-full bg-zinc-800 rounded-2xl px-4 py-3 mb-3 text-sm h-20 resize-none"></textarea>
+        <input type="hidden" id="providerId">
+        <div class="flex gap-3 mt-6">
+            <button onclick="hideModal('modalProvider')" class="flex-1 py-3 bg-zinc-800 rounded-2xl text-sm">Cancelar</button>
+            <button onclick="saveProvider()" class="flex-1 py-3 bg-emerald-600 rounded-2xl text-sm">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Agregar empleado -->
+<div id="modalEmployee" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4 z-50">
+    <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-bold">👤 Nuevo empleado</h3>
+            <button onclick="hideModal('modalEmployee')" class="text-red-400 hover:text-red-300 text-xl">&times;</button>
+        </div>
+        <label class="text-xs text-zinc-400 block mb-1">Nombre completo</label>
+        <input id="empName" placeholder="Nombre del empleado" class="block w-full bg-zinc-800 border-0 rounded-2xl px-4 py-3 mb-3 text-sm">
+        <label class="text-xs text-zinc-400 block mb-1">Email (para iniciar sesión)</label>
+        <input id="empEmail" type="email" placeholder="empleado@correo.com" class="block w-full bg-zinc-800 border-0 rounded-2xl px-4 py-3 mb-3 text-sm">
+        <label class="text-xs text-zinc-400 block mb-1">Contraseña provisional</label>
+        <input id="empPass" type="password" placeholder="Mínimo 8 caracteres" class="block w-full bg-zinc-800 border-0 rounded-2xl px-4 py-3 mb-3 text-sm">
+        <label class="text-xs text-zinc-400 block mb-1">Rol</label>
+        <select id="empRole" class="block w-full bg-zinc-800 border-0 rounded-2xl px-4 py-3 mb-6 text-sm">
+            <option value="employee">Empleado — solo ventas y stock</option>
+            <option value="manager">Gerente — compras, ventas, clientes, proveedores</option>
+        </select>
+        <div class="flex gap-3">
+            <button onclick="hideModal('modalEmployee')" class="flex-1 py-3 bg-zinc-800 rounded-2xl text-sm">Cancelar</button>
+            <button onclick="saveEmployee()" class="flex-1 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-2xl text-sm font-semibold">Agregar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Cambiar contraseña -->
+<div id="modalChangePassword" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+    <div class="bg-zinc-900 w-full max-w-sm rounded-3xl p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-lg font-bold">🔐 Cambiar contraseña</h3>
+            <button onclick="hideModal('modalChangePassword')" class="text-red-400 hover:text-red-300 text-xl">&times;</button>
+        </div>
+        <label class="text-xs text-zinc-400 block mb-1">Contraseña actual</label>
+        <input id="cpCurrent" type="password" placeholder="••••••••" class="block w-full bg-zinc-800 border-0 rounded-2xl px-4 py-3 mb-3 text-sm">
+        <label class="text-xs text-zinc-400 block mb-1">Nueva contraseña</label>
+        <input id="cpNew" type="password" placeholder="Mínimo 8 caracteres" class="block w-full bg-zinc-800 border-0 rounded-2xl px-4 py-3 mb-6 text-sm">
+        <div class="flex gap-3">
+            <button onclick="hideModal('modalChangePassword')" class="flex-1 py-3 bg-zinc-800 rounded-2xl text-sm">Cancelar</button>
+            <button onclick="saveChangePassword()" class="flex-1 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-2xl text-sm font-semibold">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ── Tab switcher ──────────────────────────────────────────────────────────────
+function switchTab(tab) {
+    const login = document.getElementById('loginForm')
+    const reg   = document.getElementById('registerForm')
+    const tl    = document.getElementById('tabLogin')
+    const tr    = document.getElementById('tabRegister')
+    if (tab === 'login') {
+        login.classList.remove('hidden'); reg.classList.add('hidden')
+        tl.classList.add('bg-zinc-800','text-white'); tl.classList.remove('text-zinc-400')
+        tr.classList.remove('bg-zinc-800','text-white'); tr.classList.add('text-zinc-400')
+    } else {
+        reg.classList.remove('hidden'); login.classList.add('hidden')
+        tr.classList.add('bg-zinc-800','text-white'); tr.classList.remove('text-zinc-400')
+        tl.classList.remove('bg-zinc-800','text-white'); tl.classList.add('text-zinc-400')
+    }
+}
+</script>
 
 <script src="vexto.js"></script>
+
+<script>
+// ── Gestión de empleados (desde Ajustes) ──────────────────────────────────────
+async function loadEmployees() {
+    const section = document.getElementById('settingsTeamSection')
+    if (!section || section.style.display === 'none') return
+    const list    = document.getElementById('employeesList')
+    const licInfo = document.getElementById('licenseInfo')
+    list.innerHTML = '<div class="text-zinc-500 text-xs py-2">Cargando...</div>'
+
+    const res = await apiAuth('employees', 'GET')
+    if (!res || !res.ok) { list.innerHTML = '<div class="text-zinc-500 text-xs">Sin acceso</div>'; return }
+    const employees = res.data
+    if (!employees.length) {
+        list.innerHTML = '<div class="text-zinc-500 text-xs">Sin empleados aún.</div>'
+    } else {
+        list.innerHTML = ''
+        employees.forEach(e => {
+            const roleColors  = { owner:'text-emerald-400', manager:'text-sky-400', employee:'text-zinc-300' }
+            const roleLabels  = { owner:'Propietario', manager:'Gerente', employee:'Empleado' }
+            const isOwner = e.role === 'owner'
+            const div = document.createElement('div')
+            div.className = 'bg-zinc-800 rounded-2xl px-4 py-3 flex items-center justify-between'
+            div.innerHTML = `
+                <div>
+                    <div class="font-medium text-sm ${e.is_active == 1 ? '' : 'text-zinc-500 line-through'}">${e.display_name}</div>
+                    <div class="text-xs ${roleColors[e.role]||'text-zinc-400'}">${roleLabels[e.role]||e.role} · ${e.email}</div>
+                    ${e.last_login ? '<div class="text-xs text-zinc-600 mt-0.5">Último: '+new Date(e.last_login).toLocaleDateString('es-ES')+'</div>' : ''}
+                </div>
+                ${isOwner ? '<span class="text-xs text-emerald-600">Tú</span>' : `
+                <div class="flex gap-2">
+                    <button onclick="toggleEmployee(${e.id},${e.is_active})"
+                        class="${e.is_active==1?'text-amber-400 hover:text-amber-300':'text-emerald-400 hover:text-emerald-300'} text-xs px-2 py-1 rounded-lg bg-zinc-700 hover:bg-zinc-600 transition">
+                        ${e.is_active==1?'🔒':'🔓'}
+                    </button>
+                    <button onclick="deleteEmployee(${e.id},'${e.display_name.replace(/'/g,"\\'")}')"
+                        class="text-red-400 hover:text-red-300 text-xs px-2 py-1 rounded-lg bg-zinc-700 hover:bg-zinc-600 transition">🗑️</button>
+                </div>`}
+            `
+            list.appendChild(div)
+        })
+    }
+
+    const me = await apiAuth('me','GET')
+    if (me && me.ok && me.data.license) {
+        const lic = me.data.license
+        const daysLeft = parseInt(lic.days_left)
+        const daysHtml = daysLeft < 0
+            ? '<span class="text-red-400 font-medium">Expirada</span>'
+            : daysLeft <= 7
+                ? '<span class="text-amber-400 font-medium">'+daysLeft+' días restantes ⚠️</span>'
+                : daysLeft+' días restantes'
+        licInfo.innerHTML = `Plan: <span class="text-zinc-300 font-medium capitalize">${lic.plan}</span> · Vence: <span class="text-zinc-300">${lic.expires_at}</span> · ${daysHtml} · Máx. usuarios: <span class="text-zinc-300">${lic.max_users}</span>`
+    }
+}
+
+function showAddEmployee() {
+    document.getElementById('empName').value  = ''
+    document.getElementById('empEmail').value = ''
+    document.getElementById('empPass').value  = ''
+    document.getElementById('empRole').value  = 'employee'
+    showModal('modalEmployee')
+}
+
+async function saveEmployee() {
+    const name  = document.getElementById('empName').value.trim()
+    const email = document.getElementById('empEmail').value.trim()
+    const pass  = document.getElementById('empPass').value.trim()
+    const role  = document.getElementById('empRole').value
+    if (!name || !email || !pass) return showToast('Todos los campos son requeridos', 'warn')
+    const res = await apiAuth('add_employee','POST',{ display_name:name, email, password:pass, role })
+    if (!res || !res.ok) return showToast(res?.error || 'Error', 'error')
+    hideModal('modalEmployee')
+    showToast('Empleado agregado', 'success')
+    loadEmployees()
+}
+
+async function toggleEmployee(id, currentActive) {
+    const res = await apiAuth('toggle_employee','POST',{ id })
+    if (!res || !res.ok) return showToast(res?.error || 'Error', 'error')
+    showToast(res.data.is_active ? 'Empleado activado' : 'Empleado bloqueado', 'success')
+    loadEmployees()
+}
+
+async function deleteEmployee(id, name) {
+    showConfirm('¿Eliminar empleado?', `"${name}" perderá acceso permanentemente.`, async () => {
+        const r = await fetch(`${API_BASE}/auth.php?action=delete_employee&id=${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        })
+        const json = await r.json()
+        if (!json.ok) return showToast(json.error, 'error')
+        showToast('Empleado eliminado', 'success')
+        loadEmployees()
+    })
+}
+
+// ── Cambiar contraseña ────────────────────────────────────────────────────────
+function showChangePassword() {
+    document.getElementById('cpCurrent').value = ''
+    document.getElementById('cpNew').value = ''
+    showModal('modalChangePassword')
+}
+
+async function saveChangePassword() {
+    const current = document.getElementById('cpCurrent').value
+    const newPass = document.getElementById('cpNew').value
+    if (!current || !newPass) return showToast('Completa ambos campos','warn')
+    const res = await apiAuth('change_password','POST',{ current_password:current, new_password:newPass })
+    if (!res || !res.ok) return showToast(res?.error || 'Error','error')
+    hideModal('modalChangePassword')
+    showToast('Contraseña actualizada','success')
+}
+
+// ── Interceptar showSection para cargar empleados en Ajustes ─────────────────
+const _origShowSection = window.showSection
+window.showSection = function(sec) {
+    _origShowSection(sec)
+    if (sec === 'settings') loadEmployees()
+}
+</script>
 
 </body>
 </html>
