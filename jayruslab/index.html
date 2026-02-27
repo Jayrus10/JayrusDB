@@ -7,7 +7,10 @@
   <script src="https://js.puter.com/v2/"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
-  <style>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<style>
     :root {
       --bg: #060608;
       --surface: #0d0d12;
@@ -1311,104 +1314,119 @@
     }
 
     // ─── Chat ─────────────────────────────────────────────────────────────
-    function addMessage(role, content) {
-      const hist = document.getElementById('chatHistory');
-      const msg = document.createElement('div');
-      msg.style.cssText = `
+
+// ─── Configuración de Markdown y Copiado ──────────────────────────────
+const renderer = new marked.Renderer();
+
+// Personalizar cómo se renderizan los bloques de código para incluir el botón
+renderer.code = function(code, language) {
+    const validLang = !!(language && hljs.getLanguage(language));
+    const highlighted = validLang ? hljs.highlight(code, { language }).value : code;
+    const langLabel = language || 'code';
+    
+    return `
+        <pre><div class="code-header"><span class="lang-tag">${langLabel}</span><button class="copy-btn" onclick="copyToClipboard(this)">Copiar</button></div><code class="hljs ${language}">${highlighted}</code></pre>
+    `;
+};
+
+marked.setOptions({ renderer: renderer });
+
+function copyToClipboard(btn) {
+    const code = btn.parentElement.nextElementSibling.innerText;
+    navigator.clipboard.writeText(code).then(() => {
+        const originalText = btn.textContent;
+        btn.textContent = '¡Copiado!';
+        btn.style.borderColor = 'var(--accent3)';
+        btn.style.color = 'var(--accent3)';
+        setTimeout(() => {
+            btn.textContent = originalText;
+            btn.style.borderColor = '';
+            btn.style.color = '';
+        }, 2000);
+    });
+}
+
+// ─── Funciones de Chat Actualizadas ───────────────────────────────────
+function addMessage(role, content) {
+    const hist = document.getElementById('chatHistory');
+    const msg = document.createElement('div');
+    msg.className = 'markdown-body'; // Aplicar estilos markdown
+    msg.style.cssText = `
         padding: 12px 16px;
         border-radius: 10px;
-        font-size: 13px;
-        line-height: 1.6;
-        font-family: 'JetBrains Mono', monospace;
         max-width: 90%;
-        white-space: pre-wrap;
         word-break: break-word;
-      `;
-      if (role === 'user') {
+        position: relative;
+    `;
+
+    if (role === 'user') {
         msg.style.background = 'rgba(124,109,255,0.12)';
         msg.style.border = '1px solid rgba(124,109,255,0.2)';
         msg.style.alignSelf = 'flex-end';
         msg.style.marginLeft = 'auto';
-        msg.textContent = content;
-      } else {
+        msg.textContent = content; // El usuario suele ser texto plano
+    } else {
         msg.style.background = 'var(--surface2)';
         msg.style.border = '1px solid var(--border)';
         msg.id = 'lastAssistant';
-      }
-      hist.appendChild(msg);
-      hist.scrollTop = hist.scrollHeight;
-      return msg;
+        // El contenido del asistente se renderizará al final del streaming o al recibir la respuesta
     }
+    hist.appendChild(msg);
+    hist.parentElement.scrollTop = hist.parentElement.scrollHeight;
+    return msg;
+}
 
-    async function sendChat() {
-      const input = document.getElementById('chatInput');
-      const text = input.value.trim();
-      if (!text) return;
+async function sendChat() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
 
-      const btn = document.getElementById('chatBtn');
-      btn.disabled = true;
-      input.value = '';
+    const btn = document.querySelector('[onclick="sendChat()"]');
+    btn.disabled = true;
+    
+    addMessage('user', text);
+    chatHistory.push({ role: 'user', content: text });
+    input.value = '';
 
-      addMessage('user', text);
-      chatHistory.push({ role: 'user', content: text });
+    const assistantMsg = addMessage('assistant', '');
+    const cursor = document.createElement('span');
+    cursor.className = 'cursor';
+    assistantMsg.appendChild(cursor);
 
-      const streaming = document.getElementById('streamToggle').checked;
-      const sysPrompt = document.getElementById('systemPrompt').value;
-      const temperature = parseFloat(document.getElementById('temperature').value);
-      const max_tokens = parseInt(document.getElementById('maxTokens').value);
+    try {
+        const sysPrompt = document.getElementById('systemPrompt').value;
+        const temperature = parseFloat(document.getElementById('temperature').value);
+        const max_tokens = parseInt(document.getElementById('maxTokens').value);
 
-      const assistantEl = addMessage('assistant', '');
-      const cursor = document.createElement('span');
-      cursor.className = 'cursor';
-      assistantEl.appendChild(cursor);
+        const resp = await puter.ai.chat(chatHistory, { 
+            model: selectedModel, 
+            system: sysPrompt,
+            temperature,
+            max_tokens,
+            stream: true // Habilitamos stream para mejor experiencia
+        });
 
-      try {
         let fullText = '';
-        if (streaming) {
-          const resp = await puter.ai.chat(chatHistory, {
-            model: selectedModel,
-            stream: true,
-            system: sysPrompt,
-            temperature,
-            max_tokens
-          });
-          for await (const chunk of resp) {
-            if (chunk?.text) {
-              fullText += chunk.text;
-              assistantEl.textContent = fullText;
-              assistantEl.appendChild(cursor);
+        for await (const part of resp) {
+            if (part?.text) {
+                fullText += part.text;
+                // Renderizado dinámico durante el stream
+                assistantMsg.innerHTML = marked.parse(fullText) + '<span class="cursor"></span>';
+                document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
             }
-          }
-        } else {
-          assistantEl.textContent = '...';
-          const resp = await puter.ai.chat(chatHistory, {
-            model: selectedModel,
-            system: sysPrompt,
-            temperature,
-            max_tokens
-          });
-          fullText = resp?.message?.content?.[0]?.text || resp?.toString() || 'Sin respuesta';
-          assistantEl.textContent = fullText;
         }
-        cursor.remove();
+
+        // Renderizado final limpio
+        assistantMsg.innerHTML = marked.parse(fullText);
         chatHistory.push({ role: 'assistant', content: fullText });
-      } catch (e) {
-        assistantEl.style.color = '#ff6b6b';
-        assistantEl.textContent = 'Error: ' + e.message;
-        cursor.remove();
-      }
-      btn.disabled = false;
+    } catch (e) {
+        assistantMsg.style.color = '#ff6b6b';
+        assistantMsg.textContent = 'Error: ' + e.message;
+    } finally {
+        btn.disabled = false;
+        if (assistantMsg.querySelector('.cursor')) assistantMsg.querySelector('.cursor').remove();
     }
-
-    function clearChat() {
-      chatHistory = [];
-      document.getElementById('chatHistory').innerHTML = '';
-      toast('Conversación borrada');
-    }
-
-    document.getElementById('chatInput').addEventListener('keydown', e => {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
-    });
+}
 
     // ─── Image Generation ─────────────────────────────────────────────────
     async function generateImage() {
