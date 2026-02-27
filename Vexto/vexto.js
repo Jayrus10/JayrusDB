@@ -2,7 +2,7 @@
 let cashRoundingStep = 1    // múltiplo mínimo de billete
 let cashRoundingDir  = 'round'  // 'ceil' | 'floor' | 'round'
 let currentUser = ''
-let data = { products:[], purchases:[], sales:[], customers:[], discounts:[], audit:[], vipLevels:[], exchangeRates:{USD:500,EUR:650}, baseCurrency:'CUP' }
+let data = { products:[], purchases:[], sales:[], customers:[], providers:[], discounts:[], audit:[], vipLevels:[], exchangeRates:{USD:500,EUR:650}, baseCurrency:'CUP' }
 let nextId = 1
 
 // ─── Persistencia ─────────────────────────────────────────────────────────────
@@ -33,9 +33,10 @@ function loadData(){
     if(!d.customers) d.customers = []
     if(!d.vipLevels) d.vipLevels = []
     if(!d.cashPayments) d.cashPayments = []
+    if(!d.providers) d.providers = [] // New in v2.1
     data = d
     saveData()
-    nextId = Math.max(1, ...[...data.products,...data.purchases,...data.sales,...data.customers,...data.discounts].map(x=>x.id||0)) + 1
+    nextId = Math.max(1, ...[...data.products,...data.purchases,...data.sales,...data.customers,...data.providers,...data.discounts].map(x=>x.id||0)) + 1
 }
 
 // ─── Conversión ───────────────────────────────────────────────────────────────
@@ -188,6 +189,7 @@ function showSection(sec){
     if(sec==='products')  renderProducts()
     if(sec==='discounts') renderDiscounts()
     if(sec==='customers') renderCustomers()
+    if(sec==='providers') renderProviders()
     if(sec==='purchases') renderPurchases()
     if(sec==='sales')     renderSales()
     if(sec==='reports')   renderReports()
@@ -1220,3 +1222,114 @@ document.addEventListener('click', function(e){
         showCurrencyInfo(cup, label)
     }
 })
+
+// ─── PROVEEDORES ─────────────────────────────────────────
+
+function renderProviders(){
+    const tbody = document.getElementById('providersTable')
+    if(!tbody) return
+    tbody.innerHTML = ''
+
+    if(!data.providers.length){
+        tbody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-zinc-500">No hay proveedores registrados</td></tr>'
+        return
+    }
+
+    data.providers.forEach(p => {
+        const tr = document.createElement('tr')
+        tr.className = 'border-b border-zinc-800 hover:bg-zinc-900'
+        tr.innerHTML =
+            '<td class="py-4 font-medium">'+p.name+'</td>'+
+            '<td>'+ (p.contact||'-') +'</td>'+
+            '<td>'+ (p.phone||'-') +'</td>'+
+            '<td>'+ (p.email||'-') +'</td>'+
+            '<td>'+ (p.location||'-') +'</td>'+
+            '<td class="flex gap-2 py-4">'+
+                '<button onclick="showEditProvider('+p.id+')" class="text-zinc-400 hover:text-zinc-200 text-sm">✏️</button>'+
+                '<button onclick="deleteProvider('+p.id+')" class="text-red-400 hover:text-red-300 text-sm">🗑️</button>'+
+            '</td>'
+
+        tbody.appendChild(tr)
+    })
+}
+
+function showAddProvider(){
+    document.getElementById('providerName').value = ''
+    document.getElementById('providerContact').value = ''
+    document.getElementById('providerPhone').value = ''
+    document.getElementById('providerEmail').value = ''
+    document.getElementById('providerLocation').value = ''
+    document.getElementById('providerNotes').value = ''
+    document.getElementById('providerId').value = ''
+    showModal('modalProvider')
+}
+
+function showEditProvider(id){
+    const p = data.providers.find(x=>x.id===id)
+    if(!p) return
+
+    document.getElementById('providerName').value = p.name
+    document.getElementById('providerContact').value = p.contact || ''
+    document.getElementById('providerPhone').value = p.phone || ''
+    document.getElementById('providerEmail').value = p.email || ''
+    document.getElementById('providerLocation').value = p.location || ''
+    document.getElementById('providerNotes').value = p.notes || ''
+    document.getElementById('providerId').value = p.id
+
+    showModal('modalProvider')
+}
+
+function saveProvider(){
+    const name = document.getElementById('providerName').value.trim()
+    const contact = document.getElementById('providerContact').value.trim()
+    const phone = document.getElementById('providerPhone').value.trim()
+    const email = document.getElementById('providerEmail').value.trim()
+    const location = document.getElementById('providerLocation').value.trim()
+    const notes = document.getElementById('providerNotes').value.trim()
+    const idVal = document.getElementById('providerId').value
+
+    if(!name) return alert('Nombre requerido')
+
+    if(idVal){
+        const p = data.providers.find(x=>x.id===parseInt(idVal))
+        if(p){
+            p.name = name
+            p.contact = contact
+            p.phone = phone
+            p.email = email
+            p.location = location
+            p.notes = notes
+        }
+    } else {
+        data.providers.push({
+            id: nextId++,
+            name,
+            contact,
+            phone,
+            email,
+            location,
+            notes
+        })
+    }
+
+    saveData()
+    hideModal('modalProvider')
+    renderProviders()
+    addAudit('PROVEEDOR: '+name)
+}
+
+function deleteProvider(id){
+    const p = data.providers.find(x=>x.id===id)
+    if(!p) return
+
+    showConfirm(
+        '¿Eliminar proveedor?',
+        '"'+p.name+'" será eliminado.',
+        () => {
+            data.providers = data.providers.filter(x=>x.id!==id)
+            saveData()
+            renderProviders()
+            addAudit('PROVEEDOR ELIMINADO: '+p.name)
+        }
+    )
+}

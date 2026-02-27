@@ -96,6 +96,7 @@
                 <div onclick="showSection('products')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">📦 Productos</div>
                 <div onclick="showSection('discounts')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">🏷️ Descuentos</div>
                 <div onclick="showSection('customers')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">👥 Clientes</div>
+                <div onclick="showSection('providers')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">🏭 Proveedores</div>
                 <div onclick="showSection('purchases')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">🛒 Compras</div>
                 <div onclick="showSection('sales')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">💰 Ventas</div>
                 <div onclick="showSection('reports')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center gap-3 text-sm">📈 Reportes</div>
@@ -191,6 +192,32 @@
                         <thead><tr class="text-left text-zinc-400 text-sm"><th class="pb-3">Nombre</th><th>Nivel VIP</th><th>Compras</th><th>Total gastado</th><th>Deuda</th><th>Acción</th></tr></thead>
                         <tbody id="customersTable" class="text-sm"></tbody>
                     </table>
+                    </div>
+                </div>
+
+                <!-- PROVEEDORES -->
+                <div id="providers" class="section">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold">Proveedores</h2>
+                        <button onclick="showAddProvider()" class="bg-emerald-600 px-6 py-2 rounded-xl">
+                            + Nuevo
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="text-left text-zinc-400 text-sm">
+                                    <th class="pb-3">Nombre</th>
+                                    <th>Contacto</th>
+                                    <th>Teléfono</th>
+                                    <th>Email</th>
+                                    <th>Ubicación</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="providersTable" class="text-sm"></tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -588,6 +615,30 @@
         </div>
     </div>
 
+    <!-- MODAL PROVEEDOR -->
+    <div id="modalProvider" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4">
+        <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0">
+            <h3 class="text-lg md:text-xl font-bold mb-4 md:mb-6">Proveedor</h3>
+
+            <input id="providerName" placeholder="Nombre comercial" class="block w-full bg-zinc-800 rounded-2xl px-4 py-3 mb-3 text-sm">
+            <input id="providerContact" placeholder="Persona de contacto" class="block w-full bg-zinc-800 rounded-2xl px-4 py-3 mb-3 text-sm">
+            <input id="providerPhone" placeholder="Teléfono" class="block w-full bg-zinc-800 rounded-2xl px-4 py-3 mb-3 text-sm">
+            <input id="providerEmail" placeholder="Email" class="block w-full bg-zinc-800 rounded-2xl px-4 py-3 mb-3 text-sm">
+            <input id="providerLocation" placeholder="Ubicación / Dirección" class="block w-full bg-zinc-800 rounded-2xl px-4 py-3 mb-3 text-sm">
+            <textarea id="providerNotes" placeholder="Productos, precios, condiciones..." class="block w-full bg-zinc-800 rounded-2xl px-4 py-3 mb-3 text-sm"></textarea>
+
+            <input type="hidden" id="providerId">
+
+            <div class="flex gap-3 mt-6">
+                <button onclick="hideModal('modalProvider')" class="flex-1 py-3 bg-zinc-800 rounded-2xl text-sm">
+                    Cancelar
+                </button>
+                <button onclick="saveProvider()" class="flex-1 py-3 bg-emerald-600 rounded-2xl text-sm">
+                    Guardar
+                </button>
+            </div>
+        </div>
+    </div>
 
 <script src="vexto.js"></script>
 
