@@ -125,7 +125,7 @@
                     <div class="font-semibold text-sm" id="currentUser"></div>
                     <button onclick="showNotificationsPanel()" id="lowStockBadge" class="hidden bg-red-600 hover:bg-red-500 text-white text-xs px-2 py-0.5 rounded-full cursor-pointer" title="Ver notificaciones">🔔 <span id="lowStockCount">0</span></button>
                 </div>
-                <div class="text-xs text-zinc-500">v1.0.10 beta</div>
+                <div class="text-xs text-zinc-500">v1.1.0 beta</div>
             </div>
             <div class="flex gap-1 md:gap-2 flex-wrap justify-end">
                 <button onclick="importData()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">📥 <span class="hidden md:inline">Importar</span></button>
@@ -549,16 +549,18 @@
         <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0">
             <h3 class="text-lg md:text-xl font-bold mb-4 md:mb-6">Venta Rápida</h3>
             <select id="saleProd" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 mb-3 md:mb-4 text-sm" onchange="updateSuggestedPrice()"></select>
-            <input id="saleQty" type="number" placeholder="Cantidad" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 mb-3 md:mb-4 text-sm">
+            <input id="saleQty" type="number" placeholder="Cantidad" oninput="updateSaleSubtotal()" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 mb-3 md:mb-4 text-sm">
             <div class="mb-2 text-xs text-zinc-500">Precio sugerido: <span id="suggestedPriceDisplay">-</span></div>
-            <div class="flex gap-2 mb-3 md:mb-4">
-                <input id="salePrice" type="number" placeholder="Precio unitario" class="flex-1 bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 text-sm">
+            <div class="flex gap-2 mb-2">
+                <input id="salePrice" type="number" placeholder="Precio unitario" class="flex-1 bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 text-sm" oninput="updateSaleSubtotal()">
                 <select id="saleCurrency" class="bg-zinc-800 border-0 rounded-2xl px-3 py-2 text-sm" onchange="updateSuggestedPrice()">
                     <option value="CUP">CUP</option>
                     <option value="USD">USD</option>
                     <option value="EUR">EUR</option>
                 </select>
             </div>
+            <div id="saleSubtotalDisplay" class="mb-3 md:mb-4 text-sm text-zinc-400"></div>
+            <div class="relative mb-3 md:mb-4">
             <div class="relative mb-3 md:mb-4">
                 <input id="saleClient" placeholder="Cliente (opcional)" autocomplete="off"
                     class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 text-sm"
@@ -568,7 +570,18 @@
                     onblur="setTimeout(hideSuggestions,150)">
                 <ul id="clientSuggestions" class="hidden absolute z-10 w-full bg-zinc-800 border border-zinc-700 rounded-2xl mt-1 overflow-hidden shadow-xl max-h-48 overflow-y-auto"></ul>
             </div>
-            <label class="flex items-center gap-2 mb-6 md:mb-8 text-sm"><input id="saleCredit" type="checkbox"> Fiado</label>
+            <label class="flex items-center gap-2 mb-3 md:mb-4 text-sm"><input id="saleCredit" type="checkbox"> Fiado</label>
+            <div class="mb-3 md:mb-4">
+                <label class="text-xs text-zinc-500 mb-1 block">Gastos adicionales (envío, transporte, etc.)</label>
+                <div class="flex gap-2">
+                    <input id="saleExpenses" type="number" placeholder="0" min="0" step="any" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 text-sm">
+                    <select id="saleExpensesCurrency" class="bg-zinc-800 border-0 rounded-2xl px-3 py-2 text-sm">
+                        <option value="CUP">CUP</option>
+                        <option value="USD">USD</option>
+                        <option value="EUR">EUR</option>
+                    </select>
+                </div>
+            </div>
             <div class="flex items-center gap-2 mb-6 text-sm">
                 <input id="printReceipt" type="checkbox" checked class="w-4 h-4">
                 <label for="printReceipt" class="text-zinc-300">🖨️ Imprimir ticket después de vender</label>
