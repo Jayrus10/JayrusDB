@@ -1360,22 +1360,60 @@ function _deletePurchase(id){
 }
 
 // ─── Ventas ───────────────────────────────────────────────────────────────────
-function updateSuggestedPrice(){
+function updateSaleInfo(){
     const prodId = parseInt(document.getElementById('saleProd').value)
     const prod   = data.products.find(p=>p.id===prodId)
     const cur    = document.getElementById('saleCurrency').value
+    const qty    = parseFloat(document.getElementById('saleQty').value) || 0
+    const price  = parseFloat(document.getElementById('salePrice').value) || 0
+    const shipping = parseFloat(document.getElementById('saleShipping').value) || 0
+    
+    // Precio sugerido
     if(prod && prod.avgCost > 0){
         const markup    = prod.markup || 0.5
         const rawCUP    = prod.avgCost * (1 + markup)
-        const sugCUP    = roundCash(rawCUP)   // ← redondeo aplicado aquí
+        const sugCUP    = roundCash(rawCUP)
         const sugLabel  = cashRoundingStep > 1
             ? fmtInfo(sugCUP, 'Precio sugerido') + ' <span class="text-zinc-600 text-xs">(redondeado de '+rawCUP.toFixed(2)+')</span>'
             : fmtInfo(sugCUP, 'Precio sugerido')
         document.getElementById('suggestedPriceDisplay').innerHTML = sugLabel
-        document.getElementById('salePrice').value = fromCUP(sugCUP, cur).toFixed(2)
+        if(!document.getElementById('salePrice').value){
+            document.getElementById('salePrice').value = fromCUP(sugCUP, cur).toFixed(2)
+        }
     } else {
         document.getElementById('suggestedPriceDisplay').textContent = '-'
-        document.getElementById('salePrice').value = ''
+    }
+    
+    // Calcular subtotal y margen
+    const calcInfo = document.getElementById('saleCalcInfo')
+    const subtotalEl = document.getElementById('saleSubtotal')
+    const marginEl = document.getElementById('saleMargin')
+    
+    if(qty > 0 && price > 0){
+        const subtotal = price * qty
+        subtotalEl.textContent = fmtCUP(toCUP(subtotal, cur))
+        
+        // Calcular margen: (precio - costo) × cantidad - envío
+        if(prod && prod.avgCost > 0){
+            const costCUP = prod.avgCost
+            const shippingCUP = toCUP(shipping, cur)
+            const revenueCUP = toCUP(price, cur)
+            // Margen = (precio - costo) × cantidad - envío
+            const marginCUP = (revenueCUP - costCUP) * qty - shippingCUP
+            const totalRevenue = revenueCUP * qty
+            const marginPercent = totalRevenue > 0 ? ((marginCUP / totalRevenue) * 100).toFixed(1) : 0
+            
+            if(marginCUP >= 0){
+                marginEl.innerHTML = '<span class="text-emerald-400">+' + fmtCUP(marginCUP) + ' (' + marginPercent + '%)</span>'
+            } else {
+                marginEl.innerHTML = '<span class="text-red-400">' + fmtCUP(marginCUP) + ' (' + marginPercent + '%)</span>'
+            }
+        } else {
+            marginEl.textContent = '-'
+        }
+        calcInfo.classList.remove('hidden')
+    } else {
+        calcInfo.classList.add('hidden')
     }
 }
 // ─── Client autocomplete ─────────────────────────────────────────────────────
@@ -1425,8 +1463,10 @@ function showQuickSale(){
     document.getElementById('salePrice').value  = ''
     document.getElementById('saleClient').value = ''
     document.getElementById('saleCredit').checked = false
+    document.getElementById('saleShipping').value = ''
     document.getElementById('suggestedPriceDisplay').textContent = '-'
     document.getElementById('saleCurrency').value = data.baseCurrency
+    document.getElementById('saleCalcInfo').classList.add('hidden')
     showModal('modalSale')
 }
 function getApplicableDiscount(qty, clientName, productId){
@@ -1458,6 +1498,8 @@ function saveSale(){
     const client  = document.getElementById('saleClient').value.trim()
     const credit  = document.getElementById('saleCredit').checked
     const printReceipt = document.getElementById('printReceipt')?.checked || false
+    const shipping = parseFloat(document.getElementById('saleShipping').value) || 0
+    const shippingCUP = toCUP(shipping, cur)
     if(!prodId || !qty || !price) return notify('Campos requeridos', 'error')
     const prod = data.products.find(p=>p.id===prodId)
     if(!prod || prod.currentStock < qty) return notify('Stock insuficiente', 'error')
@@ -1467,7 +1509,7 @@ function saveSale(){
     prod.currentStock -= qty
     const today = new Date().toISOString().slice(0,10)
     const saleId = nextId++
-    data.sales.push({id:saleId, productId:prodId, date:today, qty, unitSellPriceCUP, finalPriceCUP, discountPercent, currencyOriginal:cur, client:client||'-', onCredit:credit})
+    data.sales.push({id:saleId, productId:prodId, date:today, qty, unitSellPriceCUP, finalPriceCUP, discountPercent, currencyOriginal:cur, client:client||'-', onCredit:credit, shippingCostCUP:shippingCUP})
     // Auto-register any named client (not only on fiado)
     if(client){
         let cust = data.customers.find(c=>c.name===client)
@@ -1476,8 +1518,9 @@ function saveSale(){
     }
     saveData()
     const dtxt = discountPercent > 0 ? ' (dto '+((discountPercent*100).toFixed(0))+'%)' : ''
-    addAudit('VENTA: '+prod.name+' x'+qty+' a '+fmtCUP(finalPriceCUP)+dtxt)
-    hideModal('modalSale'); renderSales(); renderCustomers(); renderDashboard()
+    const shipTxt = shippingCUP > 0 ? ' (envío: '+fmtCUP(shippingCUP)+')' : ''
+    addAudit('VENTA: '+prod.name+' x'+qty+' a '+fmtCUP(finalPriceCUP)+dtxt+shipTxt)
+    hideModal('modalSale'); renderSales(); renderCustomers(); renderDashboard(); renderReports()
     
     // Print receipt if checkbox is checked
     if(printReceipt) {
@@ -1493,13 +1536,18 @@ function renderSales(){
         const prod = data.products.find(pr=>pr.id===s.productId)
         const priceCUP = s.finalPriceCUP || s.unitSellPriceCUP || 0
         const hasDiscount = s.discountPercent && s.discountPercent > 0
+        const shippingCUP = s.shippingCostCUP || 0
         const priceHtml = hasDiscount
             ? '<span class="text-emerald-400">'+fmtInfo(priceCUP,'Precio final')+'</span> <span class="text-xs text-zinc-500">(-'+(s.discountPercent*100).toFixed(0)+'%)</span>'
             : fmtInfo(priceCUP,'Precio venta')
+        // Mostrar gasto de envío en rojo si existe
+        const shippingHtml = shippingCUP > 0
+            ? '<div class="text-xs text-red-400 mt-1">📦 Envío: -'+fmtCUP(shippingCUP)+'</div>'
+            : ''
         const tr = document.createElement('tr')
         tr.className = 'border-b border-zinc-800 hover:bg-zinc-900'
         const payBtn = (s.onCredit && s.client && s.client!=='-') ? '<button onclick="showPayDebt(null,\''+s.client+'\')" class="text-emerald-400 hover:text-emerald-300 text-xs mr-1 px-1.5 py-0.5 rounded bg-emerald-900/40" title="Pagar deuda">💵</button>' : ''
-        tr.innerHTML = '<td class="py-4">'+s.date+'</td><td>'+(prod?prod.name:'?')+'</td><td>'+s.qty+'</td><td>'+priceHtml+'</td><td>'+(s.onCredit?'💳 ':'')+s.client+'</td><td>'+payBtn+'<button onclick="printSaleReceipt('+s.id+')" class="text-zinc-400 hover:text-zinc-200 text-sm mr-1" title="Imprimir recibo">🖨️</button><button onclick="deleteSale('+s.id+')" class="text-red-400 hover:text-red-300 text-sm">🗑️</button></td>'
+        tr.innerHTML = '<td class="py-4">'+s.date+'</td><td>'+(prod?prod.name:'?')+'</td><td>'+s.qty+'</td><td>'+priceHtml+shippingHtml+'</td><td>'+(s.onCredit?'💳 ':'')+s.client+'</td><td>'+payBtn+'<button onclick="printSaleReceipt('+s.id+')" class="text-zinc-400 hover:text-zinc-200 text-sm mr-1" title="Imprimir recibo">🖨️</button><button onclick="deleteSale('+s.id+')" class="text-red-400 hover:text-red-300 text-sm">🗑️</button></td>'
         tbody.appendChild(tr)
     })
 }
@@ -1609,18 +1657,22 @@ function _deleteSale(id){
 
 // ─── Reportes ─────────────────────────────────────────────────────────────────
 function renderReports(){
-    let revenue=0, cost=0, cashSales=0
+    let revenue=0, cost=0, cashSales=0, totalShipping=0
     data.sales.forEach(s => {
         const prod     = data.products.find(p=>p.id===s.productId)
         const priceCUP = s.finalPriceCUP || s.unitSellPriceCUP || 0
+        const shippingCUP = s.shippingCostCUP || 0
         revenue += s.qty * priceCUP
         cost    += s.qty * (prod ? prod.avgCost : 0)
+        totalShipping += shippingCUP
         if(!s.onCredit) cashSales += s.qty * priceCUP
     })
     const debtPaid   = (data.cashPayments||[]).reduce((a,p)=>a+p.amountCUP,0)
     const cash       = cashSales + debtPaid
     const pending    = data.customers.reduce((a,c)=>a+(c.debt||0),0)
-    document.getElementById('totalProfit').innerHTML      = fmtInfo(revenue-cost,'Ganancia neta')
+    // La ganancia neta ahora resta los gastos de envío
+    const netProfit = revenue - cost - totalShipping
+    document.getElementById('totalProfit').innerHTML      = fmtInfo(netProfit,'Ganancia neta (restando envíos)') + (totalShipping > 0 ? ' <span class="text-xs text-red-400">(envíos: -'+fmtCUP(totalShipping)+')</span>' : '')
     document.getElementById('totalCOGS').innerHTML        = fmtInfo(cost,'Costo mercancía vendida')
     document.getElementById('totalCash').innerHTML        = fmtInfo(cash,'Cobrado en efectivo')
     document.getElementById('totalPendingDebt').innerHTML = fmtInfo(pending,'Deuda pendiente')

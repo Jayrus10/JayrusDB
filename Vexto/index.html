@@ -547,17 +547,30 @@
     <div id="modalSale" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4">
         <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0">
             <h3 class="text-lg md:text-xl font-bold mb-4 md:mb-6">Venta Rápida</h3>
-            <select id="saleProd" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 mb-3 md:mb-4 text-sm" onchange="updateSuggestedPrice()"></select>
-            <input id="saleQty" type="number" placeholder="Cantidad" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 mb-3 md:mb-4 text-sm">
+            <select id="saleProd" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 mb-3 md:mb-4 text-sm" onchange="updateSaleInfo()"></select>
+            <input id="saleQty" type="number" placeholder="Cantidad" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 mb-3 md:mb-4 text-sm" oninput="updateSaleInfo()">
             <div class="mb-2 text-xs text-zinc-500">Precio sugerido: <span id="suggestedPriceDisplay">-</span></div>
             <div class="flex gap-2 mb-3 md:mb-4">
-                <input id="salePrice" type="number" placeholder="Precio unitario" class="flex-1 bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 text-sm">
-                <select id="saleCurrency" class="bg-zinc-800 border-0 rounded-2xl px-3 py-2 text-sm" onchange="updateSuggestedPrice()">
+                <input id="salePrice" type="number" placeholder="Precio unitario" class="flex-1 bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 text-sm" oninput="updateSaleInfo()">
+                <select id="saleCurrency" class="bg-zinc-800 border-0 rounded-2xl px-3 py-2 text-sm" onchange="updateSaleInfo()">
                     <option value="CUP">CUP</option>
                     <option value="USD">USD</option>
                     <option value="EUR">EUR</option>
                 </select>
             </div>
+            
+            <!-- Info de cálculo -->
+            <div id="saleCalcInfo" class="hidden bg-zinc-800 rounded-2xl p-3 mb-3 md:mb-4 space-y-1">
+                <div class="flex justify-between text-sm"><span class="text-zinc-400">Subtotal:</span><span id="saleSubtotal" class="text-white font-medium">-</span></div>
+                <div class="flex justify-between text-sm"><span class="text-zinc-400">Margen:</span><span id="saleMargin" class="font-medium">-</span></div>
+            </div>
+            
+            <!-- Gastos de envío -->
+            <div class="mb-3 md:mb-4">
+                <input id="saleShipping" type="number" placeholder="Gastos de envío (opcional)" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 text-sm" oninput="updateSaleInfo()">
+                <div class="text-xs text-zinc-500 mt-1">Este costo se restará de la ganancia</div>
+            </div>
+            
             <div class="relative mb-3 md:mb-4">
                 <input id="saleClient" placeholder="Cliente (opcional)" autocomplete="off"
                     class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 text-sm"
