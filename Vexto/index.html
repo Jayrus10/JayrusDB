@@ -5,10 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vexto</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chart.js will be loaded lazily when Reports section is opened -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
         <link rel="stylesheet" href="vexto.css">
 </head>
 <body class="bg-zinc-950 text-zinc-100">
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed top-4 right-4 z-[100] space-y-2"></div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[200]">
+        <div class="bg-zinc-900 rounded-2xl p-6 flex flex-col items-center">
+            <div class="w-10 h-10 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mb-3"></div>
+            <div class="text-zinc-300 text-sm">Cargando...</div>
+        </div>
+    </div>
 
     <!-- LOGIN -->
     <div id="loginPage" class="min-h-screen flex flex-col items-center justify-center bg-zinc-950 p-4">
@@ -79,7 +91,11 @@
             <button class="mobile-menu-btn hidden text-2xl" onclick="toggleMobileMenu()">☰</button>
             <div class="flex items-center gap-2 md:gap-3">
                 <div class="w-8 h-8 bg-emerald-600 rounded-xl flex items-center justify-center font-bold text-sm">VX</div>
-                <div><div class="font-semibold text-sm" id="currentUser"></div><div class="text-xs text-zinc-500">v1.0.6 beta</div></div>
+                <div class="flex items-center gap-2">
+                    <div class="font-semibold text-sm" id="currentUser"></div>
+                    <span id="lowStockBadge" class="hidden bg-red-600 text-white text-xs px-2 py-0.5 rounded-full cursor-pointer" onclick="showSection('products')" title="Productos con stock bajo">⚠️ <span id="lowStockCount">0</span></span>
+                </div>
+                <div class="text-xs text-zinc-500">v1.0.6 beta</div>
             </div>
             <div class="flex gap-1 md:gap-2 flex-wrap justify-end">
                 <button onclick="importData()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">📥 <span class="hidden md:inline">Importar</span></button>
@@ -188,6 +204,11 @@
                             <button onclick="showAddCustomer()" class="bg-emerald-600 px-6 py-2 rounded-xl">+ Nuevo</button>
                         </div>
                     </div>
+                    <!-- Search bar -->
+                    <div class="mb-4">
+                        <input id="customerSearch" type="text" placeholder="🔍 Buscar cliente..." oninput="renderCustomers()"
+                            class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-emerald-600">
+                    </div>
                     <div class="overflow-x-auto">
                     <table class="w-full">
                         <thead><tr class="text-left text-zinc-400 text-sm"><th class="pb-3">Nombre</th><th>Nivel VIP</th><th>Compras</th><th>Total gastado</th><th>Deuda</th><th>Acción</th></tr></thead>
@@ -203,6 +224,11 @@
                         <button onclick="showAddProvider()" class="bg-emerald-600 px-6 py-2 rounded-xl">
                             + Nuevo
                         </button>
+                    </div>
+                    <!-- Search bar -->
+                    <div class="mb-4">
+                        <input id="providerSearch" type="text" placeholder="🔍 Buscar proveedor..." oninput="renderProviders()"
+                            class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-emerald-600">
                     </div>
 
                     <div class="overflow-x-auto">
@@ -224,7 +250,12 @@
 
                 <!-- COMPRAS -->
                 <div id="purchases" class="section">
-                    <div class="flex justify-between mb-6"><h2 class="text-2xl font-bold">Compras / Lotes</h2><button onclick="showAddPurchase()" class="bg-emerald-600 px-6 py-2 rounded-xl">+ Nueva compra</button></div>
+                    <div class="flex justify-between mb-4"><h2 class="text-2xl font-bold">Compras / Lotes</h2><button onclick="showAddPurchase()" class="bg-emerald-600 px-6 py-2 rounded-xl">+ Nueva compra</button></div>
+                    <!-- Search bar -->
+                    <div class="mb-4">
+                        <input id="purchaseSearch" type="text" placeholder="🔍 Buscar compra..." oninput="renderPurchases()"
+                            class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-emerald-600">
+                    </div>
                     <div class="overflow-x-auto"><table class="w-full"><thead><tr class="text-left text-zinc-400 text-sm"><th>Fecha</th><th>Producto</th><th>Cant.</th><th>Costo unitario</th><th>Proveedor</th><th>Estado</th><th>Acción</th></tr></thead>
                     <tbody id="purchasesTable" class="text-sm"></tbody></table></div>
                 </div>
@@ -579,6 +610,21 @@
             <div class="flex gap-3 mt-6">
                 <button onclick="hideModal('modalCustomer')" class="flex-1 py-3 bg-zinc-800 rounded-2xl text-sm">Cancelar</button>
                 <button onclick="saveCustomer()" class="flex-1 py-3 bg-emerald-600 rounded-2xl text-sm">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer History Modal -->
+    <div id="modalCustomerHistory" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4 z-50">
+        <div class="bg-zinc-900 w-full max-w-2xl rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0">
+            <div class="flex justify-between items-center mb-5">
+                <h3 class="text-lg font-bold">Historial de Compras</h3>
+                <button onclick="hideModal('modalCustomerHistory')" class="text-red-400 hover:text-red-300 text-xl">&times;</button>
+            </div>
+            <div id="customerHistoryContent" class="space-y-2 text-sm"></div>
+            <div class="mt-6 flex gap-3">
+                <button onclick="printCustomerHistory()" class="flex-1 py-3 bg-zinc-800 rounded-2xl text-sm">🖨️ Imprimir</button>
+                <button onclick="hideModal('modalCustomerHistory')" class="flex-1 py-3 bg-emerald-600 rounded-2xl text-sm">Cerrar</button>
             </div>
         </div>
     </div>

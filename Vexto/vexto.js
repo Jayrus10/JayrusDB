@@ -5,7 +5,112 @@ let currentUser = ''
 let data = { products:[], purchases:[], sales:[], customers:[], providers:[], discounts:[], audit:[], vipLevels:[], exchangeRates:{USD:500,EUR:650}, baseCurrency:'CUP' }
 let nextId = 1
 
+// ─── Toast Notifications ─────────────────────────────────────────────────────────
+function showToast(message, type = 'success', duration = 3000) {
+    const container = document.getElementById('toastContainer')
+    if (!container) return
+    
+    const toast = document.createElement('div')
+    const icons = {
+        success: '✅',
+        error: '❌',
+        warning: '⚠️',
+        info: 'ℹ️'
+    }
+    const bgColors = {
+        success: 'bg-emerald-900/90 border-emerald-600',
+        error: 'bg-red-900/90 border-red-600',
+        warning: 'bg-amber-900/90 border-amber-600',
+        info: 'bg-sky-900/90 border-sky-600'
+    }
+    
+    toast.className = `${bgColors[type]} border rounded-xl px-4 py-3 shadow-lg flex items-center gap-3 min-w-[280px] max-w-sm animate-slideIn text-sm`
+    toast.innerHTML = `
+        <span class="text-xl">${icons[type]}</span>
+        <span class="text-white flex-1">${message}</span>
+        <button onclick="this.parentElement.remove()" class="text-zinc-400 hover:text-white text-lg leading-none">&times;</button>
+    `
+    
+    container.appendChild(toast)
+    
+    setTimeout(() => {
+        toast.style.opacity = '0'
+        toast.style.transform = 'translateX(100%)'
+        toast.style.transition = 'all 0.3s ease'
+        setTimeout(() => toast.remove(), 300)
+    }, duration)
+}
+
+// Replace alert with toast
+function notify(msg, type = 'success') {
+    showToast(msg, type)
+}
+
+// ─── Loading Spinner ───────────────────────────────────────────────────────────
+function showLoading() {
+    const spinner = document.getElementById('loadingSpinner')
+    if(spinner) spinner.classList.remove('hidden')
+}
+
+function hideLoading() {
+    const spinner = document.getElementById('loadingSpinner')
+    if(spinner) spinner.classList.add('hidden')
+}
+
 // ─── Persistencia ─────────────────────────────────────────────────────────────
+document.addEventListener('keydown', function(e) {
+    // Close modals with Escape
+    if(e.key === 'Escape') {
+        const visibleModals = document.querySelectorAll('#toastContainer ~ .fixed:not(.hidden)')
+        if(visibleModals.length === 0) return
+        for(let modal of visibleModals) {
+            if(!modal.id || modal.id === 'toastContainer') continue
+            // Find the close button or hide directly
+            const closeBtn = modal.querySelector('button[onclick*="hideModal"]') || modal.querySelector('button[class*="text-red"]')
+            if(closeBtn && closeBtn.onclick) {
+                closeBtn.onclick()
+            } else {
+                modal.classList.add('hidden')
+            }
+            e.preventDefault()
+            return
+        }
+    }
+    
+    // Ctrl+N - New product
+    if(e.ctrlKey && e.key === 'n') {
+        e.preventDefault()
+        const app = document.getElementById('app')
+        if(app && !app.classList.contains('hidden')) {
+            showSection('products')
+            showAddProduct()
+        }
+    }
+    
+    // Ctrl+S - Save (works in modals)
+    if(e.ctrlKey && e.key === 's') {
+        e.preventDefault()
+        // Trigger save if in a modal - try common save buttons
+        const saveBtn = document.querySelector('.fixed:not(.hidden) button.bg-emerald-600:not([onclick*="hide"])')
+        if(saveBtn && saveBtn.onclick) {
+            saveBtn.onclick()
+        }
+    }
+    
+    // Ctrl+F - Focus search (in sections)
+    if(e.ctrlKey && e.key === 'f') {
+        e.preventDefault()
+        const activeSection = document.querySelector('.section.active')
+        if(activeSection) {
+            const searchInput = activeSection.querySelector('input[placeholder*="Buscar"]') || activeSection.querySelector('input[id*="Search"]')
+            if(searchInput) {
+                searchInput.focus()
+                searchInput.select()
+            }
+        }
+    }
+})
+
 function saveData(){
     if(currentUser) localStorage.setItem('tienda_' + currentUser, JSON.stringify(data))
 }
@@ -215,9 +320,13 @@ function renderCustomers(){
     const tbody = document.getElementById('customersTable')
     if(!tbody) return
     tbody.innerHTML = ''
-    const list = data.customers || []
+    
+    const search = (document.getElementById('customerSearch')?.value || '').toLowerCase().trim()
+    const list = (data.customers || [])
+        .filter(c => !search || c.name.toLowerCase().includes(search))
+    
     if(!list.length){
-        tbody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-zinc-500">No hay clientes registrados</td></tr>'
+        tbody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-zinc-500">' + (search ? 'Sin resultados' : 'No hay clientes registrados') + '</td></tr>'
         return
     }
     list.forEach(c => {
@@ -230,7 +339,7 @@ function renderCustomers(){
         const totalSpent    = custSales.reduce((a,s) => a + s.qty*(s.finalPriceCUP||s.unitSellPriceCUP||0), 0)
         const tr = document.createElement('tr')
         tr.className = 'border-b border-zinc-800 hover:bg-zinc-900'
-        tr.innerHTML = '<td class="py-4 font-medium">'+c.name+'</td>'
+        tr.innerHTML = '<td class="py-4 font-medium cursor-pointer hover:text-emerald-400" onclick="showCustomerHistory('+c.id+')">'+c.name+'</td>'
             +'<td>'+vipBadge+'</td>'
             +'<td class="text-zinc-300">'+(purchaseCount > 0 ? purchaseCount+'x' : '<span class="text-zinc-600">0</span>')+'</td>'
             +'<td>'+(totalSpent > 0 ? fmtInfo(totalSpent,'Total gastado') : '<span class="text-zinc-600">—</span>')+'</td>'
@@ -295,6 +404,46 @@ function deleteCustomer(id){
         saveData(); addAudit('CLIENTE ELIMINADO: '+c.name); renderCustomers()
     })
 }
+
+// Customer History Modal Functions
+function showCustomerHistory(customerId){
+    const c = data.customers.find(x=>x.id===customerId)
+    if(!c) return
+    const custSales = data.sales.filter(s => s.client === c.name)
+    const vip = c.vipLevel ? (data.vipLevels||[]).find(v=>v.id===c.vipLevel) : null
+    let html = '<div class="bg-zinc-800 rounded-2xl p-4 mb-4"><div class="flex justify-between items-center"><div><div class="text-lg font-bold text-white">'+c.name+'</div>'+(vip ? '<div class="text-amber-400 text-sm">⭐ '+vip.name+' ('+vip.percent+'% descuento)</div>' : '')+'</div><div class="text-right"><div class="text-zinc-400 text-xs">Deuda actual</div><div class="text-amber-400 font-bold text-lg">'+fmtCUP(c.debt||0)+'</div></div></div></div>'
+    if(custSales.length === 0){
+        html += '<div class="text-center text-zinc-500 py-8">Este cliente no tiene compras registradas</div>'
+    } else {
+        const sortedSales = [...custSales].sort((a,b) => b.date.localeCompare(a.date))
+        let totalSpent = 0
+        html += '<div class="space-y-2 max-h-80 overflow-y-auto">'
+        sortedSales.forEach(s => {
+            const prod = data.products.find(p => p.id === s.productId)
+            const prodName = prod ? prod.name : '?'
+            const price = s.finalPriceCUP || s.unitSellPriceCUP || 0
+            const total = s.qty * price
+            totalSpent += total
+            const isCredit = s.isCredit ? '<span class="text-amber-400 text-xs ml-2">📤 Fiado</span>' : '<span class="text-emerald-400 text-xs ml-2">✅ Contado</span>'
+            html += '<div class="bg-zinc-800 rounded-xl p-3 flex justify-between items-center"><div><div class="text-white font-medium">'+prodName+'</div><div class="text-zinc-500 text-xs">'+s.date+' × '+s.qty+' '+isCredit+'</div></div><div class="text-right"><div class="text-emerald-400 font-semibold">'+fmtCUP(total)+'</div><div class="text-zinc-500 text-xs">'+fmtCUP(price)+' c/u</div></div></div>'
+        })
+        html += '</div>'
+        html += '<div class="bg-zinc-800 rounded-2xl p-4 mt-4 flex justify-between items-center"><div class="text-zinc-400">Total gastado</div><div class="text-emerald-400 font-bold text-xl">'+fmtCUP(totalSpent)+'</div></div>'
+    }
+    document.getElementById('customerHistoryContent').innerHTML = html
+    document.getElementById('customerHistoryContent').dataset.customerName = c.name
+    showModal('modalCustomerHistory')
+}
+
+function printCustomerHistory(){
+    const content = document.getElementById('customerHistoryContent')
+    const customerName = content.dataset.customerName || 'Cliente'
+    const html = content.innerHTML
+    const printWindow = window.open('', '_blank')
+    printWindow.document.write('<!DOCTYPE html><html><head><title>Historial - '+customerName+'</title><style>body{font-family:system-ui,sans-serif;padding:20px}.bg-zinc-800{background:#3f3f46;padding:16px;border-radius:8px;margin-bottom:8px}.text-white{color:#fff}.text-zinc-400{color:#a1a1aa}.text-zinc-500{color:#71717a}.text-emerald-400{color:#34d399}.text-amber-400{color:#fbbf24}.font-bold{font-weight:700}.text-lg{font-size:18px}.text-xl{font-size:24px}.text-xs{font-size:12px}.flex{display:flex}.justify-between{justify-content:space-between}.items-center{align-items:center}.text-right{text-align:right}@media print{body{padding:0}}</style></head><body><h1>🧾 Historial de '+customerName+'</h1>'+html+'<script>window.onload=function(){window.print();window.close()}</script></body></html>')
+    printWindow.document.close()
+}
+
 function showManageVipLevels(){
     if(!data.vipLevels) data.vipLevels = []
     renderVipLevels()
@@ -452,6 +601,17 @@ function renderInfo(){
 
     c.innerHTML = [
 
+      card('⌨️','Atajos de teclado',
+        p('Vexto soporta atajos de teclado para mejorar tu productividad:')
+        + '<div class="bg-zinc-800 rounded-xl p-3 mt-3 space-y-2">'
+        + '<div class="flex justify-between"><span class="text-zinc-400">Cerrar modal</span><kbd class="bg-zinc-700 px-2 py-1 rounded text-xs">Esc</kbd></div>'
+        + '<div class="flex justify-between"><span class="text-zinc-400">Nuevo producto</span><kbd class="bg-zinc-700 px-2 py-1 rounded text-xs">Ctrl + N</kbd></div>'
+        + '<div class="flex justify-between"><span class="text-zinc-400">Guardar</span><kbd class="bg-zinc-700 px-2 py-1 rounded text-xs">Ctrl + S</kbd></div>'
+        + '<div class="flex justify-between"><span class="text-zinc-400">Buscar</span><kbd class="bg-zinc-700 px-2 py-1 rounded text-xs">Ctrl + F</kbd></div>'
+        + '</div>'
+        + note('Presiona Ctrl+F en cualquier sección para enfocar el campo de búsqueda.')
+      ),
+
       card('📦','Costo promedio ponderado (avgCost)',
         p('Cada vez que compras unidades de un producto, Vexto recalcula el costo promedio considerando tanto las unidades existentes como las nuevas.')
         + p('La fórmula es: <code class="bg-zinc-800 px-1 rounded">(stock_anterior × costo_anterior + nuevas_unidades × nuevo_costo) ÷ stock_total</code>')
@@ -553,6 +713,21 @@ function renderDashboard(){
     document.getElementById('dashDebt').innerHTML        = fmtInfo(totalDebt,   'Deudores')
     document.getElementById('dashTodayProfit').innerHTML = fmtInfo(todayProfit, 'Ganancia hoy')
     document.getElementById('dashMonthSales').textContent = data.sales.length
+    
+    // Update low stock badge
+    const lowStockProducts = data.products.filter(p => (p.currentStock||0) > 0 && (p.currentStock||0) < (p.minStock||0))
+    const zeroStockProducts = data.products.filter(p => (p.currentStock||0) <= 0)
+    const totalLowStock = lowStockProducts.length + zeroStockProducts.length
+    const badge = document.getElementById('lowStockBadge')
+    const countEl = document.getElementById('lowStockCount')
+    if(badge && countEl) {
+        countEl.textContent = totalLowStock
+        if(totalLowStock > 0) {
+            badge.classList.remove('hidden')
+        } else {
+            badge.classList.add('hidden')
+        }
+    }
 }
 
 // ─── Productos ────────────────────────────────────────────────────────────────
@@ -873,7 +1048,27 @@ function savePurchase(){
 function renderPurchases(){
     const tbody = document.getElementById('purchasesTable')
     tbody.innerHTML = ''
-    data.purchases.forEach(p => {
+    
+    const search = (document.getElementById('purchaseSearch')?.value || '').toLowerCase().trim()
+    
+    const list = (data.purchases || []).filter(p => {
+        if(search) {
+            const prod = data.products.find(pr=>pr.id===p.productId)
+            const prodName = prod ? prod.name.toLowerCase() : ''
+            return p.date.includes(search) || 
+                   prodName.includes(search) || 
+                   (p.supplier && p.supplier.toLowerCase().includes(search)) ||
+                   String(p.qty).includes(search)
+        }
+        return true
+    })
+    
+    if(!list.length){
+        tbody.innerHTML = '<tr><td colspan="7" class="py-8 text-center text-zinc-500">' + (search ? 'Sin resultados' : 'No hay compras registradas') + '</td></tr>'
+        return
+    }
+    
+    list.forEach(p => {
         const prod    = data.products.find(pr=>pr.id===p.productId)
         const costCUP = p.unitCostCUP !== undefined ? p.unitCostCUP : 0
         const statusHtml = p.inStock
@@ -1231,26 +1426,33 @@ function renderProviders(){
     const tbody = document.getElementById('providersTable')
     if(!tbody) return
     tbody.innerHTML = ''
-
-    if(!data.providers.length){
-        tbody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-zinc-500">No hay proveedores registrados</td></tr>'
+    
+    const search = (document.getElementById('providerSearch')?.value || '').toLowerCase().trim()
+    const list = (data.providers || [])
+        .filter(p => !search || 
+            (p.name && p.name.toLowerCase().includes(search)) ||
+            (p.contact && p.contact.toLowerCase().includes(search)) ||
+            (p.phone && p.phone.includes(search)) ||
+            (p.email && p.email.toLowerCase().includes(search)) ||
+            (p.location && p.location.toLowerCase().includes(search)))
+    
+    if(!list.length){
+        tbody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-zinc-500">' + (search ? 'Sin resultados' : 'No hay proveedores registrados') + '</td></tr>'
         return
     }
 
-    data.providers.forEach(p => {
+    list.forEach(p => {
         const tr = document.createElement('tr')
         tr.className = 'border-b border-zinc-800 hover:bg-zinc-900'
-        tr.innerHTML =
-            '<td class="py-4 font-medium">'+p.name+'</td>'+
-            '<td>'+ (p.contact||'-') +'</td>'+
-            '<td>'+ (p.phone||'-') +'</td>'+
-            '<td>'+ (p.email||'-') +'</td>'+
-            '<td>'+ (p.location||'-') +'</td>'+
-            '<td class="flex gap-2 py-4">'+
-                '<button onclick="showEditProvider('+p.id+')" class="text-zinc-400 hover:text-zinc-200 text-sm">✏️</button>'+
-                '<button onclick="deleteProvider('+p.id+')" class="text-red-400 hover:text-red-300 text-sm">🗑️</button>'+
-            '</td>'
-
+        tr.innerHTML = '<td class="py-4 font-medium">'+p.name+'</td>'
+            +'<td>'+(p.contact||'-')+'</td>'
+            +'<td>'+(p.phone||'-')+'</td>'
+            +'<td>'+(p.email||'-')+'</td>'
+            +'<td>'+(p.location||'-')+'</td>'
+            +'<td class="flex gap-2 py-4">'
+            +'<button onclick="showEditProvider('+p.id+')" class="text-zinc-400 hover:text-zinc-200 text-sm">✏️</button>'
+            +'<button onclick="deleteProvider('+p.id+')" class="text-red-400 hover:text-red-300 text-sm">🗑️</button>'
+            +'</td>'
         tbody.appendChild(tr)
     })
 }

@@ -9,6 +9,9 @@
             .app-nav { width: 240px; overflow-y: auto; flex-shrink: 0; }
             .app-content { flex: 1; overflow: hidden; }
             .section { padding: 32px; overflow-y: auto; height: 100%; }
+            /* Better table scrolling */
+            .overflow-x-auto { overflow-x: visible; }
+            table { width: 100%; min-width: 600px; }
         }
         @media (max-width: 1023px) {
             #app { display: flex; flex-direction: column; height: 100vh; }
@@ -45,10 +48,19 @@
         #warningModal > div { animation: scaleUp .32s cubic-bezier(0.34, 3.56, 0.64, 1); }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        #modalProduct, #modalPurchase, #modalSale, #modalAudit, #modalDiscount, #modalPurchaseInfo, #modalSetupRates, #modalConfirm, #modalCustomer, #modalVipLevel, #modalTransitInfo, #modalProductsInfo, #modalPayDebt, #modalCurrencyInfo, #modalProvider, #modalEditDatabase { animation: fadeIn .3s ease; }
+        #modalProduct, #modalPurchase, #modalSale, #modalAudit, #modalDiscount, #modalPurchaseInfo, #modalSetupRates, #modalConfirm, #modalCustomer, #modalVipLevel, #modalTransitInfo, #modalProductsInfo, #modalPayDebt, #modalCurrencyInfo, #modalProvider, #modalEditDatabase, #modalCustomerHistory { animation: fadeIn .3s ease; }
         .modal-layer { position: fixed; inset: 0; }
         #modalProduct > div, #modalPurchase > div, #modalSale > div, #modalAudit > div, #modalDiscount > div, #modalPurchaseInfo > div, #modalSetupRates > div, #modalConfirm > div, #modalCustomer > div, #modalVipLevel > div, #modalProvider > div, #modalEditDatabase > div { animation: scaleUp .32s cubic-bezier(0.34, 3.56, 0.64, 1); }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #52525b; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: #71717a; }
+        
+        /* Toast animations */
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .animate-slideIn {
+            animation: slideIn 0.3s ease forwards;
+        }
