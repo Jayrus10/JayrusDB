@@ -1230,15 +1230,17 @@ function saveSale(){
     const cur     = document.getElementById('saleCurrency').value
     const client  = document.getElementById('saleClient').value.trim()
     const credit  = document.getElementById('saleCredit').checked
-    if(!prodId || !qty || !price) return alert('Campos requeridos')
+    const printReceipt = document.getElementById('printReceipt')?.checked || false
+    if(!prodId || !qty || !price) return notify('Campos requeridos', 'error')
     const prod = data.products.find(p=>p.id===prodId)
-    if(!prod || prod.currentStock < qty) return alert('Stock insuficiente')
+    if(!prod || prod.currentStock < qty) return notify('Stock insuficiente', 'error')
     const unitSellPriceCUP = toCUP(price, cur)
     const discountPercent  = getApplicableDiscount(qty, client, prodId)
     const finalPriceCUP    = unitSellPriceCUP * (1 - discountPercent)
     prod.currentStock -= qty
     const today = new Date().toISOString().slice(0,10)
-    data.sales.push({id:nextId++, productId:prodId, date:today, qty, unitSellPriceCUP, finalPriceCUP, discountPercent, currencyOriginal:cur, client:client||'-', onCredit:credit})
+    const saleId = nextId++
+    data.sales.push({id:saleId, productId:prodId, date:today, qty, unitSellPriceCUP, finalPriceCUP, discountPercent, currencyOriginal:cur, client:client||'-', onCredit:credit})
     // Auto-register any named client (not only on fiado)
     if(client){
         let cust = data.customers.find(c=>c.name===client)
@@ -1249,6 +1251,13 @@ function saveSale(){
     const dtxt = discountPercent > 0 ? ' (dto '+((discountPercent*100).toFixed(0))+'%)' : ''
     addAudit('VENTA: '+prod.name+' x'+qty+' a '+fmtCUP(finalPriceCUP)+dtxt)
     hideModal('modalSale'); renderSales(); renderCustomers(); renderDashboard()
+    
+    // Print receipt if checkbox is checked
+    if(printReceipt) {
+        setTimeout(() => printSaleReceipt(saleId), 300)
+    }
+    
+    notify('✅ Venta registrada: '+prod.name+' x'+qty, 'success')
 }
 function renderSales(){
     const tbody = document.getElementById('salesTable')
