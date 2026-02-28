@@ -245,6 +245,12 @@ function fmtCUP(amount){
     return amount.toFixed(2) + ' CUP'
 }
 
+// ─── Formato número simple ───────────────────────────────
+function fmtNum(num){
+    num = Number(num) || 0
+    return num.toLocaleString('es-ES', {minimumFractionDigits: 0, maximumFractionDigits: 0})
+}
+
 // ─── Formato: muestra en moneda base + botón ℹ️ ───────────────────────────────
 function fmtInfo(cup, label){
     cup = Number(cup) || 0
