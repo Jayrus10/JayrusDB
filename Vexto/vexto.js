@@ -1425,34 +1425,9 @@ function showQuickSale(){
     document.getElementById('salePrice').value  = ''
     document.getElementById('saleClient').value = ''
     document.getElementById('saleCredit').checked = false
-    document.getElementById('saleExpenses').value = ''
-    document.getElementById('saleExpensesCurrency').value = data.baseCurrency
     document.getElementById('suggestedPriceDisplay').textContent = '-'
     document.getElementById('saleCurrency').value = data.baseCurrency
-    document.getElementById('saleSubtotalDisplay').innerHTML = ''
     showModal('modalSale')
-}
-
-// Calcular y mostrar subtotal en el modal de venta
-function updateSaleSubtotal() {
-    const qty = parseFloat(document.getElementById('saleQty').value) || 0
-    const price = parseFloat(document.getElementById('salePrice').value) || 0
-    const currency = document.getElementById('saleCurrency').value
-    const display = document.getElementById('saleSubtotalDisplay')
-    
-    if(qty > 0 && price > 0) {
-        const subtotal = qty * price
-        // Convertir a CUP para mostrar el valor real
-        const subtotalCUP = toCUP(subtotal, currency)
-        let html = '<span class="text-emerald-400 font-medium">Subtotal: '+subtotal.toFixed(2)+' '+currency
-        if(currency !== 'CUP') {
-            html += ' (= '+fmtCUP(subtotalCUP)+')'
-        }
-        html += '</span>'
-        display.innerHTML = html
-    } else {
-        display.innerHTML = ''
-    }
 }
 function getApplicableDiscount(qty, clientName, productId){
     if(!data.discounts) return 0
@@ -1482,20 +1457,17 @@ function saveSale(){
     const cur     = document.getElementById('saleCurrency').value
     const client  = document.getElementById('saleClient').value.trim()
     const credit  = document.getElementById('saleCredit').checked
-    const expenses = parseFloat(document.getElementById('saleExpenses').value) || 0
-    const expensesCurrency = document.getElementById('saleExpensesCurrency').value
     const printReceipt = document.getElementById('printReceipt')?.checked || false
     if(!prodId || !qty || !price) return notify('Campos requeridos', 'error')
     const prod = data.products.find(p=>p.id===prodId)
     if(!prod || prod.currentStock < qty) return notify('Stock insuficiente', 'error')
     const unitSellPriceCUP = toCUP(price, cur)
-    const expensesCUP = toCUP(expenses, expensesCurrency)
     const discountPercent  = getApplicableDiscount(qty, client, prodId)
     const finalPriceCUP    = unitSellPriceCUP * (1 - discountPercent)
     prod.currentStock -= qty
     const today = new Date().toISOString().slice(0,10)
     const saleId = nextId++
-    data.sales.push({id:saleId, productId:prodId, date:today, qty, unitSellPriceCUP, finalPriceCUP, discountPercent, currencyOriginal:cur, client:client||'-', onCredit:credit, expenses:expensesCUP})
+    data.sales.push({id:saleId, productId:prodId, date:today, qty, unitSellPriceCUP, finalPriceCUP, discountPercent, currencyOriginal:cur, client:client||'-', onCredit:credit})
     // Auto-register any named client (not only on fiado)
     if(client){
         let cust = data.customers.find(c=>c.name===client)
@@ -1504,8 +1476,7 @@ function saveSale(){
     }
     saveData()
     const dtxt = discountPercent > 0 ? ' (dto '+((discountPercent*100).toFixed(0))+'%)' : ''
-    const gtxt = expensesCUP > 0 ? ' (+gastos '+fmtCUP(expensesCUP)+')' : ''
-    addAudit('VENTA: '+prod.name+' x'+qty+' a '+fmtCUP(finalPriceCUP)+dtxt+gtxt)
+    addAudit('VENTA: '+prod.name+' x'+qty+' a '+fmtCUP(finalPriceCUP)+dtxt)
     hideModal('modalSale'); renderSales(); renderCustomers(); renderDashboard()
     
     // Print receipt if checkbox is checked
@@ -1513,34 +1484,7 @@ function saveSale(){
         setTimeout(() => printSaleReceipt(saleId), 300)
     }
     
-    // Mostrar mensaje detallado de la venta
-    const subtotal = unitSellPriceCUP * qty
-    const discountAmount = subtotal * discountPercent
-    const saleTotal = subtotal - discountAmount
-    const finalTotal = saleTotal - expensesCUP
-    
-    let detailMsg = '<div class="text-left text-sm">'
-        + '<div class="border-b border-zinc-700 pb-2 mb-2">'
-        + '<div class="font-bold text-emerald-400">'+prod.name+'</div>'
-        + '</div>'
-        + '<div class="flex justify-between mb-1"><span class="text-zinc-400">Precio unitario:</span><span>'+fmtCUP(unitSellPriceCUP)+'</span></div>'
-        + '<div class="flex justify-between mb-1"><span class="text-zinc-400">Cantidad:</span><span>'+qty+'</span></div>'
-        + '<div class="flex justify-between mb-1"><span class="text-zinc-400">Subtotal:</span><span>'+fmtCUP(subtotal)+'</span></div>'
-    if(discountPercent > 0) {
-        detailMsg += '<div class="flex justify-between mb-1 text-emerald-400"><span>Descuento ('+(discountPercent*100).toFixed(0)+'%):</span><span>-'+fmtCUP(discountAmount)+'</span></div>'
-    }
-    detailMsg += '<div class="flex justify-between mb-1 font-medium"><span>Total venta:</span><span>'+fmtCUP(saleTotal)+'</span></div>'
-    if(expensesCUP > 0) {
-        let expenseTxt = '-'+fmtCUP(expensesCUP)
-        if(expensesCurrency !== 'CUP') {
-            expenseTxt += ' ('+expenses+' '+expensesCurrency+')'
-        }
-        detailMsg += '<div class="flex justify-between mb-1 text-red-400"><span>📦 Gastos:</span><span>'+expenseTxt+'</span></div>'
-    }
-    detailMsg += '<div class="border-t border-zinc-700 pt-2 mt-2 flex justify-between font-bold text-lg '+ (finalTotal >= 0 ? 'text-emerald-400' : 'text-red-400') +'"><span>Ganancia:</span><span>'+fmtCUP(finalTotal)+'</span></div>'
-        + '</div>'
-    
-    notify(detailMsg, 'success')
+    notify('✅ Venta registrada: '+prod.name+' x'+qty, 'success')
 }
 function renderSales(){
     const tbody = document.getElementById('salesTable')
@@ -1552,66 +1496,12 @@ function renderSales(){
         const priceHtml = hasDiscount
             ? '<span class="text-emerald-400">'+fmtInfo(priceCUP,'Precio final')+'</span> <span class="text-xs text-zinc-500">(-'+(s.discountPercent*100).toFixed(0)+'%)</span>'
             : fmtInfo(priceCUP,'Precio venta')
-        const expenses = s.expenses || 0
-        const expensesHtml = expenses > 0
-            ? '<button onclick="showSaleExpenses('+s.id+', event)" class="ml-1 text-red-400 hover:text-red-300 text-xs" title="Ver gastos">📦 -'+fmtCUP(expenses)+'</button>'
-            : '<span class="text-zinc-600 text-xs">—</span>'
         const tr = document.createElement('tr')
         tr.className = 'border-b border-zinc-800 hover:bg-zinc-900'
         const payBtn = (s.onCredit && s.client && s.client!=='-') ? '<button onclick="showPayDebt(null,\''+s.client+'\')" class="text-emerald-400 hover:text-emerald-300 text-xs mr-1 px-1.5 py-0.5 rounded bg-emerald-900/40" title="Pagar deuda">💵</button>' : ''
-        tr.innerHTML = '<td class="py-4">'+s.date+'</td><td>'+(prod?prod.name:'?')+'</td><td>'+s.qty+'</td><td>'+priceHtml+expensesHtml+'</td><td>'+(s.onCredit?'💳 ':'')+s.client+'</td><td>'+payBtn+'<button onclick="printSaleReceipt('+s.id+')" class="text-zinc-400 hover:text-zinc-200 text-sm mr-1" title="Imprimir recibo">🖨️</button><button onclick="deleteSale('+s.id+')" class="text-red-400 hover:text-red-300 text-sm">🗑️</button></td>'
+        tr.innerHTML = '<td class="py-4">'+s.date+'</td><td>'+(prod?prod.name:'?')+'</td><td>'+s.qty+'</td><td>'+priceHtml+'</td><td>'+(s.onCredit?'💳 ':'')+s.client+'</td><td>'+payBtn+'<button onclick="printSaleReceipt('+s.id+')" class="text-zinc-400 hover:text-zinc-200 text-sm mr-1" title="Imprimir recibo">🖨️</button><button onclick="deleteSale('+s.id+')" class="text-red-400 hover:text-red-300 text-sm">🗑️</button></td>'
         tbody.appendChild(tr)
     })
-}
-
-// Mostrar detalles de gastos de una venta
-function showSaleExpenses(saleId, event) {
-    event.stopPropagation()
-    const s = data.sales.find(x=>x.id===saleId)
-    if(!s) return
-    const prod = data.products.find(p=>p.id===s.productId)
-    const unitPrice = s.finalPriceCUP || s.unitSellPriceCUP || 0
-    const subtotal = s.qty * unitPrice
-    const discount = s.discountPercent ? (subtotal * s.discountPercent) : 0
-    const finalPrice = subtotal - discount
-    const expenses = s.expenses || 0
-    const total = finalPrice - expenses  // Gastos negativos para el profit
-    
-    // Crear modal personalizado para los detalles
-    const modal = document.getElementById('modalSaleExpenses')
-    if(!modal) {
-        // Crear el modal si no existe
-        const modalHtml = `
-        <div id="modalSaleExpenses" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-[60]">
-            <div class="bg-zinc-900 w-full max-w-sm rounded-3xl p-6" style="animation: scaleUp .32s cubic-bezier(0.34,3.56,0.64,1)">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 id="saleExpensesTitle" class="text-lg font-bold">Detalle de Venta</h3>
-                    <button onclick="hideModal('modalSaleExpenses')" class="text-red-400 hover:text-red-300 text-xl">&times;</button>
-                </div>
-                <div id="saleExpensesContent"></div>
-                <button onclick="hideModal('modalSaleExpenses')" class="w-full mt-4 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-2xl text-sm font-medium">Cerrar</button>
-            </div>
-        </div>
-        `
-        document.body.insertAdjacentHTML('beforeend', modalHtml)
-    }
-    
-    document.getElementById('saleExpensesTitle').textContent = 'Venta #' + saleId
-    document.getElementById('saleExpensesContent').innerHTML = `
-        <div class="bg-zinc-800 rounded-2xl p-4 mb-3">
-            <div class="flex justify-between text-sm mb-2"><span class="text-zinc-400">Producto:</span><span class="font-medium">${prod ? prod.name : '?'}</span></div>
-            <div class="flex justify-between text-sm mb-2"><span class="text-zinc-400">Fecha:</span><span class="font-medium">${s.date}</span></div>
-            <div class="flex justify-between text-sm mb-2"><span class="text-zinc-400">Cliente:</span><span class="font-medium">${s.client}</span></div>
-            <div class="flex justify-between text-sm mb-2"><span class="text-zinc-400">Cantidad:</span><span class="font-medium">${s.qty}</span></div>
-            <div class="flex justify-between text-sm mb-2"><span class="text-zinc-400">Precio unitario:</span><span class="font-medium">${fmtCUP(unitPrice)}</span></div>
-            <div class="flex justify-between text-sm mb-2"><span class="text-zinc-400">Subtotal:</span><span class="font-medium">${fmtCUP(subtotal)}</span></div>
-            ${s.discountPercent ? '<div class="flex justify-between text-sm mb-2"><span class="text-zinc-400">Descuento ('+(s.discountPercent*100).toFixed(0)+'%):</span><span class="text-emerald-400">-'+fmtCUP(discount)+'</span></div>' : ''}
-            <div class="flex justify-between text-sm mb-2"><span class="text-zinc-400">Total venta:</span><span class="font-medium">${fmtCUP(finalPrice)}</span></div>
-            <div class="flex justify-between text-sm mb-2 border-t border-zinc-700 pt-2 mt-2"><span class="text-red-400">📦 Gastos (envío, etc.):</span><span class="text-red-400 font-bold">-${fmtCUP(expenses)}</span></div>
-            <div class="flex justify-between text-sm border-t border-zinc-700 pt-2 mt-2"><span class="font-bold">Ganancia real:</span><span class="font-bold text-lg ${total >= 0 ? 'text-emerald-400' : 'text-red-400'}">${fmtCUP(total)}</span></div>
-        </div>
-    `
-    showModal('modalSaleExpenses')
 }
 
 function printSaleReceipt(saleId) {
@@ -1624,8 +1514,6 @@ function printSaleReceipt(saleId) {
     const totalPrice = s.qty * unitPrice
     const discount = s.discountPercent ? (totalPrice * s.discountPercent).toFixed(2) : '0.00'
     const finalPrice = totalPrice - (parseFloat(discount) || 0)
-    const expenses = s.expenses || 0
-    const totalWithExpenses = finalPrice + expenses
     const clientName = s.client || 'Cliente general'
     const paymentType = s.onCredit ? 'FIADO' : 'CONTADO'
     const paymentStatus = s.onCredit ? 'PENDIENTE' : 'PAGADO'
@@ -1655,7 +1543,6 @@ function printSaleReceipt(saleId) {
             .badge { display: inline-block; padding: 3px 8px; border-radius: 3px; font-size: 10px; font-weight: bold; }
             .badge-paid { background: #d1fae5; color: #065f46; }
             .badge-pending { background: #fef3c7; color: #92400e; }
-            .expenses-row { color: #dc2626; font-weight: bold; }
             @media print { body { padding: 0; } }
         </style>
     </head>
@@ -1688,9 +1575,7 @@ function printSaleReceipt(saleId) {
         <div class="totals">
             <div class="total-row"><span>Subtotal:</span><span>${fmtCUP(totalPrice)}</span></div>
             ${s.discountPercent ? '<div class="total-row"><span>Descuento ('+(s.discountPercent*100).toFixed(0)+'%):</span><span>-${fmtCUP(discount)}</span></div>' : ''}
-            <div class="total-row"><span>Subtotal final:</span><span>${fmtCUP(finalPrice)}</span></div>
-            ${expenses > 0 ? '<div class="total-row expenses-row"><span>📦 Gastos (envío):</span><span>-${fmtCUP(expenses)}</span></div>' : ''}
-            <div class="total-row total-final"><span>GANCIA:</span><span>${fmtCUP(totalWithExpenses)}</span></div>
+            <div class="total-row total-final"><span>TOTAL:</span><span>${fmtCUP(finalPrice)}</span></div>
         </div>
         
         <div class="footer">
