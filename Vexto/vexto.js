@@ -337,6 +337,7 @@ function saveSetupRates(){
     document.getElementById('modalSetupRates').classList.add('hidden')
     renderAll()
     addAudit('AJUSTES: tasas iniciales USD='+usd+' EUR='+eur)
+    showSection('info')
 }
 
 // ─── Modales / Nav ────────────────────────────────────────────────────────────
@@ -672,6 +673,18 @@ function renderInfo(){
     const note = s => `<p class="text-zinc-500 text-xs">${s}</p>`
 
     c.innerHTML = [
+
+      card('🚀','Guía de inicio rápido',
+        p('¿Es tu primera vez usando Vexto? Sigue estos pasos básicos para empezar:')
+        + '<ol class="list-decimal pl-5 space-y-2 mt-3">'
+        + '<li><span class="font-semibold text-emerald-400">📦 Crea productos:</span> Ve a Productos → click en "+ Nuevo". Dale nombre, categoría, stock mínimo y margen de ganancia (ej: 50%).</li>'
+        + '<li><span class="font-semibold text-emerald-400">🛒 Registra compras:</span> Ve a Compras → "+ Nueva compra". Selecciona el proveedor y agrega los productos con su costo. Esto suma stock a tu inventario.</li>'
+        + '<li><span class="font-semibold text-emerald-400">💰 Haz ventas:</span> Ve a Ventas → "+ Venta rápida" o usa el botón grande del Dashboard. Elige el producto, cantidad y el precio (el sugerido se calcula solo).</li>'
+        + '<li><span class="font-semibold text-emerald-400">👥 Administra clientes:</span> En Clientes puedes registrar clientes y ver su historial. Si les vendes a crédito, se registra como deuda.</li>'
+        + '<li><span class="font-semibold text-emerald-400">💾 Respalda tus datos:</span> Usa los botones "📥 Importar" y "📤 Exportar" en la barra superior. Exporta al menos una vez al día.</li>'
+        + '</ol>'
+        + note('💡 Consejo: Explora el Dashboard para ver el valor de tu stock, ganancias del día y deudas pendientes.')
+      ),
 
       card('⌨️','Atajos de teclado',
         p('Vexto soporta atajos de teclado para mejorar tu productividad:')
