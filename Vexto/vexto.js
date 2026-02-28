@@ -1263,9 +1263,98 @@ function renderSales(){
         const tr = document.createElement('tr')
         tr.className = 'border-b border-zinc-800 hover:bg-zinc-900'
         const payBtn = (s.onCredit && s.client && s.client!=='-') ? '<button onclick="showPayDebt(null,\''+s.client+'\')" class="text-emerald-400 hover:text-emerald-300 text-xs mr-1 px-1.5 py-0.5 rounded bg-emerald-900/40" title="Pagar deuda">💵</button>' : ''
-        tr.innerHTML = '<td class="py-4">'+s.date+'</td><td>'+(prod?prod.name:'?')+'</td><td>'+s.qty+'</td><td>'+priceHtml+'</td><td>'+(s.onCredit?'💳 ':'')+s.client+'</td><td>'+payBtn+'<button onclick="deleteSale('+s.id+')" class="text-red-400 hover:text-red-300 text-sm">🗑️</button></td>'
+        tr.innerHTML = '<td class="py-4">'+s.date+'</td><td>'+(prod?prod.name:'?')+'</td><td>'+s.qty+'</td><td>'+priceHtml+'</td><td>'+(s.onCredit?'💳 ':'')+s.client+'</td><td>'+payBtn+'<button onclick="printSaleReceipt('+s.id+')" class="text-zinc-400 hover:text-zinc-200 text-sm mr-1" title="Imprimir recibo">🖨️</button><button onclick="deleteSale('+s.id+')" class="text-red-400 hover:text-red-300 text-sm">🗑️</button></td>'
         tbody.appendChild(tr)
     })
+}
+
+function printSaleReceipt(saleId) {
+    const s = data.sales.find(x=>x.id===saleId)
+    if(!s) return
+    
+    const prod = data.products.find(p => p.id === s.productId)
+    const prodName = prod ? prod.name : '?'
+    const unitPrice = s.finalPriceCUP || s.unitSellPriceCUP || 0
+    const totalPrice = s.qty * unitPrice
+    const discount = s.discountPercent ? (totalPrice * s.discountPercent).toFixed(2) : '0.00'
+    const finalPrice = totalPrice - (parseFloat(discount) || 0)
+    const clientName = s.client || 'Cliente general'
+    const paymentType = s.onCredit ? 'FIADO' : 'CONTADO'
+    const paymentStatus = s.onCredit ? 'PENDIENTE' : 'PAGADO'
+    
+    const receiptHTML = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Recibo de Venta - Vexto</title>
+        <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { font-family: 'Courier New', monospace; padding: 20px; max-width: 400px; margin: 0 auto; }
+            .header { text-align: center; margin-bottom: 20px; border-bottom: 2px dashed #333; padding-bottom: 15px; }
+            .header h1 { font-size: 24px; margin-bottom: 5px; }
+            .header p { font-size: 12px; color: #666; }
+            .info { margin-bottom: 15px; font-size: 12px; }
+            .info-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+            .items { margin: 15px 0; border-top: 1px solid #ddd; border-bottom: 1px solid #ddd; padding: 10px 0; }
+            .item { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; }
+            .item-name { flex: 1; }
+            .item-qty { width: 50px; text-align: center; }
+            .item-price { width: 80px; text-align: right; }
+            .totals { margin-top: 15px; }
+            .total-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 5px; }
+            .total-final { font-size: 18px; font-weight: bold; border-top: 2px solid #333; padding-top: 10px; margin-top: 10px; }
+            .footer { text-align: center; margin-top: 30px; font-size: 10px; color: #666; }
+            .badge { display: inline-block; padding: 3px 8px; border-radius: 3px; font-size: 10px; font-weight: bold; }
+            .badge-paid { background: #d1fae5; color: #065f46; }
+            .badge-pending { background: #fef3c7; color: #92400e; }
+            @media print { body { padding: 0; } }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h1>🧾 VEXTO</h1>
+            <p>Gestor de Inventario y Ventas</p>
+        </div>
+        
+        <div class="info">
+            <div class="info-row"><span>Fecha:</span><span>${s.date}</span></div>
+            <div class="info-row"><span>Cliente:</span><span>${clientName}</span></div>
+            <div class="info-row"><span>Pago:</span><span>${paymentType}</span></div>
+            <div class="info-row"><span>Estado:</span><span class="badge ${s.onCredit ? 'badge-pending' : 'badge-paid'}">${paymentStatus}</span></div>
+        </div>
+        
+        <div class="items">
+            <div class="item" style="font-weight: bold;">
+                <span class="item-name">Producto</span>
+                <span class="item-qty">Cant.</span>
+                <span class="item-price">Importe</span>
+            </div>
+            <div class="item">
+                <span class="item-name">${prodName}</span>
+                <span class="item-qty">${s.qty}</span>
+                <span class="item-price">${fmtCUP(totalPrice)}</span>
+            </div>
+        </div>
+        
+        <div class="totals">
+            <div class="total-row"><span>Subtotal:</span><span>${fmtCUP(totalPrice)}</span></div>
+            ${s.discountPercent ? '<div class="total-row"><span>Descuento ('+(s.discountPercent*100).toFixed(0)+'%):</span><span>-${fmtCUP(discount)}</span></div>' : ''}
+            <div class="total-row total-final"><span>TOTAL:</span><span>${fmtCUP(finalPrice)}</span></div>
+        </div>
+        
+        <div class="footer">
+            <p>¡Gracias por su compra!</p>
+            <p>Generated by Vexto v1.0.6</p>
+        </div>
+        
+        <script>window.onload = function() { window.print(); }</script>
+    </body>
+    </html>
+    `
+    
+    const printWindow = window.open('', '_blank')
+    printWindow.document.write(receiptHTML)
+    printWindow.document.close()
 }
 function deleteSale(id){ showConfirm('¿Eliminar venta?', 'El stock será devuelto al inventario.', () => _deleteSale(id)) }
 function _deleteSale(id){
