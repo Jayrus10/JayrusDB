@@ -781,6 +781,39 @@ function renderInfo(){
         + note('Este valor no es la ganancia potencial — es cuánto dinero tienes invertido en mercancía.')
       ),
 
+      card('📈','Ganancia neta vs COGS',
+        p('<span class="text-emerald-400 font-semibold">Ganancia neta</span> = Ingresos por ventas - Costo de mercancía - Gastos adicionales.')
+        + p('<span class="text-sky-400 font-semibold">COGS</span> (Costo de lo vendido) = Solo el costo de los productos que se vendieron, no el costo total del inventario.')
+        + `<ul class="list-disc pl-5 space-y-1 mt-2">`
+        + `<li>COGS = suma de (costo_promedio × cantidad_vendida) de cada venta</li>`
+        + `<li>No incluye productos que aún están en almacén</li>`
+        + `</ul>`
+        + ex('Vendiste 5 unidades (costo: 110 CUP c/u) · Ingreso: 1.000 CUP', 'COGS: 550 CUP · Ganancia: 450 CUP (sin gastos)')
+        + note('Los gastos adicionales (envío, etc.) se restan de la ganancia, no del COGS.')
+      ),
+
+      card('📋','Diferencia entre cobrado y vendido',
+        p('Es importante entender la diferencia entre lo que <span class="text-emerald-400">vendes</span> y lo que <span class="text-amber-400">cobras</span>:')
+        + `<ul class="list-disc pl-5 space-y-2 mt-2">`
+        + `<li><span class="text-emerald-400 font-semibold">Cobrado en efectivo</span>: Dinero que ya tienes en caja (ventas al contado + pagos de deuda)</li>`
+        + `<li><span class="text-amber-400 font-semibold">Deuda pendiente</span>: Ventas a fiado que aún no se han cobrado</li>`
+        + `<li><span class="text-sky-400 font-semibold">Total vendido</span>: Ingresos totales (efectivo + deuda)</li>`
+        + `</ul>`
+        + ex('Ventas del mes: 10.000 CUP (8.000 efectivo + 2.000 fiado)', '→ Cobrado: 8.000 CUP · Pendiente: 2.000 CUP')
+        + note('La ganancia "real" de tu negocio es sobre lo que cobras, no sobre las ventas registradas.')
+      ),
+
+      card('🎯','Entendiendo el Dashboard',
+        p('El Dashboard te da una vista rápida de tu negocio:')
+        + `<ul class="list-disc pl-5 space-y-2 mt-2">`
+        + `<li><span class="text-emerald-400">📦 Valor stock</span>: Cuánto dinero tienes invertido en mercancía (no es ganancia)</li>`
+        + `<li><span class="text-amber-400">💰 Deudores</span>: Total que te deben - dinero que existe pero no tienes en caja</li>`
+        + `<li><span class="text-emerald-400">📈 Ganancia hoy</span>: Ganancias de ventas cobradas hoy (no incluye fiados)</li>`
+        + `<li><span class="text-sky-400">💵 Ventas del mes</span>: Total de ventas del mes (incluye fiados, no es lo que has cobrado)</li>`
+        + `</ul>`
+        + note('Para una imagen completa, revisa la sección Reportes.')
+      ),
+
     ].join('')
 }
 
