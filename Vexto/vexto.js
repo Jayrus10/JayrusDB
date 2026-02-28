@@ -805,6 +805,122 @@ function renderDashboard(){
     document.getElementById('dashTodayProfit').innerHTML = fmtInfo(todayProfit, 'Ganancia hoy')
     document.getElementById('dashMonthSales').textContent = data.sales.length
     
+    // ─── Comparación semanal ────────────────────────────────────────────────
+    // Get start of current week (Sunday)
+    const dayOfWeek = todayDate.getDay()
+    const startOfThisWeek = new Date(todayDate)
+    startOfThisWeek.setDate(todayDate.getDate() - dayOfWeek)
+    const startOfThisWeekStr = startOfThisWeek.toISOString().slice(0,10)
+    
+    // Start of previous week
+    const startOfPrevWeek = new Date(startOfThisWeek)
+    startOfPrevWeek.setDate(startOfThisWeek.getDate() - 7)
+    const startOfPrevWeekStr = startOfPrevWeek.toISOString().slice(0,10)
+    const endOfPrevWeek = new Date(startOfThisWeek)
+    endOfPrevWeek.setDate(startOfThisWeek.getDate() - 1)
+    const endOfPrevWeekStr = endOfPrevWeek.toISOString().slice(0,10)
+    
+    // Sales this week
+    const thisWeekSales = data.sales.filter(s => s.date >= startOfThisWeekStr)
+    const thisWeekCount = thisWeekSales.length
+    
+    // Sales last week
+    const prevWeekSales = data.sales.filter(s => s.date >= startOfPrevWeekStr && s.date <= endOfPrevWeekStr)
+    const prevWeekCount = prevWeekSales.length
+    
+    // Update week comparison UI
+    const weekCountEl = document.getElementById('weekSalesCount')
+    const prevWeekCountEl = document.getElementById('prevWeekSalesCount')
+    const weekBar = document.getElementById('weekSalesBar')
+    const prevWeekBar = document.getElementById('prevWeekSalesBar')
+    const weekComparison = document.getElementById('weekComparison')
+    
+    if(weekCountEl) weekCountEl.textContent = thisWeekCount
+    if(prevWeekCountEl) prevWeekCountEl.textContent = prevWeekCount
+    
+    // Set bar heights (max = 100% for the larger value)
+    const maxWeekCount = Math.max(thisWeekCount, prevWeekCount, 1)
+    if(weekBar) weekBar.style.height = (thisWeekCount / maxWeekCount * 100) + '%'
+    if(prevWeekBar) prevWeekBar.style.height = (prevWeekCount / maxWeekCount * 100) + '%'
+    
+    // Show comparison text
+    if(weekComparison) {
+        if(prevWeekCount === 0 && thisWeekCount > 0) {
+            weekComparison.innerHTML = '<span class="text-emerald-400 font-semibold">⬆ Nueva semana con ventas</span>'
+        } else if(prevWeekCount === 0 && thisWeekCount === 0) {
+            weekComparison.innerHTML = '<span class="text-zinc-500">Sin ventas en ambas semanas</span>'
+        } else {
+            const diff = thisWeekCount - prevWeekCount
+            const pct = Math.round((diff / prevWeekCount) * 100)
+            if(diff > 0) {
+                weekComparison.innerHTML = '<span class="text-emerald-400 font-semibold">⬆ +' + diff + ' ventas (' + pct + '% vs semana anterior)</span>'
+            } else if(diff < 0) {
+                weekComparison.innerHTML = '<span class="text-red-400 font-semibold">⬇ ' + diff + ' ventas (' + pct + '% vs semana anterior)</span>'
+            } else {
+                weekComparison.innerHTML = '<span class="text-zinc-400">=</span>'
+            }
+        }
+    }
+    
+    // ─── Compras en camino ─────────────────────────────────────────────────
+    const inTransitEl = document.getElementById('inTransitCount')
+    const inTransitValueEl = document.getElementById('inTransitValue')
+    const inTransitListEl = document.getElementById('inTransitList')
+    
+    if(inTransitEl) inTransitEl.textContent = transitCount
+    if(inTransitValueEl) inTransitValueEl.textContent = fmtNum(transitValue) + ' CUP'
+    
+    // List in-transit purchases
+    if(inTransitListEl) {
+        const inTransitPurchases = data.purchases.filter(p => !p.inStock)
+        if(inTransitPurchases.length === 0) {
+            inTransitListEl.innerHTML = '<div class="text-zinc-500 text-xs">No hay compras pendientes</div>'
+        } else {
+            inTransitListEl.innerHTML = inTransitPurchases.slice(0, 5).map(p => {
+                const prod = data.products.find(pr => pr.id === p.productId) || {name: 'Producto'}
+                return '<div class="text-xs bg-zinc-800 rounded-lg p-2 flex justify-between"><span class="text-zinc-300">' + prod.name + '</span><span class="text-amber-400">x' + p.qty + '</span></div>'
+            }).join('')
+            if(inTransitPurchases.length > 5) {
+                inTransitListEl.innerHTML += '<div class="text-xs text-zinc-500 text-center">+' + (inTransitPurchases.length - 5) + ' más</div>'
+            }
+        }
+    }
+    
+    // ─── Top productos del mes ──────────────────────────────────────────────
+    const topProductsEl = document.getElementById('topProductsList')
+    if(topProductsEl) {
+        // Get sales this month
+        const thisMonth = today.slice(0, 7) // YYYY-MM
+        const monthSales = data.sales.filter(s => s.date.startsWith(thisMonth))
+        
+        // Group by product and sum quantity
+        const productSales = {}
+        monthSales.forEach(s => {
+            if(!productSales[s.productId]) productSales[s.productId] = 0
+            productSales[s.productId] += s.qty
+        })
+        
+        // Convert to array and sort
+        const topProducts = Object.entries(productSales)
+            .map(([productId, qty]) => ({
+                productId: parseInt(productId),
+                qty,
+                product: data.products.find(p => p.id === parseInt(productId))
+            }))
+            .filter(item => item.product)
+            .sort((a, b) => b.qty - a.qty)
+            .slice(0, 5)
+        
+        if(topProducts.length === 0) {
+            topProductsEl.innerHTML = '<div class="text-zinc-500 text-sm text-center py-4">Sin ventas este mes</div>'
+        } else {
+            topProductsEl.innerHTML = topProducts.map((item, idx) => {
+                const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : (idx + 1) + '.'
+                return '<div class="flex items-center justify-between bg-zinc-800 rounded-xl px-4 py-3"><div class="flex items-center gap-3"><span class="text-lg">' + medal + '</span><span class="font-medium">' + item.product.name + '</span></div><span class="text-emerald-400 font-bold">' + item.qty + ' uds</span></div>'
+            }).join('')
+        }
+    }
+    
     // Update low stock badge
     const lowStockProducts = data.products.filter(p => (p.currentStock||0) > 0 && (p.currentStock||0) < (p.minStock||0))
     const zeroStockProducts = data.products.filter(p => (p.currentStock||0) <= 0)

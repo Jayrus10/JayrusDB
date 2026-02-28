@@ -175,7 +175,61 @@
                             <div id="dashMonthSales" class="text-4xl font-bold text-sky-400 mt-2"></div>
                         </div>
                     </div>
-                    <button onclick="showQuickSale()" class="mt-12 mx-auto block bg-emerald-600 hover:bg-emerald-500 text-2xl font-bold px-16 py-8 rounded-3xl">+ VENTA RÁPIDA</button>
+                    
+                    <!-- Segunda fila: Comparación semanal y Compras en camino -->
+                    <div class="grid grid-cols-2 gap-6 mt-6">
+                        <!-- Comparación semanal -->
+                        <div class="bg-zinc-900 p-6 rounded-3xl">
+                            <h3 class="text-lg font-semibold mb-4">📊 Tendencia semanal</h3>
+                            <div class="flex items-end gap-4 h-32">
+                                <div class="flex-1 flex flex-col items-center">
+                                    <div id="weekSalesBar" class="w-full bg-zinc-700 rounded-t-lg transition-all" style="height: 0%"></div>
+                                    <div class="text-xs text-zinc-500 mt-2">Esta semana</div>
+                                    <div id="weekSalesCount" class="text-sm font-bold text-emerald-400">0</div>
+                                </div>
+                                <div class="flex-1 flex flex-col items-center">
+                                    <div id="prevWeekSalesBar" class="w-full bg-zinc-600 rounded-t-lg transition-all" style="height: 0%"></div>
+                                    <div class="text-xs text-zinc-500 mt-2">Semana anterior</div>
+                                    <div id="prevWeekSalesCount" class="text-sm font-bold text-zinc-400">0</div>
+                                </div>
+                            </div>
+                            <div id="weekComparison" class="mt-4 text-sm text-center"></div>
+                        </div>
+                        
+                        <!-- Compras en camino -->
+                        <div class="bg-zinc-900 p-6 rounded-3xl">
+                            <h3 class="text-lg font-semibold mb-4">🚚 Compras en camino</h3>
+                            <div id="inTransitCount" class="text-3xl font-bold text-amber-400 mb-2">0</div>
+                            <div class="text-sm text-zinc-400 mb-4">pedidos pendientes</div>
+                            <div id="inTransitValue" class="text-2xl font-bold text-zinc-300"></div>
+                            <div class="text-xs text-zinc-500">valor total</div>
+                            <div id="inTransitList" class="mt-4 space-y-2 max-h-24 overflow-y-auto"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tercera fila: Top productos y Acciones rápidas -->
+                    <div class="grid grid-cols-2 gap-6 mt-6">
+                        <!-- Top productos -->
+                        <div class="bg-zinc-900 p-6 rounded-3xl">
+                            <h3 class="text-lg font-semibold mb-4">🏆 Top productos del mes</h3>
+                            <div id="topProductsList" class="space-y-3">
+                                <div class="text-zinc-500 text-sm text-center py-4">Sin ventas este mes</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Acciones rápidas -->
+                        <div class="bg-zinc-900 p-6 rounded-3xl">
+                            <h3 class="text-lg font-semibold mb-4">⚡ Acciones rápidas</h3>
+                            <div class="grid grid-cols-2 gap-3">
+                                <button onclick="showQuickSale()" class="bg-emerald-600 hover:bg-emerald-500 p-4 rounded-2xl font-semibold">💰 Venta rápida</button>
+                                <button onclick="showSection('products'); showAddProduct()" class="bg-zinc-700 hover:bg-zinc-600 p-4 rounded-2xl font-semibold">📦 Nuevo producto</button>
+                                <button onclick="showSection('purchases'); showAddPurchase()" class="bg-zinc-700 hover:bg-zinc-600 p-4 rounded-2xl font-semibold">🛒 Nueva compra</button>
+                                <button onclick="showSection('reports')" class="bg-zinc-700 hover:bg-zinc-600 p-4 rounded-2xl font-semibold">📈 Ver reportes</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button onclick="showQuickSale()" class="mt-8 mx-auto block bg-emerald-600 hover:bg-emerald-500 text-2xl font-bold px-16 py-8 rounded-3xl">+ VENTA RÁPIDA</button>
                 </div>
 
                 <!-- PRODUCTOS -->
