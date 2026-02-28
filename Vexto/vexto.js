@@ -57,6 +57,78 @@ function hideLoading() {
     if(spinner) spinner.classList.add('hidden')
 }
 
+// ─── Notifications Panel ─────────────────────────────────────────────────────────
+function showNotificationsPanel() {
+    const lowStockDiv = document.getElementById('notificationsLowStock')
+    const zeroStockDiv = document.getElementById('notificationsZeroStock')
+    const debtorsDiv = document.getElementById('notificationsDebtors')
+    
+    // Low stock products (below minimum but not zero)
+    const lowStockProducts = data.products.filter(p => 
+        (p.currentStock||0) > 0 && (p.currentStock||0) < (p.minStock||0)
+    )
+    
+    // Zero stock products
+    const zeroStockProducts = data.products.filter(p => (p.currentStock||0) <= 0)
+    
+    // Debtors with debt older than 1 week
+    const today = new Date()
+    const oneWeekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
+    
+    const oldDebtors = (data.customers || []).filter(c => {
+        if(!c.debt || c.debt <= 0) return false
+        // Check if there's any sale on credit older than 1 week
+        const clientSales = data.sales.filter(s => 
+            s.client === c.name && 
+            s.onCredit && 
+            new Date(s.date) < oneWeekAgo
+        )
+        return clientSales.length > 0
+    })
+    
+    // Render low stock
+    if(lowStockProducts.length === 0) {
+        lowStockDiv.innerHTML = '<div class="text-zinc-500 text-sm">No hay productos con stock bajo</div>'
+    } else {
+        lowStockDiv.innerHTML = lowStockProducts.map(p => `
+            <div class="bg-zinc-800 rounded-xl p-3 flex justify-between items-center">
+                <span class="text-white">${p.name}</span>
+                <span class="text-amber-400 font-bold">${p.currentStock} / ${p.minStock}</span>
+            </div>
+        `).join('')
+    }
+    
+    // Render zero stock
+    if(zeroStockProducts.length === 0) {
+        zeroStockDiv.innerHTML = '<div class="text-zinc-500 text-sm">No hay productos sin stock</div>'
+    } else {
+        zeroStockDiv.innerHTML = zeroStockProducts.map(p => `
+            <div class="bg-zinc-800 rounded-xl p-3 flex justify-between items-center">
+                <span class="text-white">${p.name}</span>
+                <span class="text-red-400 font-bold">0</span>
+            </div>
+        `).join('')
+    }
+    
+    // Render debtors
+    if(oldDebtors.length === 0) {
+        debtorsDiv.innerHTML = '<div class="text-zinc-500 text-sm">No hay deudores con más de 1 semana</div>'
+    } else {
+        debtorsDiv.innerHTML = oldDebtors.map(c => `
+            <div class="bg-zinc-800 rounded-xl p-3 flex justify-between items-center cursor-pointer hover:bg-zinc-700" onclick="showPayDebt(${c.id})">
+                <span class="text-white">${c.name}</span>
+                <span class="text-amber-400 font-bold">${fmtCUP(c.debt)}</span>
+            </div>
+        `).join('')
+    }
+    
+    showModal('notificationsPanel')
+}
+
+function hideNotificationsPanel() {
+    hideModal('notificationsPanel')
+}
+
 // ─── Persistencia ─────────────────────────────────────────────────────────────
 document.addEventListener('keydown', function(e) {
     // Close modals with Escape
@@ -699,7 +771,8 @@ function renderDashboard(){
         .filter(p => !p.inStock)
         .reduce((a,p) => a + p.qty * (p.unitCostCUP||0), 0)
     const totalDebt   = data.customers.reduce((a,c) => a + (c.debt||0), 0)
-    const today = new Date().toISOString().slice(0,10)
+    const todayDate = new Date()
+    const today = todayDate.toISOString().slice(0,10)
     const todayProfit = data.sales.filter(s=>s.date===today).reduce((a,s)=>{
         const p = data.products.find(pr=>pr.id===s.productId)
         const price = s.finalPriceCUP || s.unitSellPriceCUP || 0
@@ -718,11 +791,25 @@ function renderDashboard(){
     const lowStockProducts = data.products.filter(p => (p.currentStock||0) > 0 && (p.currentStock||0) < (p.minStock||0))
     const zeroStockProducts = data.products.filter(p => (p.currentStock||0) <= 0)
     const totalLowStock = lowStockProducts.length + zeroStockProducts.length
+    
+    // Count debtors with debt older than 1 week
+    const oneWeekAgo = new Date(todayDate.getTime() - 7 * 24 * 60 * 60 * 1000)
+    const oldDebtors = (data.customers || []).filter(c => {
+        if(!c.debt || c.debt <= 0) return false
+        const clientSales = data.sales.filter(s => 
+            s.client === c.name && 
+            s.onCredit && 
+            new Date(s.date) < oneWeekAgo
+        )
+        return clientSales.length > 0
+    })
+    
+    const totalNotifications = totalLowStock + oldDebtors.length
     const badge = document.getElementById('lowStockBadge')
     const countEl = document.getElementById('lowStockCount')
     if(badge && countEl) {
-        countEl.textContent = totalLowStock
-        if(totalLowStock > 0) {
+        countEl.textContent = totalNotifications
+        if(totalNotifications > 0) {
             badge.classList.remove('hidden')
         } else {
             badge.classList.add('hidden')
