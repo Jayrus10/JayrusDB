@@ -64,21 +64,3 @@
         .animate-slideIn {
             animation: slideIn 0.3s ease forwards;
         }
-        
-        /* Logo responsivo - mostrar solo VX en móviles, full en desktop */
-        .logo-full { display: none !important; }
-        .logo-short { display: inline-block !important; width: 3rem !important; }
-        
-        @media (min-width: 768px) {
-            .logo-full { display: inline-block !important; width: auto !important; height: 3.5rem !important; }
-            .logo-short { display: none !important; }
-        }
-        
-        /* Logo en header de la app - siempre mostrar versión corta */
-        #app .logo-full { display: none !important; }
-        #app .logo-short { display: inline-block !important; width: 2rem !important; }
-        
-        @media (min-width: 768px) {
-            #app .logo-full { display: inline-block !important; width: auto !important; height: 2rem !important; }
-            #app .logo-short { display: none !important; }
-        }

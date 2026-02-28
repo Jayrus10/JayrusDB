@@ -356,12 +356,6 @@ let _modalZBase = 50;
 function showModal(id){
     const el = document.getElementById(id)
     if(!el) return
-    // Hide all other modals first to prevent stacking
-    document.querySelectorAll('.fixed.inset-0:not(.hidden)').forEach(modal => {
-        if(modal.id !== id) {
-            modal.classList.add('hidden')
-        }
-    })
     _modalZBase += 10
     el.style.zIndex = _modalZBase
     el.classList.remove('hidden')
@@ -1028,10 +1022,7 @@ function renderProducts(){
             +'<td class="'+stockClass+'">'+(p.currentStock||0)+'</td>'
             +'<td>'+fmtInfo(p.avgCost||0,'Costo promedio')+'</td>'
             +'<td>'+(p.minStock||0)+'</td>'
-            +'<td class="flex gap-2 py-4">'
-            +'<button onclick="showEditProduct('+p.id+')" class="text-zinc-400 hover:text-zinc-200 text-sm" title="Editar">✏️</button>'
-            +'<button onclick="deleteProduct('+p.id+')" class="text-red-400 hover:text-red-300 text-sm" title="Eliminar">🗑️</button>'
-            +'</td>'
+            +'<td><button onclick="deleteProduct('+p.id+')" class="text-red-400 hover:text-red-300 text-sm" title="Eliminar">🗑️</button></td>'
         tbody.appendChild(tr)
     })
 }
@@ -1101,52 +1092,14 @@ function showTransitInfo(productId){
     showModal('modalTransitInfo')
 }
 
-function showAddProduct(){ 
-    document.getElementById('prodId').value = ''
-    document.getElementById('prodName').value = ''
-    document.getElementById('prodCat').value = ''
-    document.getElementById('prodMin').value = '10'
-    document.getElementById('prodMarkup').value = '50'
-    document.getElementById('modalProductTitle').textContent = 'Nuevo Producto'
-    showModal('modalProduct') 
-}
-
-function showEditProduct(id){
-    const p = data.products.find(x => x.id === id)
-    if(!p) return
-    document.getElementById('prodId').value = p.id
-    document.getElementById('prodName').value = p.name
-    document.getElementById('prodCat').value = p.category || ''
-    document.getElementById('prodMin').value = p.minStock || 10
-    document.getElementById('prodMarkup').value = p.markup || 50
-    document.getElementById('modalProductTitle').textContent = 'Editar Producto'
-    showModal('modalProduct')
-}
+function showAddProduct(){ showModal('modalProduct') }
 function saveProduct(){
-    const prodId = document.getElementById('prodId').value
     const name   = document.getElementById('prodName').value.trim()
     const cat    = document.getElementById('prodCat').value.trim()
     const min    = parseFloat(document.getElementById('prodMin').value) || 0
     const markup = (parseFloat(document.getElementById('prodMarkup').value) || 50) / 100
     if(!name) return alert('Nombre requerido')
-    
-    if(prodId){
-        // Edit existing product
-        const p = data.products.find(x => x.id === parseInt(prodId))
-        if(p){
-            const oldName = p.name
-            p.name = name
-            p.category = cat || 'General'
-            p.minStock = min
-            p.markup = markup
-            saveData()
-            addAudit('PRODUCTO EDITADO: '+oldName+' -> '+name+' (markup: '+(markup*100)+'%)')
-        }
-    } else {
-        // Add new product
-        data.products.push({id:nextId++, name, category:cat||'General', minStock:min, currentStock:0, totalCostValue:0, avgCost:0, markup})
-        addAudit('NUEVO PRODUCTO: '+name+' (markup: '+(markup*100)+'%)')
-    }
+    data.products.push({id:nextId++, name, category:cat||'General', minStock:min, currentStock:0, totalCostValue:0, avgCost:0, markup})
     saveData(); hideModal('modalProduct'); renderProducts(); renderDashboard()
 }
 

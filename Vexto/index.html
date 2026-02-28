@@ -56,10 +56,9 @@
     <div id="loginPage" class="min-h-screen flex flex-col items-center justify-center bg-zinc-950 p-4">
         <div class="mb-12 text-center">
             <div class="flex items-center justify-center gap-3 mb-3">
-                <img src="Vexto_Logo.svg" alt="Vexto" class="logo-full h-14 hidden">
-                <img src="Vexto_Logo.svg" alt="Vexto" class="logo-short h-14">
+                <div class="w-14 h-14 bg-emerald-600 rounded-2xl flex items-center justify-center font-bold text-xl text-white">VX</div>
             </div>
-            <h1 class="text-4xl font-bold text-emerald-500"></h1>
+            <h1 class="text-4xl font-bold text-emerald-500">Vexto</h1>
             <p class="text-zinc-400 text-sm mt-1">Gestor de inventario, compras y ventas</p>
         </div>
         <div class="w-full max-w-md">
@@ -121,13 +120,12 @@
         <div class="bg-zinc-900 border-b border-zinc-800 px-4 md:px-6 py-3 md:py-4 flex justify-between items-center gap-3">
             <button class="mobile-menu-btn hidden text-2xl" onclick="toggleMobileMenu()">☰</button>
             <div class="flex items-center gap-2 md:gap-3">
-                <img src="Vexto_Logo.svg" alt="Vexto" class="logo-full h-8 hidden">
-                <img src="Vexto_Logo.svg" alt="Vexto" class="logo-short h-8">
+                <div class="w-8 h-8 bg-emerald-600 rounded-xl flex items-center justify-center font-bold text-sm">VX</div>
                 <div class="flex items-center gap-2">
                     <div class="font-semibold text-sm" id="currentUser"></div>
                     <button onclick="showNotificationsPanel()" id="lowStockBadge" class="hidden bg-red-600 hover:bg-red-500 text-white text-xs px-2 py-0.5 rounded-full cursor-pointer" title="Ver notificaciones">🔔 <span id="lowStockCount">0</span></button>
                 </div>
-                <div class="text-xs text-zinc-500">v1.1.1 beta</div>
+                <div class="text-xs text-zinc-500">v1.1.0 beta</div>
             </div>
             <div class="flex gap-1 md:gap-2 flex-wrap justify-end">
                 <button onclick="importData()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">📥 <span class="hidden md:inline">Importar</span></button>
@@ -496,15 +494,14 @@
             <button onclick="hideModal('modalProductsInfo')" class="w-full mt-6 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-2xl text-sm font-medium">Cerrar</button>
         </div>
     </div>
-    <!-- Add/Edit Product -->
+    <!-- Add Product -->
     <div id="modalProduct" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4">
         <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0">
-            <h3 id="modalProductTitle" class="text-lg md:text-xl font-bold mb-4 md:mb-6">Nuevo Producto</h3>
-            <input type="hidden" id="prodId" value="">
+            <h3 class="text-lg md:text-xl font-bold mb-4 md:mb-6">Nuevo Producto</h3>
             <input id="prodName" placeholder="Nombre" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 mb-3 md:mb-4 text-sm">
             <input id="prodCat" placeholder="Categoría" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 mb-3 md:mb-4 text-sm">
             <input id="prodMin" type="number" placeholder="Stock mínimo" value="10" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 mb-3 md:mb-4 text-sm">
-            <div class="mb-3 md:mb-4"><label class="text-xs md:text-sm text-zinc-400 block mb-2">Margen ganancia (%)"</label><input id="prodMarkup" type="number" placeholder="Porcentaje" value="50" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 text-sm"></div>
+            <div class="mb-3 md:mb-4"><label class="text-xs md:text-sm text-zinc-400 block mb-2">Margen ganancia (%)</label><input id="prodMarkup" type="number" placeholder="Porcentaje" value="50" class="block w-full bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 text-sm"></div>
             <div class="flex gap-2 md:gap-3 mt-6 md:mt-8">
                 <button onclick="hideModal('modalProduct')" class="flex-1 py-2 md:py-4 bg-zinc-800 rounded-2xl text-sm">Cancelar</button>
                 <button onclick="saveProduct()" class="flex-1 py-2 md:py-4 bg-emerald-600 rounded-2xl text-sm">Guardar</button>
@@ -683,8 +680,7 @@
 
     <!-- Confirm Modal (replaces all alert confirmations) -->
     <div id="modalConfirm" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-[60]">
-        <div class="bg-zinc-900 w-full max-w-sm rounded-3xl p-6 relative">
-            <button onclick="hideModal('modalConfirm')" class="absolute top-3 right-3 text-zinc-400 hover:text-zinc-200 text-xl">&times;</button>
+        <div class="bg-zinc-900 w-full max-w-sm rounded-3xl p-6">
             <div class="text-center mb-5">
                 <div id="confirmIcon" class="text-4xl mb-3">🗑️</div>
                 <h3 id="confirmTitle" class="text-lg font-bold mb-2">¿Eliminar?</h3>
