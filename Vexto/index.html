@@ -56,9 +56,8 @@
     <div id="loginPage" class="min-h-screen flex flex-col items-center justify-center bg-zinc-950 p-4">
         <div class="mb-12 text-center">
             <div class="flex items-center justify-center gap-3 mb-3">
-                <div class="w-14 h-14 bg-emerald-600 rounded-2xl flex items-center justify-center font-bold text-xl text-white">VX</div>
+                <img src="Vexto_Logo.svg" alt="Vexto Logo" class="w-50 h-20 rounded-2xl object-contain my-1">
             </div>
-            <h1 class="text-4xl font-bold text-emerald-500">Vexto</h1>
             <p class="text-zinc-400 text-sm mt-1">Gestor de inventario, compras y ventas</p>
         </div>
         <div class="w-full max-w-md">
@@ -117,10 +116,10 @@
 
     <!-- APP -->
     <div id="app" class="hidden min-h-screen bg-zinc-950">
-        <div class="bg-zinc-900 border-b border-zinc-800 px-4 md:px-6 py-3 md:py-4 flex justify-between items-center gap-3">
+        <div class="bg-zinc-900 border-b border-zinc-800 px-2 md:px-3 py-3 md:py-4 flex justify-between items-center gap-2">
             <button class="mobile-menu-btn hidden text-2xl" onclick="toggleMobileMenu()">☰</button>
             <div class="flex items-center gap-2 md:gap-3">
-                <div class="w-8 h-8 bg-emerald-600 rounded-xl flex items-center justify-center font-bold text-sm">VX</div>
+                <img src="Vexto_Logo.svg" alt="Vexto Logo" class="w-25 h-10 rounded-xl object-contain my-1">
                 <div class="flex items-center gap-2">
                     <div class="font-semibold text-sm" id="currentUser"></div>
                     <button onclick="showNotificationsPanel()" id="lowStockBadge" class="hidden bg-red-600 hover:bg-red-500 text-white text-xs px-2 py-0.5 rounded-full cursor-pointer" title="Ver notificaciones">🔔 <span id="lowStockCount">0</span></button>
