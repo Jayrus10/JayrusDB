@@ -356,6 +356,12 @@ let _modalZBase = 50;
 function showModal(id){
     const el = document.getElementById(id)
     if(!el) return
+    // Hide all other modals first to prevent stacking
+    document.querySelectorAll('.fixed.inset-0:not(.hidden)').forEach(modal => {
+        if(modal.id !== id) {
+            modal.classList.add('hidden')
+        }
+    })
     _modalZBase += 10
     el.style.zIndex = _modalZBase
     el.classList.remove('hidden')
