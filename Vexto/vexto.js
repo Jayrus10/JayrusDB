@@ -1101,6 +1101,174 @@ function showProductsInfo(){
     showModal('modalProductsInfo')
 }
 
+function showDailyReport(){
+    const today = new Date().toISOString().slice(0,10)
+    
+    // Get today's sales
+    const todaySales = data.sales.filter(s => s.date === today)
+    
+    // Get today's purchases
+    const todayPurchases = data.purchases.filter(p => p.date === today)
+    
+    // Calculate totals
+    let totalVentas = 0
+    let totalEfectivo = 0
+    let totalFiado = 0
+    let totalGastos = 0
+    let totalCompras = 0
+    
+    todaySales.forEach(s => {
+        const ventaTotal = (s.finalPriceCUP || s.unitSellPriceCUP || 0) * s.qty
+        totalVentas += ventaTotal
+        if (s.onCredit) {
+            totalFiado += ventaTotal
+        } else {
+            totalEfectivo += ventaTotal
+        }
+        totalGastos += (s.expense||0)
+    })
+    
+    todayPurchases.forEach(p => {
+        totalCompras += (p.totalCostCUP || 0)
+    })
+    
+    const gananciaNeta = totalVentas - totalGastos
+    
+    // Get date formatted
+    const fechaObj = new Date()
+    const fechaFormateada = fechaObj.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+    
+    let html = `
+        <div class="bg-zinc-800 rounded-2xl p-4 mb-4">
+            <div class="text-center">
+                <div class="text-lg font-bold text-white">📊 REPORTE DEL DÍA</div>
+                <div class="text-sm text-zinc-400">${fechaFormateada}</div>
+            </div>
+        </div>
+        
+        <!-- Resumen -->
+        <div class="grid grid-cols-2 gap-3 mb-4">
+            <div class="bg-zinc-800 rounded-xl p-3 text-center">
+                <div class="text-xs text-zinc-400">Ventas</div>
+                <div class="text-xl font-bold text-sky-400">${fmtCUP(totalVentas)}</div>
+            </div>
+            <div class="bg-zinc-800 rounded-xl p-3 text-center">
+                <div class="text-xs text-zinc-400">Ganancia</div>
+                <div class="text-xl font-bold text-emerald-400">${fmtCUP(gananciaNeta)}</div>
+            </div>
+            <div class="bg-zinc-800 rounded-xl p-3 text-center">
+                <div class="text-xs text-zinc-400">Efectivo</div>
+                <div class="text-xl font-bold text-emerald-300">${fmtCUP(totalEfectivo)}</div>
+            </div>
+            <div class="bg-zinc-800 rounded-xl p-3 text-center">
+                <div class="text-xs text-zinc-400">Fiado</div>
+                <div class="text-xl font-bold text-amber-400">${fmtCUP(totalFiado)}</div>
+            </div>
+        </div>
+        
+        <!-- Compras del día -->
+        <div class="bg-zinc-800 rounded-xl p-3 mb-4">
+            <div class="font-semibold text-zinc-300 mb-2">🛒 Compras del día: ${fmtCUP(totalCompras)}</div>
+            ${todayPurchases.length === 0 ? '<div class="text-zinc-500 text-sm">No hay compras registradas</div>' : ''}
+            ${todayPurchases.map(p => {
+                const prod = data.products.find(pr => pr.id === p.productId)
+                return `<div class="text-sm flex justify-between py-1 border-b border-zinc-700 last:border-0">
+                    <span>${prod ? prod.name : 'Producto #' + p.productId} (${p.qty} uds)</span>
+                    <span class="text-amber-400">${fmtCUP(p.totalCostCUP || 0)}</span>
+                </div>`
+            }).join('')}
+        </div>
+        
+        <!-- Ventas del día -->
+        <div class="bg-zinc-800 rounded-xl p-3 mb-4">
+            <div class="font-semibold text-zinc-300 mb-2">💰 Ventas del día (${todaySales.length} transacciones)</div>
+            ${todaySales.length === 0 ? '<div class="text-zinc-500 text-sm">No hay ventas registradas</div>' : ''}
+            ${todaySales.map(s => {
+                const prod = data.products.find(pr => pr.id === s.productId)
+                const total = (s.finalPriceCUP || s.unitSellPriceCUP || 0) * s.qty
+                return `<div class="text-sm py-1 border-b border-zinc-700 last:border-0">
+                    <div class="flex justify-between">
+                        <span>${prod ? prod.name : 'Producto #' + s.productId} (${s.qty} uds)</span>
+                        <span class="${s.onCredit ? 'text-amber-400' : 'text-emerald-400'}">${fmtCUP(total)}</span>
+                    </div>
+                    <div class="text-xs text-zinc-500 flex justify-between">
+                        <span>${s.client || 'Sin cliente'}</span>
+                        <span>${s.onCredit ? '🔴 Fiado' : '✅ Efectivo'}</span>
+                    </div>
+                </div>`
+            }).join('')}
+        </div>
+        
+        <!-- Resumen final -->
+        <div class="bg-zinc-800 rounded-xl p-3">
+            <div class="font-semibold text-zinc-300 mb-2">📋 Resumen</div>
+            <div class="space-y-1 text-sm">
+                <div class="flex justify-between"><span class="text-zinc-400">Total ventas:</span><span>${fmtCUP(totalVentas)}</span></div>
+                <div class="flex justify-between"><span class="text-zinc-400">Efectivo cobrado:</span><span class="text-emerald-400">${fmtCUP(totalEfectivo)}</span></div>
+                <div class="flex justify-between"><span class="text-zinc-400">Pendiente de cobro:</span><span class="text-amber-400">${fmtCUP(totalFiado)}</span></div>
+                <div class="flex justify-between"><span class="text-zinc-400">Gastos:</span><span class="text-red-400">-${fmtCUP(totalGastos)}</span></div>
+                <div class="flex justify-between"><span class="text-zinc-400">Compras:</span><span class="text-amber-400">-${fmtCUP(totalCompras)}</span></div>
+                <div class="border-t border-zinc-700 mt-2 pt-2 flex justify-between font-bold">
+                    <span>Ganancia neta:</span>
+                    <span class="${gananciaNeta >= 0 ? 'text-emerald-400' : 'text-red-400'}">${fmtCUP(gananciaNeta)}</span>
+                </div>
+            </div>
+        </div>
+    `
+    
+    document.getElementById('dailyReportContent').innerHTML = html
+    showModal('modalDailyReport')
+}
+
+function printDailyReport(){
+    const contenido = document.getElementById('dailyReportContent').innerHTML
+    const printWindow = window.open('', '_blank')
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Reporte del día - Vexto</title>
+            <style>
+                body { font-family: Arial, sans-serif; padding: 20px; }
+                .bg-zinc-800 { background: #f4f4f5; padding: 15px; border-radius: 10px; margin: 10px 0; }
+                .text-zinc-400 { color: #71717a; }
+                .text-zinc-300 { color: #d4d4d8; }
+                .text-emerald-400 { color: #34d399; }
+                .text-amber-400 { color: #fbbf24; }
+                .text-sky-400 { color: #38bdf8; }
+                .text-red-400 { color: #f87171; }
+                .text-xl { font-size: 1.25rem; }
+                .text-lg { font-size: 1.125rem; }
+                .text-sm { font-size: 0.875rem; }
+                .text-xs { font-size: 0.75rem; }
+                .font-bold { font-weight: bold; }
+                .font-semibold { font-weight: 600; }
+                .grid { display: grid; }
+                .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+                .gap-3 { gap: 0.75rem; }
+                .mb-2 { margin-bottom: 0.5rem; }
+                .mb-4 { margin-bottom: 1rem; }
+                .space-y-1 > * + * { margin-top: 0.25rem; }
+                .border-t { border-top: 1px solid #3f3f46; }
+                .mt-2 { margin-top: 0.5rem; }
+                .pt-2 { padding-top: 0.5rem; }
+                .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+                .rounded-xl { border-radius: 0.75rem; }
+                .rounded-2xl { border-radius: 1rem; }
+                .text-center { text-align: center; }
+                .flex { display: flex; }
+                .justify-between { justify-content: space-between; }
+            </style>
+        </head>
+        <body>
+            ${contenido}
+            <script>window.onload = function() { window.print(); window.close(); }</script>
+        </body>
+        </html>
+    `)
+    printWindow.document.close()
+}
+
 function showTransitInfo(productId){
     const prod = data.products.find(p=>p.id===productId)
     if(!prod) return
