@@ -1433,22 +1433,42 @@ function showQuickSale(){
     showModal('modalSale')
 }
 
-// Calcular y mostrar subtotal en el modal de venta
+// Calcular y mostrar subtotal y ganancia en el modal de venta
 function updateSaleSubtotal() {
+    const prodId = parseInt(document.getElementById('saleProd').value) || 0
     const qty = parseFloat(document.getElementById('saleQty').value) || 0
     const price = parseFloat(document.getElementById('salePrice').value) || 0
     const currency = document.getElementById('saleCurrency').value
+    const expenses = parseFloat(document.getElementById('saleExpenses').value) || 0
     const display = document.getElementById('saleSubtotalDisplay')
     
     if(qty > 0 && price > 0) {
         const subtotal = qty * price
-        // Convertir a CUP para mostrar el valor real
         const subtotalCUP = toCUP(subtotal, currency)
+        
+        // Calcular ganancia/pérdida
+        let profitCUP = 0
+        let profitHtml = ''
+        
+        if(prodId > 0) {
+            const prod = data.products.find(p => p.id === prodId)
+            if(prod && prod.avgCost > 0) {
+                const costCUP = prod.avgCost * qty
+                const expensesCUP = toCUP(expenses, document.getElementById('saleExpensesCurrency').value)
+                profitCUP = subtotalCUP - costCUP - expensesCUP
+                
+                const profitClass = profitCUP >= 0 ? 'text-emerald-400' : 'text-red-400'
+                const profitSign = profitCUP >= 0 ? '+' : ''
+                const profitLabel = profitCUP >= 0 ? 'Ganancia:' : 'Pérdida:'
+                profitHtml = '<span class="'+profitClass+' font-bold"> | '+profitLabel+' '+profitSign+fmtCUP(profitCUP)+'</span>'
+            }
+        }
+        
         let html = '<span class="text-emerald-400 font-medium">Subtotal: '+subtotal.toFixed(2)+' '+currency
         if(currency !== 'CUP') {
             html += ' (= '+fmtCUP(subtotalCUP)+')'
         }
-        html += '</span>'
+        html += profitHtml + '</span>'
         display.innerHTML = html
     } else {
         display.innerHTML = ''
