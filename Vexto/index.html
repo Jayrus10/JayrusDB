@@ -553,7 +553,7 @@
             <div class="mb-2 text-xs text-zinc-500">Precio sugerido: <span id="suggestedPriceDisplay">-</span></div>
             <div class="flex gap-2 mb-2">
                 <input id="salePrice" type="number" placeholder="Precio unitario" class="flex-1 bg-zinc-800 border-0 rounded-2xl px-3 md:px-5 py-2 md:py-4 text-sm" oninput="updateSaleSubtotal()">
-                <select id="saleCurrency" class="bg-zinc-800 border-0 rounded-2xl px-3 py-2 text-sm" onchange="updateSuggestedPrice()">
+                <select id="saleCurrency" class="bg-zinc-800 border-0 rounded-2xl px-3 py-2 text-sm" onchange="updateSuggestedPrice(); updateSaleSubtotal()">
                     <option value="CUP">CUP</option>
                     <option value="USD">USD</option>
                     <option value="EUR">EUR</option>
