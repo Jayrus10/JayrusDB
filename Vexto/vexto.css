@@ -14,12 +14,12 @@
             table { width: 100%; min-width: 600px; }
         }
         @media (max-width: 1023px) {
-            #app { display: flex; flex-direction: column; height: 100vh; }
+            #app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden; }
             .app-container { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
-            .app-nav { display: none; width: 100%; border-right: none; border-bottom: 1px solid #27272a; padding: 0 8px; max-height: 40vh; overflow-y: auto; position: absolute; top: 73px; left: 0; right: 0; background: #09090b; z-index: 50; }
+            .app-nav { display: none; width: 100%; border-right: none; border-bottom: 1px solid #27272a; padding: 0 8px; max-height: 50vh; overflow-y: auto; position: absolute; top: 73px; left: 0; right: 0; background: #09090b; z-index: 50; }
             .app-nav.mobile-open { display: block; }
-            .app-content { flex: 1; overflow: hidden; }
-            .section { padding: 16px; overflow-y: auto; height: 100%; }
+            .app-content { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+            .section { padding: 16px; overflow-y: auto; height: 100%; flex: 1; -webkit-overflow-scrolling: touch; padding-bottom: 80px; }
             .mobile-menu-btn { display: flex !important; }
             .px-6 { padding-left: 16px !important; padding-right: 16px !important; }
             .py-4 { padding-top: 12px !important; padding-bottom: 12px !important; }
