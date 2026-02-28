@@ -305,12 +305,17 @@ function hideCurrencyInfo(){
 function handleLogin(){
     const user = document.getElementById('loginUser').value.trim()
     if(!user) return alert('Ingresa tu nombre')
+    
+    // Ensure we have a clean data object for the new user
+    currentUser = user
+    
     const isNew = !localStorage.getItem('tienda_' + user)
     if(isNew){
-        currentUser = user
+        // Create new user data from default
+        data = { products:[], purchases:[], sales:[], customers:[], providers:[], discounts:[], audit:[], vipLevels:[], exchangeRates:{USD:500,EUR:650}, baseCurrency:'CUP' }
         saveData()
     }
-    currentUser = user
+    
     localStorage.setItem('tienda_lastUser', user)
     loadData()
     document.getElementById('loginPage').classList.add('hidden')
