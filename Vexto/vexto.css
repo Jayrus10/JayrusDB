@@ -71,11 +71,98 @@
             border: 1px solid #3f3f46;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
             transition: all 0.3s ease;
+            position: relative;
         }
+        .card::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: inherit;
+            background: linear-gradient(135deg, 
+                transparent 0%, 
+                transparent 25%, 
+                #10b981 50%, 
+                transparent 75%, 
+                transparent 100%);
+            background-size: 300% 300%;
+            animation: none;
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.3s ease;
+        }
+        .card:hover::before {
+            opacity: 1;
+            animation: borderGlow 2s linear infinite;
+        }
+        
+        @keyframes borderGlow {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        
+        /* Border shine effect like Windows 10 tiles */
+        .card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 2px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                #10b981 25%, 
+                #34d399 50%, 
+                #10b981 75%, 
+                transparent 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .card:hover::after {
+            opacity: 1;
+            animation: borderShine 2s linear infinite;
+        }
+        
+        @keyframes borderShine {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+        
         .card:hover {
-            border-color: #52525b;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+            border-color: #10b981;
+            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.15), 0 4px 20px rgba(0, 0, 0, 0.4);
             transform: translateY(-2px);
+        }
+        
+        /* Text shadow for better readability during glow animation */
+        .card:hover h3,
+        .card:hover .text-4xl,
+        .card:hover .text-3xl,
+        .card:hover .text-2xl,
+        .card:hover .text-sm,
+        .card:hover .text-xs,
+        .card:hover div,
+        .card:hover span {
+            text-shadow: 0 0 8px rgba(0, 0, 0, 0.8), 0 0 2px rgba(0, 0, 0, 0.9);
+        }
+        
+        /* Stat cards special glow */
+        .stat-card::before {
+            inset: -1px;
         }
         
         /* Improved button styles */
