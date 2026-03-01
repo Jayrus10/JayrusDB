@@ -1,5 +1,5 @@
 // ─── Estado global ────────────────────────────────────────────────────────────
-let APP_VERSION = '1.1.6'  // Versión de la aplicación
+let APP_VERSION = '1.1.7'  // Versión de la aplicación
 let cashRoundingStep = 1    // múltiplo mínimo de billete
 let cashRoundingDir  = 'round'  // 'ceil' | 'floor' | 'round'
 let currentUser = ''
@@ -505,6 +505,41 @@ function formatCardNumber(input){
         formatted += value[i]
     }
     input.value = formatted
+}
+
+function showBusinessCardsInfo(){
+    const bi = data.businessInfo || {}
+    const cards = bi.cards || []
+    
+    if(cards.length === 0) {
+        showToast('No hay tarjetas de banco establecidas. Ve a Ajustes > Información del negocio para agregar.', 'info', 5000)
+        return
+    }
+    
+    let html = '<div class="text-sm">'
+    html += '<div class="text-zinc-400 mb-3">💳 Tarjetas de banco establecidas:</div>'
+    cards.forEach((card, index) => {
+        html += `<div class="bg-zinc-800 rounded-xl p-3 mb-2">`
+        html += `<div class="font-mono text-lg">${card}</div>`
+        html += `</div>`
+    })
+    html += '</div>'
+    
+    document.getElementById('currencyInfoContent').innerHTML = html
+    document.getElementById('currencyInfoTitle').textContent = '💳 Tarjetas de Banco'
+    
+    // Usar la lógica correcta del modal con animación
+    const modal = document.getElementById('modalCurrencyInfo')
+    const box   = document.getElementById('modalCurrencyInfoBox')
+    
+    _modalZBase += 10
+    modal.style.zIndex = _modalZBase
+    modal.classList.remove('hidden')
+    
+    setTimeout(() => {
+        modal.classList.remove('opacity-0')
+        box.classList.remove('scale-95')
+    }, 10)
 }
 
 // ─── Modales / Nav ────────────────────────────────────────────────────────────
@@ -1400,13 +1435,14 @@ function showDailyReport(){
 }
 
 function printDailyReport(){
-    const contenido = document.getElementById('dailyReportContent').innerHTML
+    // Obtener el contenido sin el businessHeader (ya que showDailyReport ya lo incluye)
+    let contenido = document.getElementById('dailyReportContent').innerHTML
     
-    // Get business info for print header
+    // Eliminar el businessHeader del contenido ya que no debe mostrarse en la impresión
+    // El businessHeader ya contiene las tarjetas, las cuales no queremos en la impresión
     const bi = data.businessInfo || {}
-    const businessCards = bi.cards && bi.cards.length > 0 
-        ? bi.cards.map(c => `<div style="color: #71717a; font-size: 0.875rem;">💳 ${c}</div>`).join('')
-        : ''
+    
+    // Generar un header simple solo con el nombre del negocio (sin tarjetas)
     const businessHeader = bi.name ? `
         <div style="text-align: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #27272a;">
             <div style="font-size: 1.5rem; font-weight: bold; margin-bottom: 5px;">${bi.name}</div>
@@ -1414,9 +1450,12 @@ function printDailyReport(){
             ${bi.phone ? `<div style="color: #71717a; font-size: 0.875rem;">📞 ${bi.phone}</div>` : ''}
             ${bi.email ? `<div style="color: #71717a; font-size: 0.875rem;">📧 ${bi.email}</div>` : ''}
             ${bi.nit ? `<div style="color: #71717a; font-size: 0.875rem;">🆔 NIT: ${bi.nit}</div>` : ''}
-            ${businessCards}
         </div>
     ` : ''
+    
+    // Eliminar el businessHeader del contenido original (que incluye las tarjetas)
+    // Esto evita duplicación y elimina las tarjetas de la impresión
+    contenido = contenido.replace(/<div class="text-center mb-4 pb-4 border-b border-zinc-700">[\s\S]*?<\/div>/, '')
     
     const printWindow = window.open('', '_blank')
     printWindow.document.write(`

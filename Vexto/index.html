@@ -53,7 +53,7 @@
     </div>
 
     <!-- LOGIN -->
-    <div id="loginPage" class="min-h-screen flex flex-col items-center justify-center bg-zinc-950 p-4">
+    <div id="loginPage" class="min-h-screen flex flex-col items-center justify-center bg-zinc-950 p-4 overflow-auto">
         <div class="mb-12 text-center">
             <div class="flex items-center justify-center gap-3 mb-3">
                 <img src="Vexto_Logo.svg" alt="Vexto Logo" class="w-50 h-20 rounded-2xl object-contain my-1">
@@ -124,12 +124,12 @@
                     <div class="font-semibold text-sm" id="currentUser"></div>
                     <button onclick="showNotificationsPanel()" id="lowStockBadge" class="hidden bg-red-600 hover:bg-red-500 text-white text-xs px-2 py-0.5 rounded-full cursor-pointer" title="Ver notificaciones">🔔 <span id="lowStockCount">0</span></button>
                 </div>
-                <div class="text-xs text-zinc-500" id="appVersion">v1.1.6 beta</div>
+                <div class="text-xs text-zinc-500" id="appVersion">v1.1.7 beta</div>
             </div>
             <div class="flex gap-1 md:gap-2 flex-wrap justify-end">
                 <button onclick="importData()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">📥 <span class="hidden md:inline">Importar</span></button>
                 <button onclick="exportData()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">📤 <span class="hidden md:inline">Exportar</span></button>
-                <button onclick="location.reload()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">🔄 <span class="hidden md:inline">Recargar</span></button>
+                <button onclick="showBusinessCardsInfo()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">💳 <span class="hidden md:inline">Tarjetas</span></button>
                 <button onclick="showAudit()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">📋 <span class="hidden md:inline">Auditoría</span></button>
                 <button onclick="logout()" class="px-2 py-1 md:px-3 md:py-2 bg-red-600 hover:bg-red-500 rounded-lg text-xs md:text-sm">Salir</button>
             </div>
@@ -708,8 +708,8 @@
     </div>
 
     <!-- Setup Business Info Modal -->
-    <div id="modalSetupBusiness" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-        <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-8">
+    <div id="modalSetupBusiness" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4 z-50">
+        <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-8 max-h-[90vh] overflow-y-auto">
             <div class="text-center mb-6">
                 <div class="text-3xl mb-2">🏪</div>
                 <h3 class="text-xl font-bold">Datos de tu negocio</h3>
