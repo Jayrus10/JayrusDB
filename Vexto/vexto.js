@@ -1,5 +1,5 @@
 // ─── Estado global ────────────────────────────────────────────────────────────
-let APP_VERSION = '1.1.7'  // Versión de la aplicación
+let APP_VERSION = '1.1.8'  // Versión de la aplicación
 let cashRoundingStep = 1    // múltiplo mínimo de billete
 let cashRoundingDir  = 'round'  // 'ceil' | 'floor' | 'round'
 let currentUser = ''
