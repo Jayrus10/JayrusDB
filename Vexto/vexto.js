@@ -1,5 +1,5 @@
 // ─── Estado global ────────────────────────────────────────────────────────────
-let APP_VERSION = '1.1.5'  // Versión de la aplicación
+let APP_VERSION = '1.1.6'  // Versión de la aplicación
 let cashRoundingStep = 1    // múltiplo mínimo de billete
 let cashRoundingDir  = 'round'  // 'ceil' | 'floor' | 'round'
 let currentUser = ''
@@ -363,6 +363,8 @@ function saveSetupRates(){
     renderAll()
     addAudit('AJUSTES: tasas iniciales USD='+usd+' EUR='+eur)
     // Show business info modal
+    // Limpiar campos de tarjetas para una nueva configuración
+    renderBusinessCardFields([])
     showModal('modalSetupBusiness')
 }
 
@@ -370,13 +372,22 @@ function saveBusinessInfo(fromSettings = false){
     const name = document.getElementById('businessName').value.trim()
     if(!name) return alert('El nombre del negocio es obligatorio')
     
+    // Recoger las tarjetas de banco
+    const cardInputs = document.querySelectorAll('#businessCardsContainer input[type="text"]')
+    const cards = []
+    cardInputs.forEach(input => {
+        const val = input.value.trim()
+        if(val) cards.push(val)
+    })
+    
     data.businessInfo = {
         name: name,
         address: document.getElementById('businessAddress').value.trim(),
         phone: document.getElementById('businessPhone').value.trim(),
         email: document.getElementById('businessEmail').value.trim(),
         nit: document.getElementById('businessNit').value.trim(),
-        message: document.getElementById('businessMessage').value.trim()
+        message: document.getElementById('businessMessage').value.trim(),
+        cards: cards
     }
     saveData()
     hideModal('modalSetupBusiness')
@@ -403,9 +414,97 @@ function showEditBusinessInfo(){
     document.getElementById('businessEmail').value = bi.email || ''
     document.getElementById('businessNit').value = bi.nit || ''
     document.getElementById('businessMessage').value = bi.message || ''
+    
+    // Cargar tarjetas de banco
+    renderBusinessCardFields(bi.cards || [])
+    
     showModal('modalSetupBusiness')
     // Override the save function temporarily to use the settings version
     document.querySelector('#modalSetupBusiness button[onclick="saveBusinessInfo()"]').onclick = function() { saveBusinessInfo(true) }
+}
+
+// ─── Tarjetas de Banco del Negocio ───────────────────────────────────────────────
+function renderBusinessCardFields(cards = []){
+    const container = document.getElementById('businessCardsContainer')
+    const addBtn = document.getElementById('addBusinessCardBtn')
+    if(!container) return
+    
+    container.innerHTML = ''
+    
+    // Renderizar las tarjetas existentes
+    cards.forEach((card, index) => {
+        addBusinessCardField(card)
+    })
+    
+    // Mostrar u ocultar el botón de agregar según la cantidad
+    updateAddCardButton()
+}
+
+function addBusinessCardField(value = ''){
+    const container = document.getElementById('businessCardsContainer')
+    const addBtn = document.getElementById('addBusinessCardBtn')
+    if(!container) return
+    
+    const currentCards = container.querySelectorAll('input[type="text"]').length
+    if(currentCards >= 3) {
+        showToast('Máximo 3 tarjetas permitidas', 'error')
+        return
+    }
+    
+    const div = document.createElement('div')
+    div.className = 'flex items-center gap-2'
+    div.innerHTML = `
+        <input type="text" 
+            placeholder="ej: 1234 5678 9012 3456" 
+            class="flex-1 bg-zinc-800 rounded-xl px-4 py-2 text-sm font-mono"
+            maxlength="19"
+            oninput="formatCardNumber(this)">
+        <button type="button" onclick="removeBusinessCardField(this)" class="text-red-400 hover:text-red-300 px-2 py-1">
+            ✕
+        </button>
+    `
+    container.appendChild(div)
+    
+    // Si hay un valor, establecerlo
+    if(value) {
+        const input = div.querySelector('input')
+        input.value = value
+    }
+    
+    updateAddCardButton()
+}
+
+function removeBusinessCardField(btn){
+    const container = document.getElementById('businessCardsContainer')
+    if(!container) return
+    
+    const div = btn.parentElement
+    div.remove()
+    
+    updateAddCardButton()
+}
+
+function updateAddCardButton(){
+    const container = document.getElementById('businessCardsContainer')
+    const addBtn = document.getElementById('addBusinessCardBtn')
+    if(!container || !addBtn) return
+    
+    const currentCards = container.querySelectorAll('input[type="text"]').length
+    if(currentCards >= 3) {
+        addBtn.classList.add('hidden')
+    } else {
+        addBtn.classList.remove('hidden')
+    }
+}
+
+function formatCardNumber(input){
+    let value = input.value.replace(/\s/g, '').replace(/\D/g, '')
+    let formatted = ''
+    for(let i = 0; i < value.length && i < 16; i++) {
+        if(i > 0 && i % 4 === 0) formatted += ' '
+        formatted += value[i]
+    }
+    input.value = formatted
 }
 
 // ─── Modales / Nav ────────────────────────────────────────────────────────────
@@ -1202,6 +1301,9 @@ function showDailyReport(){
     
     // Get business info
     const bi = data.businessInfo || {}
+    const businessCards = bi.cards && bi.cards.length > 0 
+        ? bi.cards.map(c => `<div class="text-xs text-zinc-400">💳 ${c}</div>`).join('')
+        : ''
     const businessHeader = bi.name ? `
         <div class="text-center mb-4 pb-4 border-b border-zinc-700">
             <div class="text-xl font-bold text-white">${bi.name}</div>
@@ -1209,6 +1311,7 @@ function showDailyReport(){
             ${bi.phone ? `<div class="text-xs text-zinc-400">📞 ${bi.phone}</div>` : ''}
             ${bi.email ? `<div class="text-xs text-zinc-400">📧 ${bi.email}</div>` : ''}
             ${bi.nit ? `<div class="text-xs text-zinc-400">🆔 NIT: ${bi.nit}</div>` : ''}
+            ${businessCards}
         </div>
     ` : ''
     
@@ -1301,6 +1404,9 @@ function printDailyReport(){
     
     // Get business info for print header
     const bi = data.businessInfo || {}
+    const businessCards = bi.cards && bi.cards.length > 0 
+        ? bi.cards.map(c => `<div style="color: #71717a; font-size: 0.875rem;">💳 ${c}</div>`).join('')
+        : ''
     const businessHeader = bi.name ? `
         <div style="text-align: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #27272a;">
             <div style="font-size: 1.5rem; font-weight: bold; margin-bottom: 5px;">${bi.name}</div>
@@ -1308,6 +1414,7 @@ function printDailyReport(){
             ${bi.phone ? `<div style="color: #71717a; font-size: 0.875rem;">📞 ${bi.phone}</div>` : ''}
             ${bi.email ? `<div style="color: #71717a; font-size: 0.875rem;">📧 ${bi.email}</div>` : ''}
             ${bi.nit ? `<div style="color: #71717a; font-size: 0.875rem;">🆔 NIT: ${bi.nit}</div>` : ''}
+            ${businessCards}
         </div>
     ` : ''
     
