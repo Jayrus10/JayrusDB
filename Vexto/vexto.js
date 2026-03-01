@@ -2,7 +2,7 @@
 let cashRoundingStep = 1    // múltiplo mínimo de billete
 let cashRoundingDir  = 'round'  // 'ceil' | 'floor' | 'round'
 let currentUser = ''
-let data = { products:[], purchases:[], sales:[], customers:[], providers:[], discounts:[], audit:[], vipLevels:[], exchangeRates:{USD:500,EUR:650}, baseCurrency:'CUP' }
+let data = { products:[], purchases:[], sales:[], customers:[], providers:[], discounts:[], audit:[], vipLevels:[], exchangeRates:{USD:500,EUR:650}, baseCurrency:'CUP', businessInfo:{} }
 let nextId = 1
 
 // ─── Toast Notifications ─────────────────────────────────────────────────────────
@@ -211,6 +211,7 @@ function loadData(){
     if(!d.vipLevels) d.vipLevels = []
     if(!d.cashPayments) d.cashPayments = []
     if(!d.providers) d.providers = [] // New in v2.1
+    if(!d.businessInfo) d.businessInfo = {} // New in v2.2
     data = d
     saveData()
     nextId = Math.max(1, ...[...data.products,...data.purchases,...data.sales,...data.customers,...data.providers,...data.discounts].map(x=>x.id||0)) + 1
@@ -318,7 +319,7 @@ function handleLogin(){
     const isNew = !localStorage.getItem('tienda_' + user)
     if(isNew){
         // Create new user data from default
-        data = { products:[], purchases:[], sales:[], customers:[], providers:[], discounts:[], audit:[], vipLevels:[], exchangeRates:{USD:500,EUR:650}, baseCurrency:'CUP' }
+        data = { products:[], purchases:[], sales:[], customers:[], providers:[], discounts:[], audit:[], vipLevels:[], exchangeRates:{USD:500,EUR:650}, baseCurrency:'CUP', businessInfo:{} }
         saveData()
     }
     
@@ -348,7 +349,50 @@ function saveSetupRates(){
     document.getElementById('modalSetupRates').classList.add('hidden')
     renderAll()
     addAudit('AJUSTES: tasas iniciales USD='+usd+' EUR='+eur)
+    // Show business info modal
+    showModal('modalSetupBusiness')
+}
+
+function saveBusinessInfo(fromSettings = false){
+    const name = document.getElementById('businessName').value.trim()
+    if(!name) return alert('El nombre del negocio es obligatorio')
+    
+    data.businessInfo = {
+        name: name,
+        address: document.getElementById('businessAddress').value.trim(),
+        phone: document.getElementById('businessPhone').value.trim(),
+        email: document.getElementById('businessEmail').value.trim(),
+        nit: document.getElementById('businessNit').value.trim(),
+        message: document.getElementById('businessMessage').value.trim()
+    }
+    saveData()
+    hideModal('modalSetupBusiness')
+    addAudit('INFO NEGOCIO: ' + name)
+    
+    // If from settings, stay on settings; otherwise go to info
+    if(fromSettings) {
+        showToast('Información del negocio guardada', 'success')
+    } else {
+        showSection('info')
+    }
+}
+
+function skipBusinessInfo(){
+    hideModal('modalSetupBusiness')
     showSection('info')
+}
+
+function showEditBusinessInfo(){
+    const bi = data.businessInfo || {}
+    document.getElementById('businessName').value = bi.name || ''
+    document.getElementById('businessAddress').value = bi.address || ''
+    document.getElementById('businessPhone').value = bi.phone || ''
+    document.getElementById('businessEmail').value = bi.email || ''
+    document.getElementById('businessNit').value = bi.nit || ''
+    document.getElementById('businessMessage').value = bi.message || ''
+    showModal('modalSetupBusiness')
+    // Override the save function temporarily to use the settings version
+    document.querySelector('#modalSetupBusiness button[onclick="saveBusinessInfo()"]').onclick = function() { saveBusinessInfo(true) }
 }
 
 // ─── Modales / Nav ────────────────────────────────────────────────────────────
@@ -1138,7 +1182,20 @@ function showDailyReport(){
     const fechaObj = new Date()
     const fechaFormateada = fechaObj.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
     
+    // Get business info
+    const bi = data.businessInfo || {}
+    const businessHeader = bi.name ? `
+        <div class="text-center mb-4 pb-4 border-b border-zinc-700">
+            <div class="text-xl font-bold text-white">${bi.name}</div>
+            ${bi.address ? `<div class="text-xs text-zinc-400">📍 ${bi.address}</div>` : ''}
+            ${bi.phone ? `<div class="text-xs text-zinc-400">📞 ${bi.phone}</div>` : ''}
+            ${bi.email ? `<div class="text-xs text-zinc-400">📧 ${bi.email}</div>` : ''}
+            ${bi.nit ? `<div class="text-xs text-zinc-400">🆔 NIT: ${bi.nit}</div>` : ''}
+        </div>
+    ` : ''
+    
     let html = `
+        ${businessHeader}
         <div class="bg-zinc-800 rounded-2xl p-4 mb-4">
             <div class="text-center">
                 <div class="text-lg font-bold text-white">📊 REPORTE DEL DÍA</div>
@@ -1222,6 +1279,19 @@ function showDailyReport(){
 
 function printDailyReport(){
     const contenido = document.getElementById('dailyReportContent').innerHTML
+    
+    // Get business info for print header
+    const bi = data.businessInfo || {}
+    const businessHeader = bi.name ? `
+        <div style="text-align: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #27272a;">
+            <div style="font-size: 1.5rem; font-weight: bold; margin-bottom: 5px;">${bi.name}</div>
+            ${bi.address ? `<div style="color: #71717a; font-size: 0.875rem;">📍 ${bi.address}</div>` : ''}
+            ${bi.phone ? `<div style="color: #71717a; font-size: 0.875rem;">📞 ${bi.phone}</div>` : ''}
+            ${bi.email ? `<div style="color: #71717a; font-size: 0.875rem;">📧 ${bi.email}</div>` : ''}
+            ${bi.nit ? `<div style="color: #71717a; font-size: 0.875rem;">🆔 NIT: ${bi.nit}</div>` : ''}
+        </div>
+    ` : ''
+    
     const printWindow = window.open('', '_blank')
     printWindow.document.write(`
         <!DOCTYPE html>
@@ -1261,7 +1331,9 @@ function printDailyReport(){
             </style>
         </head>
         <body>
+            ${businessHeader}
             ${contenido}
+            ${bi.message ? `<div style="text-align: center; margin-top: 20px; padding-top: 10px; border-top: 1px solid #27272a; color: #71717a; font-size: 0.875rem;">${bi.message}</div>` : ''}
             <script>window.onload = function() { window.print(); window.close(); }</script>
         </body>
         </html>

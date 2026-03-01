@@ -453,6 +453,20 @@
                             </div>
                         </div>
                         <div class="border-t border-zinc-800 pt-6">
+                            <div class="text-sm font-semibold text-zinc-300 mb-4">
+                                Información del negocio
+                            </div>
+                            <div class="mt-4">
+                            <button onclick="showEditBusinessInfo()"
+                                class="w-full bg-zinc-700 hover:bg-zinc-600 py-3 rounded-2xl text-sm font-semibold flex items-center justify-center gap-2">
+                                <span>🏪</span> <span>Editar información del negocio</span>
+                            </button>
+                            <p class="text-xs text-zinc-500 mt-2">
+                                Nombre, dirección, teléfono, email, NIT y mensaje para tickets.
+                            </p>
+                            </div>
+                        </div>
+                        <div class="border-t border-zinc-800 pt-6">
                             <div class="text-sm font-semibold text-red-400 mb-3">
                                 Para usuarios avanzados
                             </div>
@@ -690,6 +704,47 @@
                 </div>
             </div>
             <button onclick="saveSetupRates()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-4 rounded-2xl font-semibold text-base">Guardar y comenzar →</button>
+        </div>
+    </div>
+
+    <!-- Setup Business Info Modal -->
+    <div id="modalSetupBusiness" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+        <div class="bg-zinc-900 w-full max-w-md rounded-3xl p-8">
+            <div class="text-center mb-6">
+                <div class="text-3xl mb-2">🏪</div>
+                <h3 class="text-xl font-bold">Datos de tu negocio</h3>
+                <p class="text-sm text-zinc-400 mt-1">Información que aparecerá en tickets y reportes (opcional)</p>
+            </div>
+            <div class="space-y-4 mb-6">
+                <div>
+                    <label class="text-xs text-zinc-400 block mb-2">Nombre del negocio *</label>
+                    <input id="businessName" type="text" placeholder="ej: Mi Tienda" class="w-full bg-zinc-800 rounded-xl px-4 py-3 text-sm">
+                </div>
+                <div>
+                    <label class="text-xs text-zinc-400 block mb-2">Dirección</label>
+                    <input id="businessAddress" type="text" placeholder="ej: Calle Principal #123" class="w-full bg-zinc-800 rounded-xl px-4 py-3 text-sm">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs text-zinc-400 block mb-2">Teléfono</label>
+                        <input id="businessPhone" type="text" placeholder="ej: +53 5..." class="w-full bg-zinc-800 rounded-xl px-4 py-3 text-sm">
+                    </div>
+                    <div>
+                        <label class="text-xs text-zinc-400 block mb-2">Email</label>
+                        <input id="businessEmail" type="email" placeholder="ej: tienda@email.com" class="w-full bg-zinc-800 rounded-xl px-4 py-3 text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs text-zinc-400 block mb-2">NIT / RUC / Identificación</label>
+                    <input id="businessNit" type="text" placeholder="ej: 12345678901" class="w-full bg-zinc-800 rounded-xl px-4 py-3 text-sm">
+                </div>
+                <div>
+                    <label class="text-xs text-zinc-400 block mb-2">Mensaje para tickets</label>
+                    <textarea id="businessMessage" rows="2" placeholder="ej: ¡Gracias por su compra! Vuelva pronto" class="w-full bg-zinc-800 rounded-xl px-4 py-3 text-sm resize-none"></textarea>
+                </div>
+            </div>
+            <button onclick="saveBusinessInfo()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-4 rounded-2xl font-semibold text-base">Continuar →</button>
+            <button onclick="skipBusinessInfo()" class="w-full mt-3 py-2 text-sm text-zinc-500 hover:text-zinc-300">Omitir por ahora</button>
         </div>
     </div>
 
