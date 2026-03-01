@@ -1686,7 +1686,7 @@ function updateSaleInfo(){
     
     if(qty > 0 && price > 0){
         const subtotal = price * qty
-        subtotalEl.textContent = fmtCUP(toCUP(subtotal, cur))
+        subtotalEl.textContent = fmtBaseCurrency(toCUP(subtotal, cur))
         
         // Calcular margen: (precio - costo) × cantidad - envío
         if(prod && prod.avgCost > 0){
@@ -1699,9 +1699,9 @@ function updateSaleInfo(){
             const marginPercent = totalRevenue > 0 ? ((marginCUP / totalRevenue) * 100).toFixed(1) : 0
             
             if(marginCUP >= 0){
-                marginEl.innerHTML = '<span class="text-emerald-400">+' + fmtCUP(marginCUP) + ' (' + marginPercent + '%)</span>'
+                marginEl.innerHTML = '<span class="text-emerald-400">+' + fmtBaseCurrency(marginCUP) + ' (' + marginPercent + '%)</span>'
             } else {
-                marginEl.innerHTML = '<span class="text-red-400">' + fmtCUP(marginCUP) + ' (' + marginPercent + '%)</span>'
+                marginEl.innerHTML = '<span class="text-red-400">' + fmtBaseCurrency(marginCUP) + ' (' + marginPercent + '%)</span>'
             }
         } else {
             marginEl.textContent = '-'
