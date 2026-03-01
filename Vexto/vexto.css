@@ -385,6 +385,106 @@
             animation: loginShake 0.5s ease, loginCardEnter 0.6s cubic-bezier(0.34, 3.56, 0.64, 1) forwards;
         }
         
+        /* Login page exit animation */
+        .login-exit {
+            animation: loginExit 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        @keyframes loginExit {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.95);
+            }
+        }
+        
+        /* App entrance animation */
+        .app-entrance {
+            animation: appEntrance 0.6s cubic-bezier(0.34, 3.56, 0.64, 1) forwards;
+        }
+        
+        @keyframes appEntrance {
+            0% {
+                opacity: 0;
+                transform: translateY(40px) scale(0.98);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        /* Header entrance animation */
+        .header-entrance {
+            animation: headerEntrance 0.5s cubic-bezier(0.34, 3.56, 0.64, 1) forwards;
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        
+        @keyframes headerEntrance {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Nav entrance animation */
+        .nav-entrance {
+            animation: navEntrance 0.5s cubic-bezier(0.34, 3.56, 0.64, 1) forwards;
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        
+        @keyframes navEntrance {
+            0% {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        /* Content entrance animation */
+        .content-entrance {
+            animation: contentEntrance 0.5s cubic-bezier(0.34, 3.56, 0.64, 1) forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        @keyframes contentEntrance {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Login page entrance animation */
+        .login-page-entrance {
+            animation: loginPageEntrance 0.8s cubic-bezier(0.34, 3.56, 0.64, 1) forwards;
+        }
+        
+        @keyframes loginPageEntrance {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+        
         /* Smooth section transitions */
         .section {
             animation: fadeInSection 0.3s ease;

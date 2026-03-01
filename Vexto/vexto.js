@@ -338,18 +338,85 @@ function handleLogin(){
     
     localStorage.setItem('tienda_lastUser', user)
     loadData()
-    document.getElementById('loginPage').classList.add('hidden')
-    document.getElementById('app').classList.remove('hidden')
-    document.getElementById('currentUser').textContent = user
-    renderAll()
-    if(isNew) showModal('modalSetupRates')
+    
+    // Animate login exit
+    const loginPage = document.getElementById('loginPage')
+    const loginCard = loginPage.querySelector('.login-card')
+    if(loginCard) {
+        loginCard.classList.add('login-exit')
+    }
+    
+    // After login animation, show app with entrance animation
+    setTimeout(() => {
+        loginPage.classList.add('hidden')
+        const app = document.getElementById('app')
+        app.classList.remove('hidden')
+        app.classList.add('app-entrance')
+        
+        // Add staggered animations to app sections
+        const header = app.querySelector('.bg-zinc-900.border-b')
+        const nav = app.querySelector('.app-nav')
+        const content = app.querySelector('.app-content')
+        
+        if(header) header.classList.add('header-entrance')
+        if(nav) {
+            setTimeout(() => nav.classList.add('nav-entrance'), 100)
+        }
+        if(content) {
+            setTimeout(() => content.classList.add('content-entrance'), 200)
+        }
+        
+        document.getElementById('currentUser').textContent = user
+        renderAll()
+        if(isNew) showModal('modalSetupRates')
+    }, 450)
 }
 function logout(){
     saveData()
     currentUser = ''
-    document.getElementById('app').classList.add('hidden')
-    document.getElementById('loginPage').classList.remove('hidden')
-    document.getElementById('loginUser').value = ''
+    
+    // Animate app exit
+    const app = document.getElementById('app')
+    app.classList.add('login-exit')
+    
+    // After app exit, show login with entrance animation
+    setTimeout(() => {
+        app.classList.add('hidden')
+        app.classList.remove('app-entrance')
+        
+        const loginPage = document.getElementById('loginPage')
+        loginPage.classList.remove('hidden')
+        loginPage.classList.add('login-page-entrance')
+        
+        // Reset login card animation
+        const loginCard = loginPage.querySelector('.login-card')
+        const loginLogo = loginPage.querySelector('.login-logo')
+        const loginTitle = loginPage.querySelector('.login-title')
+        const loginInput = loginPage.querySelector('.login-input')
+        const loginBtn = loginPage.querySelector('.login-btn')
+        const loginInfoBtn = loginPage.querySelector('.login-info-btn')
+        const loginLinks = loginPage.querySelector('.login-links')
+        
+        // Force reflow to restart animations
+        if(loginCard) {
+            loginCard.classList.remove('login-exit')
+            loginCard.style.animation = 'none'
+            loginCard.offsetHeight // trigger reflow
+            loginCard.style.animation = ''
+            loginCard.classList.add('login-card')
+        }
+        
+        // Reset animations for other elements
+        ;[loginLogo, loginTitle, loginInput, loginBtn, loginInfoBtn, loginLinks].forEach(el => {
+            if(el) {
+                el.style.animation = 'none'
+                el.offsetHeight // trigger reflow
+                el.style.animation = ''
+            }
+        })
+        
+        document.getElementById('loginUser').value = ''
+    }, 450)
 }
 function saveSetupRates(){
     const usd = parseFloat(document.getElementById('setupRateUSD').value)
