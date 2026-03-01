@@ -247,6 +247,18 @@ function fmtCUP(amount){
     return amount.toFixed(2) + ' CUP'
 }
 
+// ─── Formato según moneda base ───────────────────────────────
+function fmtBaseCurrency(amount){
+    amount = Number(amount) || 0
+    const currency = data.baseCurrency || 'CUP'
+    if(currency === 'CUP'){
+        return amount.toFixed(2) + ' CUP'
+    } else {
+        const converted = fromCUP(amount, currency)
+        return converted.toFixed(2) + ' ' + currency
+    }
+}
+
 // ─── Formato número simple ───────────────────────────────
 function fmtNum(num){
     num = Number(num) || 0
@@ -1206,6 +1218,7 @@ function showDailyReport(){
             <div class="text-center">
                 <div class="text-lg font-bold text-white">📊 REPORTE DEL DÍA</div>
                 <div class="text-sm text-zinc-400">${fechaFormateada}</div>
+                <div class="text-xs text-zinc-500 mt-1">Moneda: ${data.baseCurrency || 'CUP'}</div>
             </div>
         </div>
         
@@ -1213,31 +1226,31 @@ function showDailyReport(){
         <div class="grid grid-cols-2 gap-3 mb-4">
             <div class="bg-zinc-800 rounded-xl p-3 text-center">
                 <div class="text-xs text-zinc-400">Ventas</div>
-                <div class="text-xl font-bold text-sky-400">${fmtCUP(totalVentas)}</div>
+                <div class="text-xl font-bold text-sky-400">${fmtBaseCurrency(totalVentas)}</div>
             </div>
             <div class="bg-zinc-800 rounded-xl p-3 text-center">
                 <div class="text-xs text-zinc-400">Ganancia</div>
-                <div class="text-xl font-bold text-emerald-400">${fmtCUP(gananciaNeta)}</div>
+                <div class="text-xl font-bold text-emerald-400">${fmtBaseCurrency(gananciaNeta)}</div>
             </div>
             <div class="bg-zinc-800 rounded-xl p-3 text-center">
                 <div class="text-xs text-zinc-400">Efectivo</div>
-                <div class="text-xl font-bold text-emerald-300">${fmtCUP(totalEfectivo)}</div>
+                <div class="text-xl font-bold text-emerald-300">${fmtBaseCurrency(totalEfectivo)}</div>
             </div>
             <div class="bg-zinc-800 rounded-xl p-3 text-center">
                 <div class="text-xs text-zinc-400">Fiado</div>
-                <div class="text-xl font-bold text-amber-400">${fmtCUP(totalFiado)}</div>
+                <div class="text-xl font-bold text-amber-400">${fmtBaseCurrency(totalFiado)}</div>
             </div>
         </div>
         
         <!-- Compras del día -->
         <div class="bg-zinc-800 rounded-xl p-3 mb-4">
-            <div class="font-semibold text-zinc-300 mb-2">🛒 Compras del día: ${fmtCUP(totalCompras)}</div>
+            <div class="font-semibold text-zinc-300 mb-2">🛒 Compras del día: ${fmtBaseCurrency(totalCompras)}</div>
             ${todayPurchases.length === 0 ? '<div class="text-zinc-500 text-sm">No hay compras registradas</div>' : ''}
             ${todayPurchases.map(p => {
                 const prod = data.products.find(pr => pr.id === p.productId)
                 return `<div class="text-sm flex justify-between py-1 border-b border-zinc-700 last:border-0">
                     <span>${prod ? prod.name : 'Producto #' + p.productId} (${p.qty} uds)</span>
-                    <span class="text-amber-400">${fmtCUP(p.totalCostCUP || 0)}</span>
+                    <span class="text-amber-400">${fmtBaseCurrency(p.totalCostCUP || 0)}</span>
                 </div>`
             }).join('')}
         </div>
@@ -1252,7 +1265,7 @@ function showDailyReport(){
                 return `<div class="text-sm py-1 border-b border-zinc-700 last:border-0">
                     <div class="flex justify-between">
                         <span>${prod ? prod.name : 'Producto #' + s.productId} (${s.qty} uds)</span>
-                        <span class="${s.onCredit ? 'text-amber-400' : 'text-emerald-400'}">${fmtCUP(total)}</span>
+                        <span class="${s.onCredit ? 'text-amber-400' : 'text-emerald-400'}">${fmtBaseCurrency(total)}</span>
                     </div>
                     <div class="text-xs text-zinc-500 flex justify-between">
                         <span>${s.client || 'Sin cliente'}</span>
@@ -1266,14 +1279,14 @@ function showDailyReport(){
         <div class="bg-zinc-800 rounded-xl p-3">
             <div class="font-semibold text-zinc-300 mb-2">📋 Resumen</div>
             <div class="space-y-1 text-sm">
-                <div class="flex justify-between"><span class="text-zinc-400">Total ventas:</span><span>${fmtCUP(totalVentas)}</span></div>
-                <div class="flex justify-between"><span class="text-zinc-400">Efectivo cobrado:</span><span class="text-emerald-400">${fmtCUP(totalEfectivo)}</span></div>
-                <div class="flex justify-between"><span class="text-zinc-400">Pendiente de cobro:</span><span class="text-amber-400">${fmtCUP(totalFiado)}</span></div>
-                <div class="flex justify-between"><span class="text-zinc-400">Gastos:</span><span class="text-red-400">-${fmtCUP(totalGastos)}</span></div>
-                <div class="flex justify-between"><span class="text-zinc-400">Compras:</span><span class="text-amber-400">-${fmtCUP(totalCompras)}</span></div>
+                <div class="flex justify-between"><span class="text-zinc-400">Total ventas:</span><span>${fmtBaseCurrency(totalVentas)}</span></div>
+                <div class="flex justify-between"><span class="text-zinc-400">Efectivo cobrado:</span><span class="text-emerald-400">${fmtBaseCurrency(totalEfectivo)}</span></div>
+                <div class="flex justify-between"><span class="text-zinc-400">Pendiente de cobro:</span><span class="text-amber-400">${fmtBaseCurrency(totalFiado)}</span></div>
+                <div class="flex justify-between"><span class="text-zinc-400">Gastos:</span><span class="text-red-400">-${fmtBaseCurrency(totalGastos)}</span></div>
+                <div class="flex justify-between"><span class="text-zinc-400">Compras:</span><span class="text-amber-400">-${fmtBaseCurrency(totalCompras)}</span></div>
                 <div class="border-t border-zinc-700 mt-2 pt-2 flex justify-between font-bold">
                     <span>Ganancia neta:</span>
-                    <span class="${gananciaNeta >= 0 ? 'text-emerald-400' : 'text-red-400'}">${fmtCUP(gananciaNeta)}</span>
+                    <span class="${gananciaNeta >= 0 ? 'text-emerald-400' : 'text-red-400'}">${fmtBaseCurrency(gananciaNeta)}</span>
                 </div>
             </div>
         </div>

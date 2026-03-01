@@ -1,3 +1,29 @@
 # VS Code
 .vscode/
 *.code-workspace
+
+# Archivos de configuración de IDE
+.idea/
+*.swp
+*.swo
+*~
+
+# Archivos de entorno
+.env
+.env.local
+.env.*.local
+
+# Archivos de lock de dependencias
+package-lock.json
+yarn.lock
+package.json
+
+# Archivos de reporte de cambios
+REPORTE_CAMBIOS.md
+
+# Archivos de estado del servidor (configuración)
+**/server_state.json
+
+# Logs
+*.log
+logs/
