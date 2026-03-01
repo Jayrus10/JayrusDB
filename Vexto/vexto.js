@@ -1,5 +1,5 @@
 // ─── Estado global ────────────────────────────────────────────────────────────
-let APP_VERSION = '1.1.1'  // Versión de la aplicación
+let APP_VERSION = '1.1.5'  // Versión de la aplicación
 let cashRoundingStep = 1    // múltiplo mínimo de billete
 let cashRoundingDir  = 'round'  // 'ceil' | 'floor' | 'round'
 let currentUser = ''
@@ -118,7 +118,7 @@ function showNotificationsPanel() {
         debtorsDiv.innerHTML = oldDebtors.map(c => `
             <div class="bg-zinc-800 rounded-xl p-3 flex justify-between items-center cursor-pointer hover:bg-zinc-700" onclick="showPayDebt(${c.id})">
                 <span class="text-white">${c.name}</span>
-                <span class="text-amber-400 font-bold">${fmtCUP(c.debt)}</span>
+                <span class="text-amber-400 font-bold">${fmtInfo(c.debt,'Deuda')}</span>
             </div>
         `).join('')
     }
@@ -270,7 +270,7 @@ function fmtInfo(cup, label){
     cup = Number(cup) || 0
     const safeLabel = (label || 'Detalle').replace(/"/g, '&quot;')
 
-    return fmtCUP(cup) + 
+    return fmtBaseCurrency(cup) + 
         ' <button class="text-zinc-500 hover:text-zinc-300 text-xs currency-info-btn" ' +
         'data-value="'+cup+'" data-label="'+safeLabel+'">ℹ️</button>'
 }
@@ -552,7 +552,7 @@ function showCustomerHistory(customerId){
     if(!c) return
     const custSales = data.sales.filter(s => s.client === c.name)
     const vip = c.vipLevel ? (data.vipLevels||[]).find(v=>v.id===c.vipLevel) : null
-    let html = '<div class="bg-zinc-800 rounded-2xl p-4 mb-4"><div class="flex justify-between items-center"><div><div class="text-lg font-bold text-white">'+c.name+'</div>'+(vip ? '<div class="text-amber-400 text-sm">⭐ '+vip.name+' ('+vip.percent+'% descuento)</div>' : '')+'</div><div class="text-right"><div class="text-zinc-400 text-xs">Deuda actual</div><div class="text-amber-400 font-bold text-lg">'+fmtCUP(c.debt||0)+'</div></div></div></div>'
+    let html = '<div class="bg-zinc-800 rounded-2xl p-4 mb-4"><div class="flex justify-between items-center"><div><div class="text-lg font-bold text-white">'+c.name+'</div>'+(vip ? '<div class="text-amber-400 text-sm">⭐ '+vip.name+' ('+vip.percent+'% descuento)</div>' : '')+'</div><div class="text-right"><div class="text-zinc-400 text-xs">Deuda actual</div><div class="text-amber-400 font-bold text-lg">'+fmtInfo(c.debt||0,'Deuda')+'</div></div></div></div>'
     if(custSales.length === 0){
         html += '<div class="text-center text-zinc-500 py-8">Este cliente no tiene compras registradas</div>'
     } else {
@@ -566,10 +566,10 @@ function showCustomerHistory(customerId){
             const total = s.qty * price
             totalSpent += total
             const isCredit = s.isCredit ? '<span class="text-amber-400 text-xs ml-2">📤 Fiado</span>' : '<span class="text-emerald-400 text-xs ml-2">✅ Contado</span>'
-            html += '<div class="bg-zinc-800 rounded-xl p-3 flex justify-between items-center"><div><div class="text-white font-medium">'+prodName+'</div><div class="text-zinc-500 text-xs">'+s.date+' × '+s.qty+' '+isCredit+'</div></div><div class="text-right"><div class="text-emerald-400 font-semibold">'+fmtCUP(total)+'</div><div class="text-zinc-500 text-xs">'+fmtCUP(price)+' c/u</div></div></div>'
+            html += '<div class="bg-zinc-800 rounded-xl p-3 flex justify-between items-center"><div><div class="text-white font-medium">'+prodName+'</div><div class="text-zinc-500 text-xs">'+s.date+' × '+s.qty+' '+isCredit+'</div></div><div class="text-right"><div class="text-emerald-400 font-semibold">'+fmtInfo(total,'Venta')+'</div><div class="text-zinc-500 text-xs">'+fmtInfo(price,'Precio unitario')+' c/u</div></div></div>'
         })
         html += '</div>'
-        html += '<div class="bg-zinc-800 rounded-2xl p-4 mt-4 flex justify-between items-center"><div class="text-zinc-400">Total gastado</div><div class="text-emerald-400 font-bold text-xl">'+fmtCUP(totalSpent)+'</div></div>'
+        html += '<div class="bg-zinc-800 rounded-2xl p-4 mt-4 flex justify-between items-center"><div class="text-zinc-400">Total gastado</div><div class="text-emerald-400 font-bold text-xl">'+fmtInfo(totalSpent,'Total gastado')+'</div></div>'
     }
     document.getElementById('customerHistoryContent').innerHTML = html
     document.getElementById('customerHistoryContent').dataset.customerName = c.name
@@ -1668,9 +1668,24 @@ function updateSaleInfo(){
         const markup    = prod.markup || 0.5
         const rawCUP    = prod.avgCost * (1 + markup)
         const sugCUP    = roundCash(rawCUP)
-        const sugLabel  = cashRoundingStep > 1
-            ? fmtInfo(sugCUP, 'Precio sugerido') + ' <span class="text-zinc-600 text-xs">(redondeado de '+rawCUP.toFixed(2)+')</span>'
-            : fmtInfo(sugCUP, 'Precio sugerido')
+        // Mostrar en moneda de pago, y al lado la moneda principal si es diferente
+        const baseCurrency = data.baseCurrency || 'CUP'
+        const sugInPayment = fromCUP(sugCUP, cur).toFixed(2) + ' ' + cur
+        let sugLabel
+        if(baseCurrency === cur || cur === 'CUP'){
+            if(cashRoundingStep > 1){
+                sugLabel = sugInPayment + ' <span class="text-zinc-600 text-xs">(redondeado de '+rawCUP.toFixed(2)+')</span>'
+            } else {
+                sugLabel = sugInPayment
+            }
+        } else {
+            const sugInBase = fromCUP(sugCUP, baseCurrency).toFixed(2) + ' ' + baseCurrency
+            if(cashRoundingStep > 1){
+                sugLabel = sugInPayment + ' (' + sugInBase + ') <span class="text-zinc-600 text-xs">(redondeado de '+rawCUP.toFixed(2)+')</span>'
+            } else {
+                sugLabel = sugInPayment + ' (' + sugInBase + ')'
+            }
+        }
         document.getElementById('suggestedPriceDisplay').innerHTML = sugLabel
         if(!document.getElementById('salePrice').value){
             document.getElementById('salePrice').value = fromCUP(sugCUP, cur).toFixed(2)
@@ -1686,7 +1701,14 @@ function updateSaleInfo(){
     
     if(qty > 0 && price > 0){
         const subtotal = price * qty
-        subtotalEl.textContent = fmtBaseCurrency(toCUP(subtotal, cur))
+        const subtotalCUP = toCUP(subtotal, cur)
+        // Mostrar en moneda de pago, y al lado la moneda principal si es diferente
+        const baseCurrency = data.baseCurrency || 'CUP'
+        if(baseCurrency === cur || cur === 'CUP'){
+            subtotalEl.textContent = fromCUP(subtotalCUP, cur).toFixed(2) + ' ' + cur
+        } else {
+            subtotalEl.innerHTML = fromCUP(subtotalCUP, cur).toFixed(2) + ' ' + cur + ' <span class="text-zinc-500">(' + fromCUP(subtotalCUP, baseCurrency).toFixed(2) + ' ' + baseCurrency + ')</span>'
+        }
         
         // Calcular margen: (precio - costo) × cantidad - envío
         if(prod && prod.avgCost > 0){
@@ -1698,10 +1720,14 @@ function updateSaleInfo(){
             const totalRevenue = revenueCUP * qty
             const marginPercent = totalRevenue > 0 ? ((marginCUP / totalRevenue) * 100).toFixed(1) : 0
             
+            const marginDisplay = baseCurrency === cur || cur === 'CUP'
+                ? fromCUP(marginCUP, cur).toFixed(2) + ' ' + cur
+                : fromCUP(marginCUP, cur).toFixed(2) + ' ' + cur + ' (' + fromCUP(marginCUP, baseCurrency).toFixed(2) + ' ' + baseCurrency + ')'
+            
             if(marginCUP >= 0){
-                marginEl.innerHTML = '<span class="text-emerald-400">+' + fmtBaseCurrency(marginCUP) + ' (' + marginPercent + '%)</span>'
+                marginEl.innerHTML = '<span class="text-emerald-400">+' + marginDisplay + ' (' + marginPercent + '%)</span>'
             } else {
-                marginEl.innerHTML = '<span class="text-red-400">' + fmtBaseCurrency(marginCUP) + ' (' + marginPercent + '%)</span>'
+                marginEl.innerHTML = '<span class="text-red-400">' + marginDisplay + ' (' + marginPercent + '%)</span>'
             }
         } else {
             marginEl.textContent = '-'
@@ -1837,7 +1863,7 @@ function renderSales(){
             : fmtInfo(priceCUP,'Precio venta')
         // Mostrar gasto de envío en rojo si existe
         const shippingHtml = shippingCUP > 0
-            ? '<div class="text-xs text-red-400 mt-1">📦 Envío: -'+fmtCUP(shippingCUP)+'</div>'
+            ? '<div class="text-xs text-red-400 mt-1">📦 Envío: -'+fmtInfo(shippingCUP,'Costo envío')+'</div>'
             : ''
         const tr = document.createElement('tr')
         tr.className = 'border-b border-zinc-800 hover:bg-zinc-900'
@@ -1911,14 +1937,14 @@ function printSaleReceipt(saleId) {
             <div class="item">
                 <span class="item-name">${prodName}</span>
                 <span class="item-qty">${s.qty}</span>
-                <span class="item-price">${fmtCUP(totalPrice)}</span>
+                <span class="item-price">${fmtBaseCurrency(totalPrice)}</span>
             </div>
         </div>
         
         <div class="totals">
-            <div class="total-row"><span>Subtotal:</span><span>${fmtCUP(totalPrice)}</span></div>
-            ${s.discountPercent ? '<div class="total-row"><span>Descuento ('+(s.discountPercent*100).toFixed(0)+'%):</span><span>-${fmtCUP(discount)}</span></div>' : ''}
-            <div class="total-row total-final"><span>TOTAL:</span><span>${fmtCUP(finalPrice)}</span></div>
+            <div class="total-row"><span>Subtotal:</span><span>${fmtBaseCurrency(totalPrice)}</span></div>
+            ${s.discountPercent ? '<div class="total-row"><span>Descuento ('+(s.discountPercent*100).toFixed(0)+'%):</span><span>-${fmtBaseCurrency(discount)}</span></div>' : ''}
+            <div class="total-row total-final"><span>TOTAL:</span><span>${fmtBaseCurrency(finalPrice)}</span></div>
         </div>
         
         <div class="footer">
@@ -1967,7 +1993,7 @@ function renderReports(){
     const pending    = data.customers.reduce((a,c)=>a+(c.debt||0),0)
     // La ganancia neta ahora resta los gastos de envío
     const netProfit = revenue - cost - totalShipping
-    document.getElementById('totalProfit').innerHTML      = fmtInfo(netProfit,'Ganancia neta (restando envíos)') + (totalShipping > 0 ? ' <span class="text-xs text-red-400">(envíos: -'+fmtCUP(totalShipping)+')</span>' : '')
+    document.getElementById('totalProfit').innerHTML      = fmtInfo(netProfit,'Ganancia neta (restando envíos)') + (totalShipping > 0 ? ' <span class="text-xs text-red-400">(envíos: -'+fmtBaseCurrency(totalShipping)+')</span>' : '')
     document.getElementById('totalCOGS').innerHTML        = fmtInfo(cost,'Costo mercancía vendida')
     document.getElementById('totalCash').innerHTML        = fmtInfo(cash,'Cobrado en efectivo')
     document.getElementById('totalPendingDebt').innerHTML = fmtInfo(pending,'Deuda pendiente')
