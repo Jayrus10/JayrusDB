@@ -6,6 +6,20 @@ let currentUser = ''
 let data = { products:[], purchases:[], sales:[], customers:[], providers:[], discounts:[], audit:[], vipLevels:[], exchangeRates:{USD:500,EUR:650}, baseCurrency:'CUP', businessInfo:{} }
 let nextId = 1
 
+// ─── Hide Initial Loader ─────────────────────────────────────────────────────────
+window.addEventListener('load', function() {
+    setTimeout(function() {
+        const loader = document.getElementById('initialLoader')
+        if(loader) {
+            loader.style.opacity = '0'
+            loader.style.pointerEvents = 'none'
+            setTimeout(function() {
+                loader.style.display = 'none'
+            }, 500)
+        }
+    }, 1200)  // Wait for loader animation to complete
+})
+
 // ─── Toast Notifications ─────────────────────────────────────────────────────────
 function showToast(message, type = 'success', duration = 3000) {
     const container = document.getElementById('toastContainer')
