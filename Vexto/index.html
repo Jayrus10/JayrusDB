@@ -78,9 +78,32 @@
         <div class="w-full max-w-md">
             <div class="login-card p-8 rounded-2xl relative overflow-hidden">
                 <h2 class="text-3xl font-bold mb-8 text-center text-zinc-100 login-title">Bienvenido</h2>
-                <div class="login-input">
-                    <input id="loginUser" placeholder="Tu nombre" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-6" onkeypress="if(event.key==='Enter') handleLogin()">
+                
+                <!-- Selector de modo -->
+                <div class="mb-6">
+                    <label class="text-xs text-zinc-400 mb-2 block">Modo de conexión</label>
+                    <div class="flex gap-2">
+                        <button onclick="setLoginMode('local')" id="btnModeLocal" class="flex-1 py-2 px-3 rounded-xl text-sm font-medium transition-colors bg-emerald-600 text-white">📱 Local</button>
+                        <button onclick="setLoginMode('online')" id="btnModeOnline" class="flex-1 py-2 px-3 rounded-xl text-sm font-medium transition-colors bg-zinc-700 text-zinc-300">🌐 Online</button>
+                    </div>
                 </div>
+                
+                <!-- Input usuario -->
+                <div class="login-input">
+                    <input id="loginUser" placeholder="Tu nombre de usuario" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-4" onkeypress="if(event.key==='Enter') handleLogin()">
+                </div>
+                
+                <!-- Input contraseña (solo modo online) -->
+                <div id="loginPasswordContainer" class="login-input hidden">
+                    <input id="loginPassword" type="password" placeholder="Tu contraseña" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-4" onkeypress="if(event.key==='Enter') handleLogin()">
+                </div>
+                
+                <!-- Input URL API (solo modo online) -->
+                <div id="loginApiUrlContainer" class="login-input mb-4 hidden">
+                    <input id="loginApiUrl" type="url" placeholder="URL de la API (opcional)" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm" value="http://jayrus10.atwebpages.com/public/api">
+                    <p class="text-xs text-zinc-500 mt-1">Deja el valor por defecto si ya está configurado</p>
+                </div>
+                
                 <div class="login-btn">
                     <button onclick="handleLogin()" class="btn-primary w-full py-3 rounded-xl font-medium mb-3 text-white">Ingresar</button>
                 </div>
@@ -938,7 +961,56 @@
         </div>
     </div>
 
-<script src="vexto.js"></script>
+<script src="vexto.local.js"></script>
+<script>
+    // Función para cargar el script de modo online dinámicamente
+    async function loadOnlineScript() {
+        return new Promise((resolve, reject) => {
+            // Verificar si ya está cargado
+            if (typeof apiLogin === 'function') {
+                resolve();
+                return;
+            }
+            
+            var onlineScript = document.createElement('script');
+            onlineScript.src = 'vexto.online.js';
+            onlineScript.onload = resolve;
+            onlineScript.onerror = reject;
+            document.head.appendChild(onlineScript);
+        });
+    }
+    
+    // Función para cargar el script de modo local dinámicamente
+    function loadLocalScript() {
+        // El script local ya está cargado por defecto
+        return Promise.resolve();
+    }
+    
+    // Guardar referencia a la función original de handleLogin
+    var originalHandleLogin = handleLogin;
+    
+    // Sobrescribir handleLogin para cargar el script correspondiente
+    handleLogin = async function() {
+        const isOnlineMode = localStorage.getItem('vexto_use_online') === 'true';
+        
+        if (isOnlineMode) {
+            try {
+                await loadOnlineScript();
+                // Ahora debería existir handleLoginOnline
+                if (typeof handleLoginOnline === 'function' && typeof apiLogin === 'function') {
+                    await handleLoginOnline();
+                    return;
+                }
+            } catch (error) {
+                console.error('Error cargando modo online:', error);
+                showToast('Error al cargar modo online, usando modo local', 'warning');
+            }
+        }
+        
+        // Fallback a modo local
+        handleLoginLocal();
+    };
+</script>
 
 </body>
 </html>

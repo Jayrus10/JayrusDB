@@ -21,6 +21,7 @@ package.json
 # Archivos de reporte de cambios
 REPORTE_CAMBIOS.md
 DB_UPD.md
+progreso.md
 
 # Archivos de estado del servidor (configuración)
 **/server_state.json
