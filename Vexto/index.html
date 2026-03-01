@@ -54,21 +54,29 @@
 
     <!-- LOGIN -->
     <div id="loginPage" class="login-container min-h-screen flex flex-col items-center justify-center bg-zinc-950 p-4 overflow-auto">
-        <div class="mb-12 text-center">
+        <!-- Background effect -->
+        <div class="login-bg-effect"></div>
+        <div class="mb-12 text-center login-logo">
             <div class="flex items-center justify-center gap-3 mb-3">
                 <img src="Vexto_Logo.svg" alt="Vexto Logo" class="w-50 h-20 rounded-2xl object-contain my-1">
             </div>
             <p class="text-zinc-400 text-sm mt-3 font-medium">Gestor de inventario, compras y ventas</p>
         </div>
         <div class="w-full max-w-md">
-            <div class="login-card p-8 rounded-2xl">
-                <h2 class="text-3xl font-bold mb-8 text-center text-zinc-100">Bienvenido</h2>
-                <input id="loginUser" placeholder="Tu nombre" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-6" onkeypress="if(event.key==='Enter') handleLogin()">
-                <button onclick="handleLogin()" class="btn-primary w-full py-3 rounded-xl font-medium mb-3 text-white">Ingresar</button>
-                <button onclick="showWarningModal()" class="w-full bg-zinc-800 hover:bg-zinc-700 py-2 rounded-lg text-sm text-zinc-400 transition-colors">ℹ️ Ver información importante</button>
+            <div class="login-card p-8 rounded-2xl relative overflow-hidden">
+                <h2 class="text-3xl font-bold mb-8 text-center text-zinc-100 login-title">Bienvenido</h2>
+                <div class="login-input">
+                    <input id="loginUser" placeholder="Tu nombre" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-6" onkeypress="if(event.key==='Enter') handleLogin()">
+                </div>
+                <div class="login-btn">
+                    <button onclick="handleLogin()" class="btn-primary w-full py-3 rounded-xl font-medium mb-3 text-white">Ingresar</button>
+                </div>
+                <div class="login-info-btn">
+                    <button onclick="showWarningModal()" class="w-full bg-zinc-800 hover:bg-zinc-700 py-2 rounded-lg text-sm text-zinc-400 transition-colors">ℹ️ Ver información importante</button>
+                </div>
             </div>
         </div>
-        <div class="mt-6 flex flex-col gap-2 text-center">
+        <div class="mt-6 flex flex-col gap-2 text-center login-links">
             <a href="https://github.com/Jayrus10/JayrusDB/Vexto" class="text-blue-500 hover:underline text-sm">GitHub (código fuente, Licencias y otros)</a>
             <a href="https://t.me/mrjayrus" class="text-blue-500 hover:underline text-sm">Soporte Técnico (Telegram)</a>
         </div>

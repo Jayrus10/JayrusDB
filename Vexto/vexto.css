@@ -165,6 +165,224 @@
             background: linear-gradient(145deg, #27272a, #18181b);
             border: 1px solid #3f3f46;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: loginCardEnter 0.6s cubic-bezier(0.34, 3.56, 0.64, 1) forwards;
+            opacity: 0;
+            transform: translateY(20px) scale(0.98);
+        }
+        
+        @keyframes loginCardEnter {
+            0% {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        /* Login logo animation */
+        .login-logo {
+            animation: logoFadeIn 0.8s ease forwards;
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        
+        @keyframes logoFadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Login title animation */
+        .login-title {
+            animation: titleFadeIn 0.6s ease 0.3s forwards;
+            opacity: 0;
+        }
+        
+        @keyframes titleFadeIn {
+            0% {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        /* Login inputs animation */
+        .login-input {
+            animation: inputFadeIn 0.5s ease 0.4s forwards;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        
+        @keyframes inputFadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Login button animation */
+        .login-btn {
+            animation: btnFadeIn 0.5s ease 0.5s forwards;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        
+        @keyframes btnFadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Login info button animation */
+        .login-info-btn {
+            animation: btnFadeIn 0.5s ease 0.6s forwards;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        
+        /* Login links animation */
+        .login-links {
+            animation: linksFadeIn 0.5s ease 0.7s forwards;
+            opacity: 0;
+        }
+        
+        @keyframes linksFadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Pulsing glow effect for login card */
+        .login-card::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: inherit;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), transparent, rgba(16, 185, 129, 0.1));
+            opacity: 0;
+            animation: cardGlow 3s ease-in-out infinite 1s;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        @keyframes cardGlow {
+            0%, 100% {
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+        
+        /* Floating particles background for login */
+        .login-bg-effect {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+        
+        .login-bg-effect::before,
+        .login-bg-effect::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.15;
+            animation: floatParticle 8s ease-in-out infinite;
+        }
+        
+        .login-bg-effect::before {
+            background: #10b981;
+            top: -100px;
+            right: -50px;
+            animation-delay: 0s;
+        }
+        
+        .login-bg-effect::after {
+            background: #06b6d4;
+            bottom: -100px;
+            left: -50px;
+            animation-delay: -4s;
+        }
+        
+        @keyframes floatParticle {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+            }
+            33% {
+                transform: translate(30px, -30px) scale(1.1);
+            }
+            66% {
+                transform: translate(-20px, 20px) scale(0.9);
+            }
+        }
+        
+        /* Input focus animation */
+        .login-input input {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .login-input input:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+        
+        /* Button hover ripple effect */
+        .login-btn button {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-btn button::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+        
+        .login-btn button:hover::after {
+            transform: translateX(100%);
+        }
+        
+        /* Login error shake animation */
+        @keyframes loginShake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        .login-card.shake {
+            animation: loginShake 0.5s ease, loginCardEnter 0.6s cubic-bezier(0.34, 3.56, 0.64, 1) forwards;
         }
         
         /* Smooth section transitions */
