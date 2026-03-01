@@ -23,11 +23,11 @@
     </div>
 
     <!-- Notifications Panel -->
-    <div id="notificationsPanel" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4 z-50">
-        <div class="bg-zinc-900 w-full max-w-lg rounded-3xl p-6 md:p-8 max-h-[90vh] overflow-y-auto my-4 md:my-0" style="animation: scaleUp .32s cubic-bezier(0.34,3.56,0.64,1)">
+    <div id="notificationsPanel" class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4 z-50 backdrop-blur-sm">
+        <div class="modal-content w-full max-w-lg rounded-3xl p-6 md:p-8 max-h-[90vh] overflow-y-auto my-4 md:my-0" style="animation: scaleUp .32s cubic-bezier(0.34,3.56,0.64,1)">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-xl font-bold flex items-center gap-2">🔔 Notificaciones</h3>
-                <button onclick="hideNotificationsPanel()" class="text-red-400 hover:text-red-300 text-2xl">&times;</button>
+                <button onclick="hideNotificationsPanel()" class="text-red-400 hover:text-red-300 text-2xl transition-colors">&times;</button>
             </div>
             
             <!-- Low Stock Section -->
@@ -48,36 +48,35 @@
                 <div id="notificationsDebtors" class="space-y-2"></div>
             </div>
             
-            <button onclick="hideNotificationsPanel()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 rounded-2xl font-medium">Cerrar</button>
+            <button onclick="hideNotificationsPanel()" class="w-full py-3 btn-primary rounded-2xl font-medium">Cerrar</button>
         </div>
     </div>
 
     <!-- LOGIN -->
-    <div id="loginPage" class="min-h-screen flex flex-col items-center justify-center bg-zinc-950 p-4 overflow-auto">
+    <div id="loginPage" class="login-container min-h-screen flex flex-col items-center justify-center bg-zinc-950 p-4 overflow-auto">
         <div class="mb-12 text-center">
             <div class="flex items-center justify-center gap-3 mb-3">
                 <img src="Vexto_Logo.svg" alt="Vexto Logo" class="w-50 h-20 rounded-2xl object-contain my-1">
             </div>
-            <p class="text-zinc-400 text-sm mt-1">Gestor de inventario, compras y ventas</p>
+            <p class="text-zinc-400 text-sm mt-3 font-medium">Gestor de inventario, compras y ventas</p>
         </div>
         <div class="w-full max-w-md">
-            <div class="bg-zinc-900 p-8 rounded-2xl">
-                <h2 class="text-3xl font-bold mb-8 text-center">Bienvenido</h2>
-                <input id="loginUser" placeholder="Tu nombre" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 mb-6" onkeypress="if(event.key==='Enter') handleLogin()">
-                <button onclick="handleLogin()" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-lg font-medium mb-3">Ingresar</button>
-                <button onclick="showWarningModal()" class="w-full bg-zinc-800 hover:bg-zinc-700 py-2 rounded-lg text-sm text-zinc-400">ℹ️ Ver información importante</button>
+            <div class="login-card p-8 rounded-2xl">
+                <h2 class="text-3xl font-bold mb-8 text-center text-zinc-100">Bienvenido</h2>
+                <input id="loginUser" placeholder="Tu nombre" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 mb-6" onkeypress="if(event.key==='Enter') handleLogin()">
+                <button onclick="handleLogin()" class="btn-primary w-full py-3 rounded-xl font-medium mb-3 text-white">Ingresar</button>
+                <button onclick="showWarningModal()" class="w-full bg-zinc-800 hover:bg-zinc-700 py-2 rounded-lg text-sm text-zinc-400 transition-colors">ℹ️ Ver información importante</button>
             </div>
         </div>
-        <a href="https://github.com/Jayrus10/JayrusDB/Vexto" class="text-blue-500 hover:underline mt-3">GitHub (código fuente, Licencias y otros)</a>
-        <a href="https://t.me/mrjayrus" class="text-blue-500 hover:underline">Soporte Técnico (Telegram)</a>
-        <div class="hidden">
-            </div>
+        <div class="mt-6 flex flex-col gap-2 text-center">
+            <a href="https://github.com/Jayrus10/JayrusDB/Vexto" class="text-blue-500 hover:underline text-sm">GitHub (código fuente, Licencias y otros)</a>
+            <a href="https://t.me/mrjayrus" class="text-blue-500 hover:underline text-sm">Soporte Técnico (Telegram)</a>
         </div>
     </div>
 
     <!-- Warning Modal -->
-    <div id="warningModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-        <div class="bg-zinc-900 w-full max-w-md rounded-2xl p-6">
+    <div id="warningModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+        <div class="modal-content w-full max-w-md rounded-2xl p-6">
             <h3 class="text-xl font-bold mb-4 text-red-400 flex items-center gap-2">⚠️ Aviso Importante</h3>
             <div class="space-y-3 mb-6">
                 <div class="text-sm"><p class="font-semibold text-emerald-400 mb-1">📱 Datos temporales</p><p class="text-zinc-300">Los datos se almacenan localmente en este navegador. Si borras el caché, se perderán.</p></div>
@@ -86,28 +85,28 @@
                 <div class="text-sm"><p class="font-semibold text-emerald-400 mb-1">👤 Privacidad</p><p class="text-zinc-300">Cada navegador tiene su propia base de datos independiente.</p></div>
                 <div class="text-sm"><p class="font-semibold text-emerald-400 mb-1">ℹ️ Versión de prueba</p><p class="text-zinc-300">No es recomendado empezar a usar la aplicación en su estado actual (beta).</p></div>
             </div>
-            <button onclick="hideWarningModal()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-medium">De acuerdo</button>
+            <button onclick="hideWarningModal()" class="w-full py-3 btn-primary rounded-lg font-medium">De acuerdo</button>
         </div>
     </div>
 
     <!-- Currency Info Modal -->
     <div id="modalCurrencyInfo" 
-         class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4 transition-opacity duration-300 opacity-0">
+         class="hidden fixed inset-0 bg-black/80 flex items-start md:items-center justify-center overflow-auto p-4 transition-opacity duration-300 opacity-0 backdrop-blur-sm">
 
         <div id="modalCurrencyInfoBox"
-             class="bg-zinc-900 w-full max-w-md rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0
+             class="modal-content w-full max-w-md rounded-3xl p-6 md:p-8 max-h-[95vh] overflow-y-auto my-4 md:my-0
                 transform scale-95 transition-transform duration-300">
         
             <div class="flex justify-between items-center mb-4">
                 <h3 id="currencyInfoTitle" class="text-lg md:text-xl font-bold">Detalle</h3>
-                <button onclick="hideCurrencyInfo()" class="text-red-400 hover:text-red-300 text-xl">&times;</button>
+                <button onclick="hideCurrencyInfo()" class="text-red-400 hover:text-red-300 text-xl transition-colors">&times;</button>
             </div>
 
         <div id="currencyInfoContent" class="space-y-2 text-sm"></div>
 
         <div class="mt-6">
             <button onclick="hideCurrencyInfo()" 
-                    class="w-full py-3 bg-emerald-600 rounded-2xl text-sm">
+                    class="w-full py-3 btn-primary rounded-2xl text-sm">
                 Cerrar
             </button>
         </div>
@@ -116,38 +115,38 @@
 
     <!-- APP -->
     <div id="app" class="hidden min-h-screen bg-zinc-950">
-        <div class="bg-zinc-900 border-b border-zinc-800 px-2 md:px-3 py-3 md:py-4 flex justify-between items-center gap-2">
+        <div class="bg-zinc-900 border-b border-zinc-800 px-2 md:px-3 py-3 md:py-4 flex justify-between items-center gap-2 shadow-lg">
             <button class="mobile-menu-btn hidden text-2xl" onclick="toggleMobileMenu()">☰</button>
             <div class="flex items-center gap-2 md:gap-3">
                 <img src="Vexto_Logo.svg" alt="Vexto Logo" class="hidden md:block w-25 h-10 rounded-xl object-contain my-1">
                 <div class="flex items-center gap-2">
                     <div class="font-semibold text-sm" id="currentUser"></div>
-                    <button onclick="showNotificationsPanel()" id="lowStockBadge" class="hidden bg-red-600 hover:bg-red-500 text-white text-xs px-2 py-0.5 rounded-full cursor-pointer" title="Ver notificaciones">🔔 <span id="lowStockCount">0</span></button>
+                    <button onclick="showNotificationsPanel()" id="lowStockBadge" class="hidden bg-red-600 hover:bg-red-500 text-white text-xs px-2 py-0.5 rounded-full cursor-pointer transition-colors" title="Ver notificaciones">🔔 <span id="lowStockCount">0</span></button>
                 </div>
-                <div class="text-xs text-zinc-500" id="appVersion">v1.1.7 beta</div>
+                <div class="text-xs text-zinc-500" id="appVersion">v1.1.8 beta</div>
             </div>
             <div class="flex gap-1 md:gap-2 flex-wrap justify-end">
-                <button onclick="importData()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">📥 <span class="hidden md:inline">Importar</span></button>
-                <button onclick="exportData()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">📤 <span class="hidden md:inline">Exportar</span></button>
-                <button onclick="showBusinessCardsInfo()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">💳 <span class="hidden md:inline">Tarjetas</span></button>
-                <button onclick="showAudit()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm">📋 <span class="hidden md:inline">Auditoría</span></button>
-                <button onclick="logout()" class="px-2 py-1 md:px-3 md:py-2 bg-red-600 hover:bg-red-500 rounded-lg text-xs md:text-sm">Salir</button>
+                <button onclick="importData()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm transition-colors">📥 <span class="hidden md:inline">Importar</span></button>
+                <button onclick="exportData()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm transition-colors">📤 <span class="hidden md:inline">Exportar</span></button>
+                <button onclick="showBusinessCardsInfo()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm transition-colors">💳 <span class="hidden md:inline">Tarjetas</span></button>
+                <button onclick="showAudit()" class="px-2 py-1 md:px-3 md:py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-xs md:text-sm transition-colors">📋 <span class="hidden md:inline">Auditoría</span></button>
+                <button onclick="logout()" class="px-2 py-1 md:px-3 md:py-2 bg-red-600 hover:bg-red-500 rounded-lg text-xs md:text-sm transition-colors">Salir</button>
             </div>
         </div>
 
         <div class="app-container">
             <!-- NAV -->
             <div class="app-nav bg-zinc-900 border-r border-zinc-800 min-h-[calc(100vh-73px)] p-3">
-                <div onclick="showSection('dashboard')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center justify-between text-sm"><span>📊 Dashboard</span><span class="text-xs text-zinc-600">Resumen</span></div>
-                <div onclick="showSection('products')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center justify-between text-sm"><span>📦 Productos</span><span class="text-xs text-zinc-600">Inventario</span></div>
-                <div onclick="showSection('discounts')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center justify-between text-sm"><span>🏷️ Descuentos</span><span class="text-xs text-zinc-600">Ofertas</span></div>
-                <div onclick="showSection('customers')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center justify-between text-sm"><span>👥 Clientes</span><span class="text-xs text-zinc-600">Cartera</span></div>
-                <div onclick="showSection('providers')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center justify-between text-sm"><span>🏭 Proveedores</span><span class="text-xs text-zinc-600">Suministros</span></div>
-                <div onclick="showSection('purchases')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center justify-between text-sm"><span>🛒 Compras</span><span class="text-xs text-zinc-600">Lotes</span></div>
-                <div onclick="showSection('sales')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center justify-between text-sm"><span>💰 Ventas</span><span class="text-xs text-zinc-600">Historial</span></div>
-                <div onclick="showSection('reports')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center justify-between text-sm"><span>📈 Reportes</span><span class="text-xs text-zinc-600">Estadísticas</span></div>
-                <div onclick="showSection('settings')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center justify-between text-sm"><span>⚙️ Ajustes</span><span class="text-xs text-zinc-600">Config</span></div>
-                <div onclick="showSection('info')" class="px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center justify-between text-sm"><span>ℹ️ Información</span><span class="text-xs text-zinc-600">Ayuda</span></div>
+                <div onclick="showSection('dashboard')" class="nav-item px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center justify-between text-sm"><span>📊 Dashboard</span><span class="text-xs text-zinc-600">Resumen</span></div>
+                <div onclick="showSection('products')" class="nav-item px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center justify-between text-sm"><span>📦 Productos</span><span class="text-xs text-zinc-600">Inventario</span></div>
+                <div onclick="showSection('discounts')" class="nav-item px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center justify-between text-sm"><span>🏷️ Descuentos</span><span class="text-xs text-zinc-600">Ofertas</span></div>
+                <div onclick="showSection('customers')" class="nav-item px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center justify-between text-sm"><span>👥 Clientes</span><span class="text-xs text-zinc-600">Cartera</span></div>
+                <div onclick="showSection('providers')" class="nav-item px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center justify-between text-sm"><span>🏭 Proveedores</span><span class="text-xs text-zinc-600">Suministros</span></div>
+                <div onclick="showSection('purchases')" class="nav-item px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center justify-between text-sm"><span>🛒 Compras</span><span class="text-xs text-zinc-600">Lotes</span></div>
+                <div onclick="showSection('sales')" class="nav-item px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center justify-between text-sm"><span>💰 Ventas</span><span class="text-xs text-zinc-600">Historial</span></div>
+                <div onclick="showSection('reports')" class="nav-item px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center justify-between text-sm"><span>📈 Reportes</span><span class="text-xs text-zinc-600">Estadísticas</span></div>
+                <div onclick="showSection('settings')" class="nav-item px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center justify-between text-sm"><span>⚙️ Ajustes</span><span class="text-xs text-zinc-600">Config</span></div>
+                <div onclick="showSection('info')" class="nav-item px-3 py-2 hover:bg-zinc-800 rounded-xl cursor-pointer mb-1 flex items-center justify-between text-sm"><span>ℹ️ Información</span><span class="text-xs text-zinc-600">Ayuda</span></div>
             </div>
 
             <!-- CONTENT -->
@@ -157,22 +156,22 @@
                 <div id="dashboard" class="section active">
                     <h2 class="text-2xl font-bold mb-6">Dashboard</h2>
                     <div class="grid grid-cols-4 gap-6">
-                        <div class="bg-zinc-900 p-6 rounded-3xl">
+                        <div class="card stat-card p-6 rounded-3xl">
                             <div class="text-zinc-400 text-sm flex items-center gap-1">Valor stock <button onclick="showToast('📦 Es el costo total de tu inventario (cantidad × precio de costo)', 'info', 5000)" class="text-zinc-500 hover:text-zinc-300 text-xs">ℹ️</button></div>
                             <div id="dashStockValue" class="text-4xl font-bold text-emerald-400 mt-2"></div>
                         </div>
-                        <div class="bg-zinc-900 p-6 rounded-3xl">
+                        <div class="card stat-card p-6 rounded-3xl">
                             <div class="text-zinc-400 text-sm flex items-center gap-1">Deudores <button onclick="showToast('💰 Total de dinero que te deben por ventas al fiado', 'info', 5000)" class="text-zinc-500 hover:text-zinc-300 text-xs">ℹ️</button></div>
                             <div id="dashDebt" class="text-4xl font-bold text-amber-400 mt-2"></div>
                         </div>
-                        <div class="bg-zinc-900 p-6 rounded-3xl">
+                        <div class="card stat-card p-6 rounded-3xl">
                             <div class="text-zinc-400 text-sm flex items-center gap-1">Ganancia hoy <button onclick="showToast('📈 Ganancias de hoy (solo ventas cobradas, sin deudas)', 'info', 5000)" class="text-zinc-500 hover:text-zinc-300 text-xs">ℹ️</button></div>
                             <div class="flex items-end gap-2">
                                 <div id="dashTodayProfit" class="text-4xl font-bold text-emerald-400 mt-2"></div>
                                 <button onclick="showDailyReport()" class="text-zinc-400 hover:text-zinc-200 text-sm mb-2" title="Ver reporte detallado">📋</button>
                             </div>
                         </div>
-                        <div class="bg-zinc-900 p-6 rounded-3xl">
+                        <div class="card stat-card p-6 rounded-3xl">
                             <div class="text-zinc-400 text-sm flex items-center gap-1">Ventas del mes <button onclick="showToast('💵 Total de ventas de este mes (incluye deudas)', 'info', 5000)" class="text-zinc-500 hover:text-zinc-300 text-xs">ℹ️</button></div>
                             <div id="dashMonthSales" class="text-4xl font-bold text-sky-400 mt-2"></div>
                         </div>
@@ -181,7 +180,7 @@
                     <!-- Segunda fila: Comparación semanal y Compras en camino -->
                     <div class="grid grid-cols-2 gap-6 mt-6">
                         <!-- Comparación semanal -->
-                        <div class="bg-zinc-900 p-6 rounded-3xl">
+                        <div class="card p-6 rounded-3xl">
                             <h3 class="text-lg font-semibold mb-4 flex items-center gap-1">📊 Tendencia semanal <button onclick="showToast('Compara tus ventas de esta semana con la anterior para ver tendencias', 'info', 5000)" class="text-zinc-500 hover:text-zinc-300 text-xs">ℹ️</button></h3>
                             <div class="flex items-end gap-4 h-32">
                                 <div class="flex-1 flex flex-col items-center">
@@ -199,7 +198,7 @@
                         </div>
                         
                         <!-- Compras en camino -->
-                        <div class="bg-zinc-900 p-6 rounded-3xl">
+                        <div class="card p-6 rounded-3xl">
                             <h3 class="text-lg font-semibold mb-4 flex items-center gap-1">🚚 Compras en camino <button onclick="showToast('Son pedidos hechos a proveedores que aún no han llegado. El valor es lo que debes.', 'info', 5000)" class="text-zinc-500 hover:text-zinc-300 text-xs">ℹ️</button></h3>
                             <div id="inTransitCount" class="text-3xl font-bold text-amber-400 mb-2">0</div>
                             <div class="text-sm text-zinc-400 mb-4">pedidos pendientes</div>
@@ -212,7 +211,7 @@
                     <!-- Tercera fila: Top productos y Acciones rápidas -->
                     <div class="grid grid-cols-2 gap-6 mt-6">
                         <!-- Top productos -->
-                        <div class="bg-zinc-900 p-6 rounded-3xl">
+                        <div class="card p-6 rounded-3xl">
                             <h3 class="text-lg font-semibold mb-4 flex items-center gap-1">🏆 Top productos del mes <button onclick="showToast('Productos más vendidos este mes por cantidad', 'info', 5000)" class="text-zinc-500 hover:text-zinc-300 text-xs">ℹ️</button></h3>
                             <div id="topProductsList" class="space-y-3">
                                 <div class="text-zinc-500 text-sm text-center py-4">Sin ventas este mes</div>
@@ -220,18 +219,18 @@
                         </div>
                         
                         <!-- Acciones rápidas -->
-                        <div class="bg-zinc-900 p-6 rounded-3xl">
+                        <div class="card p-6 rounded-3xl">
                             <h3 class="text-lg font-semibold mb-4 flex items-center gap-1">⚡ Acciones rápidas <button onclick="showToast('Accesos directos a las funciones más usadas', 'info', 5000)" class="text-zinc-500 hover:text-zinc-300 text-xs">ℹ️</button></h3>
                             <div class="grid grid-cols-2 gap-3">
-                                <button onclick="showQuickSale()" class="bg-emerald-600 hover:bg-emerald-500 p-4 rounded-2xl font-semibold" title="Crear una venta rápida">💰 Venta rápida</button>
-                                <button onclick="showSection('products'); showAddProduct()" class="bg-zinc-700 hover:bg-zinc-600 p-4 rounded-2xl font-semibold" title="Agregar nuevo producto al inventario">📦 Nuevo producto</button>
-                                <button onclick="showSection('purchases'); showAddPurchase()" class="bg-zinc-700 hover:bg-zinc-600 p-4 rounded-2xl font-semibold" title="Registrar una compra a proveedor">🛒 Nueva compra</button>
-                                <button onclick="showSection('reports')" class="bg-zinc-700 hover:bg-zinc-600 p-4 rounded-2xl font-semibold" title="Ver ganancias, deudas y estadísticas">📈 Ver reportes</button>
+                                <button onclick="showQuickSale()" class="btn-primary p-4 rounded-2xl font-semibold" title="Crear una venta rápida">💰 Venta rápida</button>
+                                <button onclick="showSection('products'); showAddProduct()" class="bg-zinc-700 hover:bg-zinc-600 p-4 rounded-2xl font-semibold transition-colors" title="Agregar nuevo producto al inventario">📦 Nuevo producto</button>
+                                <button onclick="showSection('purchases'); showAddPurchase()" class="bg-zinc-700 hover:bg-zinc-600 p-4 rounded-2xl font-semibold transition-colors" title="Registrar una compra a proveedor">🛒 Nueva compra</button>
+                                <button onclick="showSection('reports')" class="bg-zinc-700 hover:bg-zinc-600 p-4 rounded-2xl font-semibold transition-colors" title="Ver ganancias, deudas y estadísticas">📈 Ver reportes</button>
                             </div>
                         </div>
                     </div>
                     
-                    <button onclick="showQuickSale()" class="mt-8 mx-auto block bg-emerald-600 hover:bg-emerald-500 text-2xl font-bold px-16 py-8 rounded-3xl" title="Crear una nueva venta">+ VENTA RÁPIDA</button>
+                    <button onclick="showQuickSale()" class="mt-8 mx-auto block btn-primary text-2xl font-bold px-16 py-8 rounded-3xl" title="Crear una nueva venta">+ VENTA RÁPIDA</button>
                 </div>
 
                 <!-- PRODUCTOS -->
@@ -356,7 +355,7 @@
                 <!-- REPORTES -->
                 <div id="reports" class="section">
                     <h2 class="text-2xl font-bold mb-6">Reportes</h2>
-                    <div class="bg-zinc-900 p-6 rounded-3xl mb-4">
+                    <div class="card p-6 rounded-3xl mb-4">
                         <div class="grid grid-cols-2 gap-8">
                             <div><div class="text-sm text-zinc-400">Ganancia neta total</div><div id="totalProfit" class="text-5xl font-bold text-emerald-400"></div></div>
                             <div><div class="text-sm text-zinc-400">Costo mercancía vendida</div><div id="totalCOGS" class="text-5xl font-bold text-zinc-400"></div></div>
@@ -384,7 +383,7 @@
                         </div>
                         <button onclick="toggleDebtBreakdown()" class="mt-3 text-xs text-zinc-500 hover:text-zinc-300">Ver detalle por cliente ▾</button>
                     </div>
-                    <div class="bg-zinc-900 p-6 rounded-3xl mt-6">
+                    <div class="card p-6 rounded-3xl mt-6">
                         <h3 class="text-lg font-semibold mb-4">Resumen del mes (CUP)</h3>
                         <canvas id="currentMonthChart"></canvas>
                     </div>

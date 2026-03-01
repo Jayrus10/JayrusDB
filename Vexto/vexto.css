@@ -64,3 +64,158 @@
         .animate-slideIn {
             animation: slideIn 0.3s ease forwards;
         }
+        
+        /* Improved card styles */
+        .card {
+            background: linear-gradient(145deg, #18181b, #27272a);
+            border: 1px solid #3f3f46;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            border-color: #52525b;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        /* Improved button styles */
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981, #059669);
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #34d399, #10b981);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+            transform: translateY(-1px);
+        }
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        /* Improved nav items */
+        .nav-item {
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            background: #10b981;
+            border-radius: 0 4px 4px 0;
+            transition: width 0.2s ease;
+            opacity: 0;
+        }
+        .nav-item:hover::before {
+            width: 3px;
+            opacity: 1;
+        }
+        
+        /* Better table styles */
+        table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        table th {
+            background: #18181b;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        table td, table th {
+            border-bottom: 1px solid #27272a;
+        }
+        table tr:hover td {
+            background: rgba(39, 39, 42, 0.5);
+        }
+        
+        /* Improved input styles */
+        input, select, textarea {
+            transition: all 0.2s ease;
+            border: 1px solid #3f3f46;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+            outline: none;
+        }
+        
+        /* Modal backdrop blur */
+        .modal-backdrop-blur {
+            backdrop-filter: blur(8px);
+        }
+        
+        /* Improved modal */
+        .modal-content {
+            background: linear-gradient(180deg, #27272a, #18181b);
+            border: 1px solid #3f3f46;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Login page improvements */
+        .login-container {
+            background: linear-gradient(135deg, #09090b 0%, #18181b 50%, #09090b 100%);
+        }
+        .login-card {
+            background: linear-gradient(145deg, #27272a, #18181b);
+            border: 1px solid #3f3f46;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Smooth section transitions */
+        .section {
+            animation: fadeInSection 0.3s ease;
+        }
+        @keyframes fadeInSection {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Better scrollbar for content areas */
+        .app-content ::-webkit-scrollbar,
+        .section ::-webkit-scrollbar {
+            width: 8px;
+        }
+        .app-content ::-webkit-scrollbar-track,
+        .section ::-webkit-scrollbar-track {
+            background: #18181b;
+        }
+        .app-content ::-webkit-scrollbar-thumb,
+        .section ::-webkit-scrollbar-thumb {
+            background: #52525b;
+            border-radius: 4px;
+        }
+        
+        /* Improved stat cards */
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        
+        /* Better focus states */
+        button:focus-visible,
+        a:focus-visible,
+        input:focus-visible {
+            outline: 2px solid #10b981;
+            outline-offset: 2px;
+        }
+        
+        /* Table row hover animation */
+        tbody tr {
+            transition: background-color 0.15s ease;
+        }
